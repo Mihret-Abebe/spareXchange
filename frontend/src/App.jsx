@@ -59,6 +59,7 @@ function App() {
 
 	return (
 		<div className='min-h-screen flex flex-col bg-gray-900'>
+			<Navbar />
 			<Routes>
 				<Route path='/' element={<LandingPage />} />
 				<Route
@@ -66,7 +67,6 @@ function App() {
 					element={
 						<ProtectedRoute>
 							<>
-								<Navbar />
 								<MarketplacePage />
 							</>
 						</ProtectedRoute>
@@ -77,7 +77,6 @@ function App() {
 					element={
 						<ProtectedRoute>
 							<>
-								<Navbar />
 								<ListingDetailPage />
 							</>
 						</ProtectedRoute>
@@ -88,7 +87,6 @@ function App() {
 					element={
 						<ProtectedRoute>
 							<>
-								<Navbar />
 								<ProfilePage />
 							</>
 						</ProtectedRoute>
@@ -136,9 +134,9 @@ function App() {
 						</RedirectAuthenticatedUser>
 					}
 				/>
-				<Route path='/about' element={<AboutPage />} />
-				<Route path='/faq' element={<FaqPage />} />
-				<Route path='/contact' element={<ContactPage />} />
+				<Route path='/about' element={<><AboutPage /></>} />
+				<Route path='/faq' element={<><FaqPage /></>} />
+				<Route path='/contact' element={<><ContactPage /></>} />
 				{/* catch all routes */}
 				<Route path='*' element={<Navigate to='/' replace />} />
 			</Routes>

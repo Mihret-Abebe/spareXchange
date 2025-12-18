@@ -1,10 +1,29 @@
-import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Search, ShoppingCart, User, Package, Leaf, Home, Info, HelpCircle, Phone } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, ShoppingCart, User, Package, Leaf, Home, Info, HelpCircle, Phone, LogOut, LogIn, Moon, Sun } from "lucide-react";
+import { useAuthStore } from "../store/authStore";
 
 const Navbar = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const [darkMode, setDarkMode] = useState(false);
 	const location = useLocation();
+	const navigate = useNavigate();
+	const { isAuthenticated, user, logout, isLoading } = useAuthStore();
+
+	useEffect(() => {
+		// Check system preference for dark mode
+		const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+		setDarkMode(prefersDark);
+	}, []);
+
+	useEffect(() => {
+		// Apply dark mode class to document
+		if (darkMode) {
+			document.documentElement.classList.add('dark');
+		} else {
+			document.documentElement.classList.remove('dark');
+		}
+	}, [darkMode]);
 
 	const navLinks = [
 		{ name: "Home", path: "/", icon: Home },
@@ -49,24 +68,50 @@ const Navbar = () => {
 						))}
 					</div>
 
-					{/* Search and Actions */}
+					{/* Actions */}
 					<div className='hidden md:flex items-center space-x-4'>
-						<div className='relative'>
-							<div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-								<Search className='h-4 w-4 text-gray-400' />
-							</div>
-							<input
-								type='text'
-								placeholder='Search...'
-								className='pl-10 pr-4 py-2 bg-gray-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 w-40'
-							/>
-						</div>
+						<button 
+							className='p-2 rounded-full hover:bg-gray-800 transition duration-300'
+							onClick={() => setDarkMode(!darkMode)}
+						>
+							{darkMode ? <Sun size={20} className='text-yellow-400' /> : <Moon size={20} className='text-gray-300' />}
+						</button>
 						<button className='p-2 rounded-full hover:bg-gray-800 transition duration-300'>
 							<ShoppingCart size={20} className='text-gray-300' />
 						</button>
-						<Link to='/profile' className='p-2 rounded-full hover:bg-gray-800 transition duration-300'>
-							<User size={20} className='text-gray-300' />
-						</Link>
+
+						{isAuthenticated ? (
+							<div className='flex items-center space-x-2'>
+								{user?.ecoPoints !== undefined && (
+									<span className='text-xs px-2 py-1 rounded-full bg-emerald-700/30 text-green-300 border border-emerald-600/50'>
+										<Leaf className='inline mr-1 h-3 w-3' />
+										{user.ecoPoints}
+									</span>
+								)}
+								<Link to='/profile' className='p-2 rounded-full hover:bg-gray-800 transition duration-300'>
+									<User size={20} className='text-gray-300' />
+								</Link>
+								<button
+									disabled={isLoading}
+									onClick={async () => {
+										await logout();
+										navigate("/");
+									}}
+									className='p-2 rounded-full hover:bg-gray-800 transition duration-300 text-gray-300 disabled:opacity-50'
+								>
+									<LogOut size={20} />
+								</button>
+							</div>
+						) : (
+							<div className='flex items-center space-x-2'>
+								<Link to='/login' className='flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-800'>
+									<LogIn size={16} className='mr-2' /> Login
+								</Link>
+								<Link to='/signup' className='px-3 py-2 rounded-md text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-500'>
+									Sign Up
+								</Link>
+							</div>
+						)}
 					</div>
 
 					{/* Mobile menu button */}
@@ -100,31 +145,53 @@ const Navbar = () => {
 								</Link>
 							))}
 							<div className='pt-4 pb-3 border-t border-gray-700'>
-								<div className='flex items-center px-3'>
-									<div className='relative flex-grow'>
-										<div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-											<Search className='h-4 w-4 text-gray-400' />
-										</div>
-										<input
-											type='text'
-											placeholder='Search...'
-											className='pl-10 pr-4 py-2 bg-gray-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 w-full'
-										/>
+							<div className='flex items-center justify-between px-3'>
+								<button 
+									className='p-2 rounded-full hover:bg-gray-800 transition duration-300'
+									onClick={() => setDarkMode(!darkMode)}
+								>
+									{darkMode ? <Sun size={20} className='text-yellow-400' /> : <Moon size={20} className='text-gray-300' />}
+								</button>
+
+								{isAuthenticated ? (
+									<div className='flex items-center space-x-3'>
+										{user?.ecoPoints !== undefined && (
+											<span className='text-xs px-2 py-1 rounded-full bg-emerald-700/30 text-green-300 border border-emerald-600/50'>
+												<Leaf className='inline mr-1 h-3 w-3' />
+												{user.ecoPoints}
+											</span>
+										)}
+										<Link 
+											to='/profile' 
+											className='p-2 rounded-full hover:bg-gray-800 transition duration-300'
+											onClick={() => setIsMenuOpen(false)}
+										>
+											<User size={20} className='text-gray-300' />
+										</Link>
+										<button
+											disabled={isLoading}
+											onClick={async () => {
+												await logout();
+												navigate("/");
+												setIsMenuOpen(false);
+											}}
+											className='p-2 rounded-full hover:bg-gray-800 transition duration-300 text-gray-300 disabled:opacity-50'
+										>
+											<LogOut size={20} />
+										</button>
 									</div>
-								</div>
-								<div className='mt-3 flex items-center px-3 space-x-3'>
-									<button className='p-2 rounded-full hover:bg-gray-800 transition duration-300'>
-										<ShoppingCart size={20} className='text-gray-300' />
-									</button>
-									<Link 
-										to='/profile' 
-										className='p-2 rounded-full hover:bg-gray-800 transition duration-300'
-										onClick={() => setIsMenuOpen(false)}
-									>
-										<User size={20} className='text-gray-300' />
-									</Link>
-								</div>
+								) : (
+									<div className='flex items-center space-x-3'>
+										<Link to='/login' className='flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-800' onClick={() => setIsMenuOpen(false)}>
+											<LogIn size={16} className='mr-2' /> Login
+										</Link>
+										<Link to='/signup' className='px-3 py-2 rounded-md text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-500' onClick={() => setIsMenuOpen(false)}>
+											Sign Up
+										</Link>
+									</div>
+								)}
 							</div>
+						</div>
 						</div>
 					</div>
 				)}

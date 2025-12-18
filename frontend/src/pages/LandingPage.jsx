@@ -13,10 +13,11 @@ const LandingPage = () => {
 						y: ["0%", "100%", "0%"],
 						x: ["0%", "100%", "0%"],
 						scale: [1, 1.2, 1],
+						opacity: [0.1, 0.15, 0.1],
 					}}
 					transition={{
 						duration: 20,
-						ease: "linear",
+						ease: "easeInOut",
 						repeat: Infinity,
 					}}
 					style={{ top: "-10%", left: "10%" }}
@@ -27,57 +28,52 @@ const LandingPage = () => {
 						y: ["100%", "0%", "100%"],
 						x: ["0%", "100%", "0%"],
 						scale: [1, 1.3, 1],
+						opacity: [0.1, 0.2, 0.1],
 					}}
 					transition={{
 						duration: 25,
-						ease: "linear",
+						ease: "easeInOut",
 						repeat: Infinity,
 					}}
 					style={{ bottom: "-10%", right: "10%" }}
 				/>
+				<motion.div
+					className='absolute w-32 h-32 bg-lime-500 rounded-full opacity-10 blur-3xl'
+					animate={{
+						y: ["0%", "100%", "0%"],
+						x: ["100%", "0%", "100%"],
+						scale: [1, 1.1, 1],
+						opacity: [0.1, 0.15, 0.1],
+					}}
+					transition={{
+						duration: 30,
+						ease: "easeInOut",
+						repeat: Infinity,
+					}}
+					style={{ top: "30%", left: "70%" }}
+				/>
 			</div>
 
-			{/* Header */}
-			<header className='container mx-auto px-6 py-8 flex justify-between items-center relative z-10'>
-				<motion.h1
-					className='text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'
-					initial={{ opacity: 0, x: -20 }}
-					animate={{ opacity: 1, x: 0 }}
-					transition={{ duration: 0.5 }}
-				>
-					SpareXChange
-				</motion.h1>
-				<motion.div
-					initial={{ opacity: 0, x: 20 }}
-					animate={{ opacity: 1, x: 0 }}
-					transition={{ duration: 0.5 }}
-					className='space-x-4'
-				>
-					<Link
-						to='/login'
-						className='px-4 py-2 rounded-lg border border-green-500 text-green-400 hover:bg-green-500 hover:text-white transition duration-300'
-					>
-						Login
-					</Link>
-					<Link
-						to='/signup'
-						className='px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 transition duration-300'
-					>
-						Get Started
-					</Link>
-				</motion.div>
-			</header>
+			
 
 			{/* Hero Section */}
 			<section className='container mx-auto px-6 py-16 md:py-24 flex flex-col items-center text-center relative z-10'>
-				<motion.h1
-					className='text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-green-200 to-emerald-300 text-transparent bg-clip-text'
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.8 }}
+				<motion.div
+					initial={{ scale: 0.8, opacity: 0 }}
+					animate={{ scale: 1, opacity: 1 }}
+					transition={{ duration: 0.8, ease: 'easeOut' }}
+					className='relative mb-8'
 				>
-					Find, Buy & Sell Spare Parts
-				</motion.h1>
+					<div className='absolute -inset-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full blur-xl opacity-30 animate-pulse'></div>
+					<motion.h1
+						className='text-5xl md:text-7xl font-bold relative bg-gradient-to-r from-white via-green-200 to-emerald-300 text-transparent bg-clip-text'
+						initial={{ y: 20 }}
+						animate={{ y: 0 }}
+						transition={{ duration: 0.5, delay: 0.3 }}
+					>
+						Find, Buy & Sell Spare Parts
+					</motion.h1>
+				</motion.div>
 				<motion.p
 					className='text-xl text-gray-300 mb-10 max-w-3xl'
 					initial={{ opacity: 0, y: 20 }}
@@ -94,30 +90,41 @@ const LandingPage = () => {
 				>
 					<Link
 						to='/marketplace'
-						className='px-8 py-4 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-lg hover:from-green-600 hover:to-emerald-700 transition duration-300 shadow-lg hover:shadow-green-500/20'
+						className='px-8 py-4 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-lg hover:from-green-600 hover:to-emerald-700 transition duration-300 shadow-lg hover:shadow-green-500/30 relative overflow-hidden group'
 					>
-						Explore Marketplace
+						<span className='relative z-10'>Explore Marketplace</span>
+						<div className='absolute inset-0 bg-gradient-to-r from-emerald-600 to-green-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left'></div>
 					</Link>
 					<Link
 						to='/signup'
-						className='px-8 py-4 rounded-lg border-2 border-green-500 text-green-400 font-bold text-lg hover:bg-green-500 hover:text-white transition duration-300'
+						className='px-8 py-4 rounded-lg border-2 border-green-500 text-green-400 font-bold text-lg hover:bg-green-500 hover:text-white transition duration-300 relative overflow-hidden group'
 					>
-						Join the Community
+						<span className='relative z-10'>Join the Community</span>
+						<div className='absolute inset-0 bg-gradient-to-r from-green-600 to-emerald-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left'></div>
 					</Link>
 				</motion.div>
 			</section>
 
 			{/* Features Section */}
 			<section className='container mx-auto px-6 py-16 relative z-10'>
-				<motion.h2
-					className='text-4xl font-bold text-center mb-16 bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'
-					initial={{ opacity: 0, y: 20 }}
-					whileInView={{ opacity: 1, y: 0 }}
+				<motion.div
+					initial={{ scale: 0.8, opacity: 0 }}
+					whileInView={{ scale: 1, opacity: 1 }}
 					viewport={{ once: true }}
 					transition={{ duration: 0.6 }}
+					className='relative mb-16'
 				>
-					Platform Features
-				</motion.h2>
+					<div className='absolute -inset-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full blur-xl opacity-20'></div>
+					<motion.h2
+						className='text-4xl font-bold text-center relative bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'
+						initial={{ y: 20 }}
+						whileInView={{ y: 0 }}
+						viewport={{ once: true }}
+						transition={{ duration: 0.3 }}
+					>
+						Platform Features
+					</motion.h2>
+				</motion.div>
 				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
 					{[
 						{
@@ -153,14 +160,15 @@ const LandingPage = () => {
 					].map((feature, index) => (
 						<motion.div
 							key={index}
-							className='bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg rounded-2xl p-6 border border-gray-700 hover:border-green-500 transition duration-300'
+							className='bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg rounded-2xl p-6 border border-gray-700 hover:border-green-500 transition duration-300 group'
 							initial={{ opacity: 0, y: 20 }}
 							whileInView={{ opacity: 1, y: 0 }}
 							viewport={{ once: true }}
 							transition={{ duration: 0.5, delay: index * 0.1 }}
+							whileHover={{ y: -10 }}
 						>
-							<feature.icon className='w-12 h-12 text-green-500 mb-4' />
-							<h3 className='text-2xl font-bold mb-2'>{feature.title}</h3>
+							<feature.icon className='w-12 h-12 text-green-500 mb-4 group-hover:scale-110 transition-transform duration-300' />
+							<h3 className='text-2xl font-bold mb-2 group-hover:text-green-400 transition-colors duration-300'>{feature.title}</h3>
 							<p className='text-gray-300'>{feature.description}</p>
 						</motion.div>
 					))}
@@ -169,15 +177,24 @@ const LandingPage = () => {
 
 			{/* How It Works Section */}
 			<section className='container mx-auto px-6 py-16 relative z-10'>
-				<motion.h2
-					className='text-4xl font-bold text-center mb-16 bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'
-					initial={{ opacity: 0, y: 20 }}
-					whileInView={{ opacity: 1, y: 0 }}
+				<motion.div
+					initial={{ scale: 0.8, opacity: 0 }}
+					whileInView={{ scale: 1, opacity: 1 }}
 					viewport={{ once: true }}
 					transition={{ duration: 0.6 }}
+					className='relative mb-16'
 				>
-					How It Works
-				</motion.h2>
+					<div className='absolute -inset-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full blur-xl opacity-20'></div>
+					<motion.h2
+						className='text-4xl font-bold text-center relative bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'
+						initial={{ y: 20 }}
+						whileInView={{ y: 0 }}
+						viewport={{ once: true }}
+						transition={{ duration: 0.3 }}
+					>
+						How It Works
+					</motion.h2>
+				</motion.div>
 				<div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
 					{[
 						{
@@ -198,14 +215,15 @@ const LandingPage = () => {
 					].map((step, index) => (
 						<motion.div
 							key={index}
-							className='bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg rounded-2xl p-6 border border-gray-700 text-center'
+							className='bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg rounded-2xl p-6 border border-gray-700 text-center group'
 							initial={{ opacity: 0, y: 20 }}
 							whileInView={{ opacity: 1, y: 0 }}
 							viewport={{ once: true }}
 							transition={{ duration: 0.5, delay: index * 0.1 }}
+							whileHover={{ y: -10 }}
 						>
-							<div className='text-5xl font-bold text-green-500 mb-4'>{step.number}</div>
-							<h3 className='text-2xl font-bold mb-4'>{step.title}</h3>
+							<div className='text-5xl font-bold text-green-500 mb-4 group-hover:scale-110 transition-transform duration-300'>{step.number}</div>
+							<h3 className='text-2xl font-bold mb-4 group-hover:text-green-400 transition-colors duration-300'>{step.title}</h3>
 							<p className='text-gray-300'>{step.description}</p>
 						</motion.div>
 					))}
@@ -214,15 +232,24 @@ const LandingPage = () => {
 
 			{/* CTA Section */}
 			<section className='container mx-auto px-6 py-24 text-center relative z-10'>
-				<motion.h2
-					className='text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-green-300 text-transparent bg-clip-text'
-					initial={{ opacity: 0, y: 20 }}
-					whileInView={{ opacity: 1, y: 0 }}
+				<motion.div
+					initial={{ scale: 0.8, opacity: 0 }}
+					whileInView={{ scale: 1, opacity: 1 }}
 					viewport={{ once: true }}
 					transition={{ duration: 0.6 }}
+					className='relative mb-6'
 				>
-					Join the Circular Economy Revolution
-				</motion.h2>
+					<div className='absolute -inset-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full blur-xl opacity-20'></div>
+					<motion.h2
+						className='text-4xl md:text-5xl font-bold relative bg-gradient-to-r from-white to-green-300 text-transparent bg-clip-text'
+						initial={{ y: 20 }}
+						whileInView={{ y: 0 }}
+						viewport={{ once: true }}
+						transition={{ duration: 0.3 }}
+					>
+						Join the Circular Economy Revolution
+					</motion.h2>
+				</motion.div>
 				<motion.p
 					className='text-xl text-gray-300 mb-10 max-w-2xl mx-auto'
 					initial={{ opacity: 0, y: 20 }}
@@ -240,9 +267,10 @@ const LandingPage = () => {
 				>
 					<Link
 						to='/signup'
-						className='inline-block px-10 py-4 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-xl hover:from-green-600 hover:to-emerald-700 transition duration-300 shadow-lg hover:shadow-green-500/30'
+						className='inline-block px-10 py-4 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-xl hover:from-green-600 hover:to-emerald-700 transition duration-300 shadow-lg hover:shadow-green-500/30 relative overflow-hidden group'
 					>
-						Get Started Today
+						<span className='relative z-10'>Get Started Today</span>
+						<div className='absolute inset-0 bg-gradient-to-r from-emerald-600 to-green-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left'></div>
 					</Link>
 				</motion.div>
 			</section>
