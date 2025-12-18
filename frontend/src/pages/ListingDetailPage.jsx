@@ -61,15 +61,15 @@ Eco Points: 25`,
 	};
 
 	return (
-		<div className='min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white'>
+		<div className='min-h-screen bg-background text-foreground'>
 			<div className='container mx-auto px-4 py-8'>
 				{/* Breadcrumb */}
-				<nav className='mb-6 text-sm text-gray-400'>
-					<Link to='/' className='hover:text-green-400'>Home</Link>
+				<nav className='mb-6 text-sm text-muted-foreground'>
+					<Link to='/' className='hover:text-primary'>Home</Link>
 					<span className='mx-2'>/</span>
-					<Link to='/marketplace' className='hover:text-green-400'>Marketplace</Link>
+					<Link to='/marketplace' className='hover:text-primary'>Marketplace</Link>
 					<span className='mx-2'>/</span>
-					<span className='text-gray-200'>{listing.title}</span>
+					<span className='text-foreground'>{listing.title}</span>
 				</nav>
 
 				<motion.div
@@ -84,7 +84,7 @@ Eco Points: 25`,
 							<img
 								src={listing.images[selectedImage]}
 								alt={listing.title}
-								className='w-full h-96 object-cover rounded-xl border border-gray-700'
+								className='w-full h-96 object-cover rounded-xl border border-border'
 							/>
 						</div>
 						<div className='flex gap-2'>
@@ -93,7 +93,7 @@ Eco Points: 25`,
 									key={index}
 									onClick={() => setSelectedImage(index)}
 									className={`w-20 h-20 rounded-lg overflow-hidden border-2 ${
-										selectedImage === index ? "border-green-500" : "border-gray-700"
+										selectedImage === index ? "border-primary" : "border-border"
 									}`}
 								>
 									<img src={image} alt={`Preview ${index + 1}`} className='w-full h-full object-cover' />
@@ -110,14 +110,14 @@ Eco Points: 25`,
 								<div className='flex items-center mr-4'>
 									<Star size={20} className='text-yellow-400 fill-current' />
 									<span className='ml-1 font-bold'>{listing.seller.rating}</span>
-									<span className='text-gray-400 ml-1'>({listing.seller.reviews} reviews)</span>
+									<span className='text-muted-foreground ml-1'>({listing.seller.reviews} reviews)</span>
 								</div>
-								<div className='flex items-center text-sm text-green-400'>
+								<div className='flex items-center text-sm text-primary'>
 									<Shield size={16} className='mr-1' />
 									<span>Verified Seller</span>
 								</div>
 							</div>
-							<div className='flex items-center text-gray-400 mb-4'>
+							<div className='flex items-center text-muted-foreground mb-4'>
 								<MapPin size={16} className='mr-1' />
 								<span>{listing.location}</span>
 							</div>
@@ -126,11 +126,11 @@ Eco Points: 25`,
 						{/* Price */}
 						<div className='mb-6'>
 							<div className='flex items-baseline'>
-								<span className='text-3xl font-bold text-green-400'>${listing.price}</span>
+								<span className='text-3xl font-bold text-primary'>${listing.price}</span>
 								{listing.originalPrice && (
 									<>
-										<span className='ml-3 text-xl text-gray-400 line-through'>${listing.originalPrice}</span>
-										<span className='ml-3 px-2 py-1 bg-red-500 text-white text-sm font-bold rounded'>
+										<span className='ml-3 text-xl text-muted-foreground line-through'>${listing.originalPrice}</span>
+										<span className='ml-3 px-2 py-1 bg-destructive text-destructive-foreground text-sm font-bold rounded'>
 											{listing.discount}% OFF
 										</span>
 									</>
@@ -147,7 +147,7 @@ Eco Points: 25`,
 						{/* Description */}
 						<div className='mb-6'>
 							<h2 className='text-xl font-bold mb-3'>Description</h2>
-							<p className='text-gray-300 whitespace-pre-line'>{listing.description}</p>
+							<p className='text-muted-foreground whitespace-pre-line'>{listing.description}</p>
 						</div>
 
 						{/* Specifications */}
@@ -155,8 +155,8 @@ Eco Points: 25`,
 							<h2 className='text-xl font-bold mb-3'>Specifications</h2>
 							<div className='grid grid-cols-2 gap-2'>
 								{listing.specifications.map((spec, index) => (
-									<div key={index} className='flex justify-between py-2 border-b border-gray-700'>
-										<span className='text-gray-400'>{spec.label}:</span>
+									<div key={index} className='flex justify-between py-2 border-b border-border'>
+										<span className='text-muted-foreground'>{spec.label}:</span>
 										<span className='font-medium'>{spec.value}</span>
 									</div>
 								))}

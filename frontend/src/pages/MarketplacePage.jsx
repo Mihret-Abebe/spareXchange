@@ -80,7 +80,7 @@ const MarketplacePage = () => {
 	];
 
 	return (
-		<div className='min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white'>
+		<div className='min-h-screen bg-background text-foreground'>
 			<div className='container mx-auto px-4 py-8'>
 				{/* Header */}
 				<motion.div
@@ -107,17 +107,17 @@ const MarketplacePage = () => {
 					<div className='flex flex-col md:flex-row gap-4 mb-6'>
 						<div className='relative flex-grow'>
 							<div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
-								<Search className='text-gray-400' size={20} />
+								<Search className='text-muted-foreground' size={20} />
 							</div>
 							<input
 								type='text'
 								placeholder='Search for spare parts...'
-								className='w-full pl-10 pr-4 py-3 bg-gray-800 rounded-lg border border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-500 text-white placeholder-gray-400'
+								className='w-full pl-10 pr-4 py-3 bg-card rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary text-foreground placeholder-muted-foreground'
 								value={searchTerm}
 								onChange={(e) => setSearchTerm(e.target.value)}
 							/>
 						</div>
-						<button className='px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg hover:from-green-600 hover:to-emerald-700 transition duration-300'>
+						<button className='px-6 py-3 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-bold rounded-lg hover:from-primary/90 hover:to-secondary/90 transition duration-300'>
 							Search
 						</button>
 					</div>
@@ -129,8 +129,8 @@ const MarketplacePage = () => {
 								key={category.id}
 								className={`px-4 py-2 rounded-full text-sm font-medium transition duration-300 ${
 									selectedCategory === category.id
-										? "bg-green-500 text-white"
-										: "bg-gray-800 text-gray-300 hover:bg-gray-700"
+										? "bg-primary text-primary-foreground"
+										: "bg-card text-muted-foreground hover:bg-accent"
 								}`}
 								onClick={() => setSelectedCategory(category.id)}
 							>
@@ -162,20 +162,20 @@ const MarketplacePage = () => {
 									className='w-full h-48 object-cover'
 								/>
 								<div className='absolute top-2 right-2'>
-									<button className='p-2 bg-gray-900 bg-opacity-50 rounded-full hover:bg-opacity-75 transition duration-300'>
-										<Heart size={20} className='text-white' />
+									<button className='p-2 bg-card bg-opacity-50 rounded-full hover:bg-opacity-75 transition duration-300'>
+										<Heart size={20} className='text-foreground' />
 									</button>
 								</div>
-								<div className='absolute bottom-2 left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded'>
+								<div className='absolute bottom-2 left-2 bg-primary text-primary-foreground text-xs font-bold px-2 py-1 rounded'>
 									{listing.ecoPoints} EcoPts
 								</div>
 							</div>
 							<div className='p-4'>
 								<div className='flex justify-between items-start mb-2'>
 									<h3 className='font-bold text-lg truncate'>{listing.title}</h3>
-									<span className='text-green-400 font-bold'>${listing.price}</span>
+									<span className='text-primary font-bold'>${listing.price}</span>
 								</div>
-								<div className='flex items-center text-sm text-gray-400 mb-2'>
+								<div className='flex items-center text-sm text-muted-foreground mb-2'>
 									<MapPin size={16} className='mr-1' />
 									<span>{listing.location}</span>
 								</div>
@@ -184,13 +184,13 @@ const MarketplacePage = () => {
 										<Star size={16} className='text-yellow-400 fill-current' />
 										<span className='ml-1 text-sm'>{listing.rating}</span>
 									</div>
-									<span className='text-xs bg-gray-700 px-2 py-1 rounded'>{listing.condition}</span>
+									<span className='text-xs bg-accent px-2 py-1 rounded'>{listing.condition}</span>
 								</div>
 								<div className='flex justify-between items-center'>
-									<span className='text-sm text-gray-400'>by {listing.seller}</span>
+									<span className='text-sm text-muted-foreground'>by {listing.seller}</span>
 									<Link
 										to={`/listing/${listing.id}`}
-										className='px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold rounded-lg hover:from-green-600 hover:to-emerald-700 transition duration-300'
+										className='px-3 py-1 bg-gradient-to-r from-primary to-secondary text-primary-foreground text-sm font-bold rounded-lg hover:from-primary/90 hover:to-secondary/90 transition duration-300'
 									>
 										<ShoppingCart size={16} />
 									</Link>

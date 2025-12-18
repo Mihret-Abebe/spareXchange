@@ -37,21 +37,6 @@ const LandingPage = () => {
 					}}
 					style={{ bottom: "-10%", right: "10%" }}
 				/>
-				<motion.div
-					className='absolute w-32 h-32 bg-lime-500 rounded-full opacity-10 blur-3xl'
-					animate={{
-						y: ["0%", "100%", "0%"],
-						x: ["100%", "0%", "100%"],
-						scale: [1, 1.1, 1],
-						opacity: [0.1, 0.15, 0.1],
-					}}
-					transition={{
-						duration: 30,
-						ease: "easeInOut",
-						repeat: Infinity,
-					}}
-					style={{ top: "30%", left: "70%" }}
-				/>
 			</div>
 
 			
