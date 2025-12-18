@@ -1,20 +1,23 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Search, ShoppingCart, User, Package, Leaf } from "lucide-react";
+import { Menu, X, Search, ShoppingCart, User, Package, Leaf, Home, Info, HelpCircle, Phone } from "lucide-react";
 
 const Navbar = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const location = useLocation();
 
 	const navLinks = [
+		{ name: "Home", path: "/", icon: Home },
 		{ name: "Marketplace", path: "/marketplace", icon: Package },
-		{ name: "My Listings", path: "/profile?tab=listings", icon: Package },
-		{ name: "Eco Points", path: "/profile?tab=profile", icon: Leaf },
-		{ name: "Profile", path: "/profile", icon: User },
+		{ name: "About", path: "/about", icon: Info },
+		{ name: "FAQ", path: "/faq", icon: HelpCircle },
+		{ name: "Contact", path: "/contact", icon: Phone },
 	];
 
 	const isActive = (path) => {
-		return location.pathname === path;
+		if (path === "/" && location.pathname === "/") return true;
+		if (path !== "/" && location.pathname.startsWith(path)) return true;
+		return false;
 	};
 
 	return (

@@ -12,6 +12,9 @@ import LandingPage from "./pages/LandingPage";
 import MarketplacePage from "./pages/MarketplacePage";
 import ListingDetailPage from "./pages/ListingDetailPage";
 import ProfilePage from "./pages/ProfilePage";
+import AboutPage from "./pages/AboutPage";
+import FaqPage from "./pages/FaqPage";
+import ContactPage from "./pages/ContactPage";
 
 import LoadingSpinner from "./components/LoadingSpinner";
 
@@ -34,12 +37,12 @@ const ProtectedRoute = ({ children }) => {
 	return children;
 };
 
-// redirect authenticated users to the dashboard
+// redirect authenticated users to the marketplace
 const RedirectAuthenticatedUser = ({ children }) => {
 	const { isAuthenticated, user } = useAuthStore();
 
 	if (isAuthenticated && user.isVerified) {
-		return <Navigate to='/dashboard' replace />;
+		return <Navigate to='/marketplace' replace />;
 	}
 
 	return children;
@@ -133,6 +136,9 @@ function App() {
 						</RedirectAuthenticatedUser>
 					}
 				/>
+				<Route path='/about' element={<AboutPage />} />
+				<Route path='/faq' element={<FaqPage />} />
+				<Route path='/contact' element={<ContactPage />} />
 				{/* catch all routes */}
 				<Route path='*' element={<Navigate to='/' replace />} />
 			</Routes>

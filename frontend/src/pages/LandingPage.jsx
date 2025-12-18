@@ -230,7 +230,7 @@ const LandingPage = () => {
 					viewport={{ once: true }}
 					transition={{ duration: 0.6, delay: 0.2 }}
 				>
-					Reduce e-waste, save money, and contribute to a sustainable future by buying, selling, and exchanging spare parts with our community of enthusiasts.
+					Reduce e-waste, save money, and contribute to a sustainable future by joining our community of spare part enthusiasts.
 				</motion.p>
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
