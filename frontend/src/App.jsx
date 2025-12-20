@@ -58,7 +58,7 @@ function App() {
 	if (isCheckingAuth) return <LoadingSpinner />;
 
 	return (
-		<div className='min-h-screen flex flex-col bg-gray-900'>
+		<div className='min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300'>
 			<Navbar />
 			<Routes>
 				<Route path='/' element={<LandingPage />} />

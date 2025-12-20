@@ -292,7 +292,6 @@ const LandingPage = () => {
 								borderColor: '#10b981'
 							}}
 							whileTap={{ scale: 0.98 }}
-							transition={{ type: "spring", stiffness: 300 }}
 						>
 							<div className='absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-600 opacity-0 group-hover:opacity-5 transition-opacity duration-300 rounded-2xl'></div>
 							<feature.icon className='w-8 h-8 sm:w-12 sm:h-12 text-green-500 mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300 relative z-10' />
@@ -354,7 +353,6 @@ const LandingPage = () => {
 								borderColor: '#10b981'
 							}}
 							whileTap={{ scale: 0.98 }}
-							transition={{ type: "spring", stiffness: 300 }}
 						>
 							<div className='absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-600 opacity-0 group-hover:opacity-5 transition-opacity duration-300 rounded-2xl'></div>
 							<div className='text-4xl sm:text-5xl font-bold text-green-500 mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300 relative z-10'>{step.number}</div>
