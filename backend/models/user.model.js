@@ -27,6 +27,32 @@ const userSchema = new mongoose.Schema(
 		resetPasswordExpiresAt: Date,
 		verificationToken: String,
 		verificationTokenExpiresAt: Date,
+		// New fields for SpareXChange features
+		ecoPoints: {
+			type: Number,
+			default: 0,
+		},
+		userType: {
+			type: String,
+			enum: ["individual", "garage", "repair-shop", "recycler", "admin"],
+			default: "individual",
+		},
+		verifiedSeller: {
+			type: Boolean,
+			default: false,
+		},
+		location: {
+			type: String,
+			default: "",
+		},
+		phone: {
+			type: String,
+			default: "",
+		},
+		profilePicture: {
+			type: String,
+			default: "",
+		},
 	},
 	{ timestamps: true }
 );

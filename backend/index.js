@@ -7,6 +7,10 @@ import path from "path";
 import { connectDB } from "./db/connectDB.js";
 
 import authRoutes from "./routes/auth.route.js";
+import listingRoutes from "./routes/listing.route.js";
+import technicianRequestRoutes from "./routes/technicianRequest.route.js";
+import recyclingSubmissionRoutes from "./routes/recyclingSubmission.route.js";
+import notificationRoutes from "./routes/notification.route.js";
 
 dotenv.config();
 
@@ -20,12 +24,16 @@ app.use(express.json()); // allows us to parse incoming requests:req.body
 app.use(cookieParser()); // allows us to parse incoming cookies
 
 app.use("/api/auth", authRoutes);
+app.use("/api/listings", listingRoutes);
+app.use("/api/technician-requests", technicianRequestRoutes);
+app.use("/api/recycling-submissions", recyclingSubmissionRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 if (process.env.NODE_ENV === "production") {
 	app.use(express.static(path.join(__dirname, "/frontend/dist")));
 
 	app.get("*", (req, res) => {
-		res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+		res.sendFile(path.resolve(__dirname, "frontend", "index.html"));
 	});
 }
 

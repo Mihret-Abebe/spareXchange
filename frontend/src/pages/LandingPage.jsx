@@ -8,10 +8,12 @@ import PersonalizedCTA from "../components/PersonalizedCTA";
 import ActivityFeed from "../components/ActivityFeed";
 import SocialProofNotification from "../components/SocialProofNotification";
 import AnimatedFooter from "../components/AnimatedFooter";
+import { useTheme } from "../contexts/ThemeContext";
 
 const LandingPage = () => {
+	const { darkMode } = useTheme();
 	return (
-		<div className='min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white overflow-hidden'>
+		<div className={`min-h-screen overflow-hidden ${darkMode ? 'bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white' : 'bg-gradient-to-br from-gray-100 via-green-50 to-emerald-50 text-gray-900'}`}>
 			<SocialProofNotification />
 			{/* Floating Shapes */}
 			<div className='absolute inset-0 overflow-hidden'>
@@ -88,7 +90,7 @@ const LandingPage = () => {
 				>
 					<div className='absolute -inset-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full blur-xl opacity-30 animate-pulse'></div>
 					<motion.h1
-						className='text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold relative bg-gradient-to-r from-white via-green-200 to-emerald-300 text-transparent bg-clip-text'
+						className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold relative bg-gradient-to-r ${darkMode ? 'from-white via-green-200 to-emerald-300' : 'from-gray-800 via-green-600 to-emerald-700'} text-transparent bg-clip-text`}
 						initial={{ y: 20 }}
 						animate={{ y: 0 }}
 						transition={{ duration: 0.5, delay: 0.3 }}
@@ -97,7 +99,7 @@ const LandingPage = () => {
 					</motion.h1>
 				</motion.div>
 				<motion.p
-					className='text-base sm:text-lg md:text-xl text-gray-300 mb-8 sm:mb-10 max-w-3xl'
+					className={`text-base sm:text-lg md:text-xl ${darkMode ? 'text-gray-300' : 'text-gray-600'} mb-8 sm:mb-10 max-w-3xl`}
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.8, delay: 0.2 }}
@@ -112,7 +114,7 @@ const LandingPage = () => {
 				>
 					<Link
 						to='/marketplace'
-						className='px-6 py-3 sm:px-8 sm:py-4 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-base sm:text-lg hover:from-green-600 hover:to-emerald-700 transition duration-300 shadow-lg hover:shadow-green-500/30 relative overflow-hidden group'
+						className={`px-6 py-3 sm:px-8 sm:py-4 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-base sm:text-lg hover:from-green-600 hover:to-emerald-700 transition duration-300 shadow-lg hover:shadow-green-500/30 relative overflow-hidden group ${darkMode ? '' : 'shadow-md'}`}
 						whileHover={{ scale: 1.05 }}
 						whileTap={{ scale: 0.95 }}
 						transition={{ type: "spring", stiffness: 400, damping: 10 }}
@@ -140,7 +142,7 @@ const LandingPage = () => {
 					</Link>
 					<Link
 						to='/signup'
-						className='px-6 py-3 sm:px-8 sm:py-4 rounded-lg border-2 border-green-500 text-green-400 font-bold text-base sm:text-lg hover:bg-green-500 hover:text-white transition duration-300 relative overflow-hidden group'
+						className={`px-6 py-3 sm:px-8 sm:py-4 rounded-lg border-2 ${darkMode ? 'border-green-500 text-green-400 hover:bg-green-500 hover:text-white' : 'border-green-600 text-green-600 hover:bg-green-600 hover:text-white'} font-bold text-base sm:text-lg transition duration-300 relative overflow-hidden group ${darkMode ? '' : 'shadow-md'}`}
 						whileHover={{ scale: 1.05 }}
 						whileTap={{ scale: 0.95 }}
 						transition={{ type: "spring", stiffness: 400, damping: 10 }}
@@ -184,7 +186,7 @@ const LandingPage = () => {
 					].map((stat, index) => (
 						<motion.div 
 							key={index}
-							className='bg-gray-800 bg-opacity-40 backdrop-blur-lg rounded-xl p-4 sm:p-6 border border-gray-700 hover:border-green-500 transition-all duration-300 cursor-pointer relative overflow-hidden'
+							className={`bg-gray-800 bg-opacity-40 backdrop-blur-lg rounded-xl p-4 sm:p-6 border ${darkMode ? 'border-gray-700 hover:border-green-500' : 'border-gray-300 hover:border-green-500'} transition-all duration-300 cursor-pointer relative overflow-hidden ${darkMode ? '' : 'bg-white shadow-md'}`}
 							whileHover={{ 
 								y: -5, 
 								boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.2)',
@@ -197,7 +199,7 @@ const LandingPage = () => {
 						>
 							<div className='absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-xl'></div>
 							<motion.div 
-								className='text-2xl sm:text-3xl font-bold text-green-400 mb-1 sm:mb-2 relative z-10'
+								className={`text-2xl sm:text-3xl font-bold ${darkMode ? 'text-green-400' : 'text-green-600'} mb-1 sm:mb-2 relative z-10`}
 								whileHover={{ scale: 1.05 }}
 								transition={{ type: "spring", stiffness: 300 }}
 							>
@@ -218,7 +220,7 @@ const LandingPage = () => {
 									></motion.span>
 								</span>
 							</motion.div>
-							<div className='text-sm sm:text-base text-gray-300 relative z-10'>
+							<div className={`text-sm sm:text-base ${darkMode ? 'text-gray-300' : 'text-gray-600'} relative z-10`}>
 								{stat.label}
 							</div>
 						</motion.div>
@@ -237,7 +239,7 @@ const LandingPage = () => {
 				>
 					<div className='absolute -inset-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full blur-xl opacity-20'></div>
 					<motion.h2
-						className='text-3xl sm:text-4xl font-bold text-center relative bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'
+						className={`text-3xl sm:text-4xl font-bold text-center relative bg-gradient-to-r ${darkMode ? 'from-green-400 to-emerald-500' : 'from-green-600 to-emerald-700'} text-transparent bg-clip-text`}
 						initial={{ y: 20 }}
 						whileInView={{ y: 0 }}
 						viewport={{ once: true }}
@@ -281,7 +283,7 @@ const LandingPage = () => {
 					].map((feature, index) => (
 						<motion.div
 							key={index}
-							className='bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg rounded-2xl p-4 sm:p-6 border border-gray-700 hover:border-green-500 transition duration-300 group cursor-pointer relative overflow-hidden'
+							className={`bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg rounded-2xl p-4 sm:p-6 border ${darkMode ? 'border-gray-700 hover:border-green-500' : 'border-gray-300 hover:border-green-500'} transition duration-300 group cursor-pointer relative overflow-hidden ${darkMode ? '' : 'bg-white shadow-md'}`}
 							initial={{ opacity: 0, y: 20 }}
 							whileInView={{ opacity: 1, y: 0 }}
 							viewport={{ once: true }}
@@ -294,9 +296,9 @@ const LandingPage = () => {
 							whileTap={{ scale: 0.98 }}
 						>
 							<div className='absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-600 opacity-0 group-hover:opacity-5 transition-opacity duration-300 rounded-2xl'></div>
-							<feature.icon className='w-8 h-8 sm:w-12 sm:h-12 text-green-500 mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300 relative z-10' />
-							<h3 className='text-xl sm:text-2xl font-bold mb-2 sm:mb-2 group-hover:text-green-400 transition-colors duration-300 relative z-10'>{feature.title}</h3>
-							<p className='text-sm sm:text-base text-gray-300 relative z-10'>{feature.description}</p>
+							<feature.icon className={`w-8 h-8 sm:w-12 sm:h-12 ${darkMode ? 'text-green-500' : 'text-green-600'} mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300 relative z-10`} />
+							<h3 className={`text-xl sm:text-2xl font-bold mb-2 sm:mb-2 group-hover:text-green-400 transition-colors duration-300 relative z-10 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{feature.title}</h3>
+							<p className={`text-sm sm:text-base ${darkMode ? 'text-gray-300' : 'text-gray-600'} relative z-10`}>{feature.description}</p>
 						</motion.div>
 					))}
 				</div>
@@ -313,7 +315,7 @@ const LandingPage = () => {
 				>
 					<div className='absolute -inset-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full blur-xl opacity-20'></div>
 					<motion.h2
-						className='text-3xl sm:text-4xl font-bold text-center relative bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'
+						className={`text-3xl sm:text-4xl font-bold text-center relative bg-gradient-to-r ${darkMode ? 'from-green-400 to-emerald-500' : 'from-green-600 to-emerald-700'} text-transparent bg-clip-text`}
 						initial={{ y: 20 }}
 						whileInView={{ y: 0 }}
 						viewport={{ once: true }}
@@ -342,7 +344,7 @@ const LandingPage = () => {
 					].map((step, index) => (
 						<motion.div
 							key={index}
-							className='bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg rounded-2xl p-4 sm:p-6 border border-gray-700 text-center group cursor-pointer relative overflow-hidden'
+							className={`bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg rounded-2xl p-4 sm:p-6 border ${darkMode ? 'border-gray-700' : 'border-gray-300'} text-center group cursor-pointer relative overflow-hidden ${darkMode ? '' : 'bg-white shadow-md'}`}
 							initial={{ opacity: 0, y: 20 }}
 							whileInView={{ opacity: 1, y: 0 }}
 							viewport={{ once: true }}
@@ -355,9 +357,9 @@ const LandingPage = () => {
 							whileTap={{ scale: 0.98 }}
 						>
 							<div className='absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-600 opacity-0 group-hover:opacity-5 transition-opacity duration-300 rounded-2xl'></div>
-							<div className='text-4xl sm:text-5xl font-bold text-green-500 mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300 relative z-10'>{step.number}</div>
-							<h3 className='text-xl sm:text-2xl font-bold mb-3 sm:mb-4 group-hover:text-green-400 transition-colors duration-300 relative z-10'>{step.title}</h3>
-							<p className='text-sm sm:text-base text-gray-300 relative z-10'>{step.description}</p>
+							<div className={`text-4xl sm:text-5xl font-bold ${darkMode ? 'text-green-500' : 'text-green-600'} mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300 relative z-10`}>{step.number}</div>
+							<h3 className={`text-xl sm:text-2xl font-bold mb-3 sm:mb-4 group-hover:text-green-400 transition-colors duration-300 relative z-10 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{step.title}</h3>
+							<p className={`text-sm sm:text-base ${darkMode ? 'text-gray-300' : 'text-gray-600'} relative z-10`}>{step.description}</p>
 						</motion.div>
 					))}
 				</div>
@@ -374,7 +376,7 @@ const LandingPage = () => {
 				>
 					<div className='absolute -inset-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full blur-xl opacity-20'></div>
 					<motion.h2
-						className='text-3xl sm:text-4xl font-bold text-center relative bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'
+						className={`text-3xl sm:text-4xl font-bold text-center relative bg-gradient-to-r ${darkMode ? 'from-green-400 to-emerald-500' : 'from-green-600 to-emerald-700'} text-transparent bg-clip-text`}
 						initial={{ y: 20 }}
 						whileInView={{ y: 0 }}
 						viewport={{ once: true }}
@@ -410,7 +412,7 @@ const LandingPage = () => {
 				>
 					<div className='absolute -inset-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full blur-xl opacity-20 mx-auto left-1/2 transform -translate-x-1/2'></div>
 					<motion.h2
-						className='text-3xl sm:text-4xl font-bold relative bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'
+						className={`text-3xl sm:text-4xl font-bold relative bg-gradient-to-r ${darkMode ? 'from-green-400 to-emerald-500' : 'from-green-600 to-emerald-700'} text-transparent bg-clip-text`}
 						initial={{ y: 20 }}
 						whileInView={{ y: 0 }}
 						viewport={{ once: true }}
@@ -419,7 +421,7 @@ const LandingPage = () => {
 						Recent Listings
 					</motion.h2>
 					<motion.p
-						className='text-gray-400 mt-4 max-w-2xl mx-auto'
+						className={`${darkMode ? 'text-gray-400' : 'text-gray-600'} mt-4 max-w-2xl mx-auto`}
 						initial={{ opacity: 0 }}
 						whileInView={{ opacity: 1 }}
 						viewport={{ once: true }}
@@ -447,7 +449,7 @@ const LandingPage = () => {
 				>
 					<Link
 						to='/marketplace'
-						className='inline-block px-6 py-3 sm:px-8 sm:py-4 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-base sm:text-lg hover:from-green-600 hover:to-emerald-700 transition duration-300 shadow-lg hover:shadow-green-500/30 relative overflow-hidden group'
+						className={`inline-block px-6 py-3 sm:px-8 sm:py-4 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-base sm:text-lg hover:from-green-600 hover:to-emerald-700 transition duration-300 shadow-lg hover:shadow-green-500/30 relative overflow-hidden group ${darkMode ? '' : 'shadow-md'}`}
 						whileHover={{ scale: 1.05 }}
 						whileTap={{ scale: 0.95 }}
 						transition={{ type: "spring", stiffness: 400, damping: 10 }}
@@ -487,7 +489,7 @@ const LandingPage = () => {
 				>
 					<div className='absolute -inset-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full blur-xl opacity-20 mx-auto left-1/2 transform -translate-x-1/2'></div>
 					<motion.h2
-						className='text-3xl sm:text-4xl font-bold relative bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'
+						className={`text-3xl sm:text-4xl font-bold relative bg-gradient-to-r ${darkMode ? 'from-green-400 to-emerald-500' : 'from-green-600 to-emerald-700'} text-transparent bg-clip-text`}
 						initial={{ y: 20 }}
 						whileInView={{ y: 0 }}
 						viewport={{ once: true }}
@@ -496,7 +498,7 @@ const LandingPage = () => {
 						User Activity Map
 					</motion.h2>
 					<motion.p
-						className='text-gray-400 mt-4 max-w-2xl mx-auto'
+						className={`${darkMode ? 'text-gray-400' : 'text-gray-600'} mt-4 max-w-2xl mx-auto`}
 						initial={{ opacity: 0 }}
 						whileInView={{ opacity: 1 }}
 						viewport={{ once: true }}
@@ -521,7 +523,7 @@ const LandingPage = () => {
 				>
 					<div className='absolute -inset-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full blur-xl opacity-20 mx-auto left-1/2 transform -translate-x-1/2'></div>
 					<motion.h2
-						className='text-3xl sm:text-4xl font-bold relative bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'
+						className={`text-3xl sm:text-4xl font-bold relative bg-gradient-to-r ${darkMode ? 'from-green-400 to-emerald-500' : 'from-green-600 to-emerald-700'} text-transparent bg-clip-text`}
 						initial={{ y: 20 }}
 						whileInView={{ y: 0 }}
 						viewport={{ once: true }}
@@ -530,7 +532,7 @@ const LandingPage = () => {
 						Personalized for You
 					</motion.h2>
 					<motion.p
-						className='text-gray-400 mt-4 max-w-2xl mx-auto'
+						className={`${darkMode ? 'text-gray-400' : 'text-gray-600'} mt-4 max-w-2xl mx-auto`}
 						initial={{ opacity: 0 }}
 						whileInView={{ opacity: 1 }}
 						viewport={{ once: true }}
@@ -555,7 +557,7 @@ const LandingPage = () => {
 				>
 					<div className='absolute -inset-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full blur-xl opacity-20 mx-auto left-1/2 transform -translate-x-1/2'></div>
 					<motion.h2
-						className='text-3xl sm:text-4xl font-bold relative bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'
+						className={`text-3xl sm:text-4xl font-bold relative bg-gradient-to-r ${darkMode ? 'from-green-400 to-emerald-500' : 'from-green-600 to-emerald-700'} text-transparent bg-clip-text`}
 						initial={{ y: 20 }}
 						whileInView={{ y: 0 }}
 						viewport={{ once: true }}
@@ -564,7 +566,7 @@ const LandingPage = () => {
 						Live Activity Feed
 					</motion.h2>
 					<motion.p
-						className='text-gray-400 mt-4 max-w-2xl mx-auto'
+						className={`${darkMode ? 'text-gray-400' : 'text-gray-600'} mt-4 max-w-2xl mx-auto`}
 						initial={{ opacity: 0 }}
 						whileInView={{ opacity: 1 }}
 						viewport={{ once: true }}
@@ -589,7 +591,7 @@ const LandingPage = () => {
 				>
 					<div className='absolute -inset-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full blur-xl opacity-20'></div>
 					<motion.h2
-						className='text-3xl sm:text-4xl md:text-5xl font-bold relative bg-gradient-to-r from-white to-green-300 text-transparent bg-clip-text'
+						className={`text-3xl sm:text-4xl md:text-5xl font-bold relative bg-gradient-to-r ${darkMode ? 'from-white to-green-300' : 'from-gray-800 to-green-600'} text-transparent bg-clip-text`}
 						initial={{ y: 20 }}
 						whileInView={{ y: 0 }}
 						viewport={{ once: true }}
@@ -599,7 +601,7 @@ const LandingPage = () => {
 					</motion.h2>
 				</motion.div>
 				<motion.p
-					className='text-base sm:text-lg md:text-xl text-gray-300 mb-8 sm:mb-10 max-w-2xl mx-auto'
+					className={`text-base sm:text-lg md:text-xl ${darkMode ? 'text-gray-300' : 'text-gray-600'} mb-8 sm:mb-10 max-w-2xl mx-auto`}
 					initial={{ opacity: 0, y: 20 }}
 					whileInView={{ opacity: 1, y: 0 }}
 					viewport={{ once: true }}
@@ -615,7 +617,7 @@ const LandingPage = () => {
 				>
 					<Link
 						to='/signup'
-						className='inline-block px-8 py-3 sm:px-10 sm:py-4 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-lg sm:text-xl hover:from-green-600 hover:to-emerald-700 transition duration-300 shadow-lg hover:shadow-green-500/30 relative overflow-hidden group'
+						className={`inline-block px-8 py-3 sm:px-10 sm:py-4 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-lg sm:text-xl hover:from-green-600 hover:to-emerald-700 transition duration-300 shadow-lg hover:shadow-green-500/30 relative overflow-hidden group ${darkMode ? '' : 'shadow-md'}`}
 						whileHover={{ scale: 1.05 }}
 						whileTap={{ scale: 0.95 }}
 						transition={{ type: "spring", stiffness: 400, damping: 10 }}
