@@ -53,6 +53,14 @@ const userSchema = new mongoose.Schema(
 			type: String,
 			default: "",
 		},
+		trustScore: {
+			type: Number,
+			default: 0,
+		},
+		totalReviews: {
+			type: Number,
+			default: 0,
+		},
 	},
 	{ timestamps: true }
 );

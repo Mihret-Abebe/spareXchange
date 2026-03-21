@@ -41,11 +41,20 @@ export const signup = async (req, res) => {
 		// jwt
 		generateTokenAndSetCookie(res, user._id);
 
-		await sendVerificationEmail(user.email, verificationToken);
+		let emailSent = false;
+		try {
+			emailSent = await sendVerificationEmail(user.email, verificationToken);
+		} catch (err) {
+			console.error("Verification email failed", err);
+		}
+
+		const responseMessage = emailSent
+			? "User created successfully"
+			: "User created successfully (verification email failed; please re-send verification email from your profile)";
 
 		res.status(201).json({
 			success: true,
-			message: "User created successfully",
+			message: responseMessage,
 			user: {
 				...user._doc,
 				password: undefined,
@@ -73,7 +82,11 @@ export const verifyEmail = async (req, res) => {
 		user.verificationTokenExpiresAt = undefined;
 		await user.save();
 
-		await sendWelcomeEmail(user.email, user.name);
+		try {
+			await sendWelcomeEmail(user.email, user.name);
+		} catch (err) {
+			console.error("Welcome email failed: ", err);
+		}
 
 		res.status(200).json({
 			success: true,
@@ -175,7 +188,11 @@ export const resetPassword = async (req, res) => {
 		user.resetPasswordExpiresAt = undefined;
 		await user.save();
 
-		await sendResetSuccessEmail(user.email);
+		try {
+			await sendResetSuccessEmail(user.email);
+		} catch (err) {
+			console.error("Reset success email failed: ", err);
+		}
 
 		res.status(200).json({ success: true, message: "Password reset successful" });
 	} catch (error) {

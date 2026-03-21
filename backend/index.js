@@ -11,6 +11,9 @@ import listingRoutes from "./routes/listing.route.js";
 import technicianRequestRoutes from "./routes/technicianRequest.route.js";
 import recyclingSubmissionRoutes from "./routes/recyclingSubmission.route.js";
 import notificationRoutes from "./routes/notification.route.js";
+import messageRoutes from "./routes/message.route.js";
+import exchangeRoutes from "./routes/exchange.route.js";
+import reviewRoutes from "./routes/review.route.js";
 
 dotenv.config();
 
@@ -28,6 +31,9 @@ app.use("/api/listings", listingRoutes);
 app.use("/api/technician-requests", technicianRequestRoutes);
 app.use("/api/recycling-submissions", recyclingSubmissionRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/messages", messageRoutes);
+app.use("/api/exchanges", exchangeRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 if (process.env.NODE_ENV === "production") {
 	app.use(express.static(path.join(__dirname, "/frontend/dist")));
