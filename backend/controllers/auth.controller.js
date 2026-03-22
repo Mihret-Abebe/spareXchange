@@ -106,12 +106,16 @@ export const login = async (req, res) => {
 	const { email, password } = req.body;
 	try {
 		const user = await User.findOne({ email });
-		if (!user) {
+		if (!user || user.isActive === false) {
 			return res.status(400).json({ success: false, message: "Invalid credentials" });
 		}
 		const isPasswordValid = await bcryptjs.compare(password, user.password);
 		if (!isPasswordValid) {
 			return res.status(400).json({ success: false, message: "Invalid credentials" });
+		}
+
+		if (user.isBanned) {
+			return res.status(403).json({ success: false, message: "Your account has been suspended. Please contact support." });
 		}
 
 		generateTokenAndSetCookie(res, user._id);
@@ -208,9 +212,41 @@ export const checkAuth = async (req, res) => {
 			return res.status(400).json({ success: false, message: "User not found" });
 		}
 
+		if (user.isBanned) {
+			return res.status(403).json({ success: false, message: "Account suspended" });
+		}
+
 		res.status(200).json({ success: true, user });
 	} catch (error) {
 		console.log("Error in checkAuth ", error);
 		res.status(400).json({ success: false, message: error.message });
+	}
+};
+
+export const requestRoleVerification = async (req, res) => {
+	try {
+		const { userType, expertise, documents } = req.body;
+		const user = await User.findById(req.userId);
+
+		if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+		// Update user fields for review
+		user.userType = userType || user.userType; // 'garage', 'repair-shop', 'recycler', or 'technician' (expertise only)
+		if (expertise) user.expertise = expertise;
+		if (documents && Array.isArray(documents)) {
+			user.verificationDocs = documents;
+		}
+
+		user.roleStatus = "pending";
+		await user.save();
+
+		res.status(200).json({
+			success: true,
+			message: "Verification request submitted successfully. An admin will review it soon.",
+			user
+		});
+	} catch (error) {
+		console.log("Error in requestRoleVerification ", error);
+		res.status(500).json({ success: false, message: "Server error" });
 	}
 };

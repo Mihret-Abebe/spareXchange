@@ -7,6 +7,7 @@ import {
 	forgotPassword,
 	resetPassword,
 	checkAuth,
+	requestRoleVerification,
 } from "../controllers/auth.controller.js";
 import { verifyToken } from "../middleware/verifyToken.js";
 
@@ -22,5 +23,6 @@ router.post("/verify-email", verifyEmail);
 router.post("/forgot-password", forgotPassword);
 
 router.post("/reset-password/:token", resetPassword);
+router.post("/request-verification", verifyToken, requestRoleVerification);
 
 export default router;

@@ -32,13 +32,19 @@ const listingSchema = new mongoose.Schema(
 		condition: {
 			type: String,
 			required: true,
-			enum: [
-				"new",
-				"like-new",
-				"used-good",
-				"used-fair",
-				"refurbished"
-			],
+			enum: ["new", "like-new", "used-good", "used-fair", "refurbished"],
+		},
+		brand: {
+			type: String,
+			required: false,
+		},
+		model: {
+			type: String,
+			required: false,
+		},
+		year: {
+			type: Number,
+			required: false,
 		},
 		location: {
 			type: String,
@@ -53,6 +59,10 @@ const listingSchema = new mongoose.Schema(
 			required: true,
 		},
 		available: {
+			type: Boolean,
+			default: true,
+		},
+		isActive: {
 			type: Boolean,
 			default: true,
 		},
@@ -76,8 +86,21 @@ const listingSchema = new mongoose.Schema(
 			type: Map,
 			of: String, // Allows for flexible key-value pairs
 		},
+		locationCoords: {
+			type: {
+				type: String,
+				enum: ["Point"],
+				default: "Point",
+			},
+			coordinates: {
+				type: [Number],
+				default: [0, 0],
+			},
+		},
 	},
 	{ timestamps: true }
 );
+
+listingSchema.index({ locationCoords: "2dsphere" });
 
 export const Listing = mongoose.model("Listing", listingSchema);

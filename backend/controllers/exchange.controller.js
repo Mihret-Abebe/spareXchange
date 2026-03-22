@@ -1,6 +1,7 @@
 import { Exchange } from "../models/exchange.model.js";
 import { User } from "../models/user.model.js";
 import { Listing } from "../models/listing.model.js";
+import { EcoPointTransaction } from "../models/ecoPointTransaction.model.js";
 
 export const proposeExchange = async (req, res) => {
 	try {
@@ -78,11 +79,38 @@ export const completeExchange = async (req, res) => {
 		exchange.status = newStatus;
 		await exchange.save();
 
-		// If fully completed, award Eco Points
+		// If fully completed, award Eco Points and check achievements
 		if (newStatus === "fully_completed") {
 			const rewardPoints = 50; // Points per successful exchange
-			await User.findByIdAndUpdate(exchange.buyerId, { $inc: { ecoPoints: rewardPoints } });
-			await User.findByIdAndUpdate(exchange.sellerId, { $inc: { ecoPoints: rewardPoints } });
+
+			const buyer = await User.findById(exchange.buyerId);
+			const seller = await User.findById(exchange.sellerId);
+
+			if (!buyer || !seller) {
+				console.error("Error: Buyer or Seller not found for completed exchange.");
+				return res.status(500).json({ success: false, message: "Server error: User data missing" });
+			}
+
+			// Update seller stats and achievements
+			seller.ecoPoints += rewardPoints;
+			if (!seller.achievements.includes("First Successful Exchange")) {
+				seller.achievements.push("First Successful Exchange");
+			}
+			await seller.save();
+
+			// Update buyer stats and achievements
+			buyer.ecoPoints += rewardPoints;
+			if (!buyer.achievements.includes("First Successful Exchange")) {
+				buyer.achievements.push("First Successful Exchange");
+			}
+			await buyer.save();
+
+			// Create Ledger entries
+			const transactions = [
+				{ userId: exchange.buyerId, points: rewardPoints, reason: "exchange", description: `Completed exchange for listing ${exchange.listingId}`, referenceId: exchange._id },
+				{ userId: exchange.sellerId, points: rewardPoints, reason: "exchange", description: `Completed exchange for listing ${exchange.listingId}`, referenceId: exchange._id }
+			];
+			await EcoPointTransaction.insertMany(transactions);
             
             // Mark listing as unavailable
             await Listing.findByIdAndUpdate(exchange.listingId, { available: false });

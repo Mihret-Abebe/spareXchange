@@ -48,6 +48,16 @@ const RedirectAuthenticatedUser = ({ children }) => {
 	return children;
 };
 
+// protect routes that require admin privileges
+const AdminRoute = ({ children }) => {
+	const { isAuthenticated, user } = useAuthStore();
+
+	if (!isAuthenticated) return <Navigate to='/login' replace />;
+	if (user.userType !== "admin") return <Navigate to='/dashboard' replace />;
+
+	return children;
+};
+
 function App() {
 	const { isCheckingAuth, checkAuth } = useAuthStore();
 
@@ -137,6 +147,22 @@ function App() {
 				<Route path='/about' element={<><AboutPage /></>} />
 				<Route path='/faq' element={<><FaqPage /></>} />
 				<Route path='/contact' element={<><ContactPage /></>} />
+				<Route
+					path='/admin/disputes'
+					element={
+						<AdminRoute>
+							<DashboardPage /> {/* Using Dashboard as placeholder or create specialized components */}
+						</AdminRoute>
+					}
+				/>
+				<Route
+					path='/admin/users'
+					element={
+						<AdminRoute>
+							<DashboardPage />
+						</AdminRoute>
+					}
+				/>
 				{/* catch all routes */}
 				<Route path='*' element={<Navigate to='/' replace />} />
 			</Routes>

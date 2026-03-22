@@ -24,13 +24,24 @@ const notificationSchema = new mongoose.Schema(
 				"system", 
 				"message",
 				"eco-points",
-				"verification"
+				"verification",
+				"match"
 			],
 			default: "system",
 		},
 		isRead: {
 			type: Boolean,
 			default: false,
+		},
+		link: {
+			type: String,
+			default: "",
+		},
+		relatedId: {
+			type: mongoose.Schema.Types.ObjectId,
+		},
+		relatedModel: {
+			type: String,
 		},
 		data: {
 			type: Object, // Additional data related to the notification

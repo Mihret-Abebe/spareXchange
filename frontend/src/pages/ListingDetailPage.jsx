@@ -1,75 +1,82 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Star, MapPin, Heart, Share2, Truck, Shield, RotateCcw } from "lucide-react";
+import { Star, MapPin, Heart, Share2, Truck, Shield, RotateCcw, AlertTriangle, ShoppingCart, Mail, User } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
+import { useDisputeStore } from "../store/disputeStore";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const ListingDetailPage = () => {
 	const { id } = useParams();
+	const { user } = useAuthStore();
+	const { createDispute } = useDisputeStore();
+	const [listing, setListing] = useState(null);
+	const [isLoading, setIsLoading] = useState(true);
 	const [quantity, setQuantity] = useState(1);
 	const [selectedImage, setSelectedImage] = useState(0);
 
-	// Mock data for a specific listing
-	const listing = {
-		id: id || 1,
-		title: "Car Engine Block - Toyota Camry 2015",
-		price: 450,
-		originalPrice: 600,
-		discount: 25,
-		location: "Addis Ababa, Ethiopia",
-		category: "Vehicle Parts",
-		images: [
-			"/placeholder-car-engine.jpg",
-			"/placeholder-car-engine-2.jpg",
-			"/placeholder-car-engine-3.jpg",
-		],
-		seller: {
-			name: "AutoParts Shop",
-			rating: 4.8,
-			reviews: 124,
-			verified: true,
-		},
-		description: `High-quality engine block for Toyota Camry 2015 model. This is a genuine used part that has been thoroughly inspected and tested to ensure optimal performance. The engine block is in excellent condition with no cracks or damage.
+	useEffect(() => {
+		const fetchListing = async () => {
+			setIsLoading(true);
+			try {
+				const response = await fetch(`http://localhost:5000/api/listings/${id}`);
+				const data = await response.json();
+				if (data.success) {
+					setListing(data.listing);
+				}
+			} catch (error) {
+				console.error("Error fetching listing:", error);
+			} finally {
+				setIsLoading(false);
+			}
+		};
+		fetchListing();
+	}, [id]);
 
-Features:
-- Compatible with Toyota Camry 2015
-- 4-cylinder engine
-- Excellent performance
-- Comes with 3-month warranty
+	const handleReport = async () => {
+		if (!user) {
+			alert("Please login to report.");
+			return;
+		}
+		const reason = prompt("Reason for reporting?");
+		if (!reason) return;
+		const description = prompt("Please provide a description:");
+		if (!description) return;
 
-Condition: Used - Good
-Warranty: 3 months
-Eco Points: 25`,
-		specifications: [
-			{ label: "Brand", value: "Toyota" },
-			{ label: "Model", value: "Camry" },
-			{ label: "Year", value: "2015" },
-			{ label: "Engine Type", value: "4-Cylinder" },
-			{ label: "Condition", value: "Used - Good" },
-			{ label: "Warranty", value: "3 Months" },
-		],
-		ecoPoints: 25,
+		try {
+			await createDispute({
+				targetId: listing.seller?._id,
+				exchangeId: null,
+				reason,
+				description
+			});
+			alert("Report submitted successfully.");
+		} catch (error) {
+			alert("Failed to submit report.");
+		}
 	};
 
 	const handleAddToCart = () => {
-		// Add to cart functionality would go here
 		console.log(`Added ${quantity} of ${listing.title} to cart`);
 	};
 
 	const handleBuyNow = () => {
-		// Buy now functionality would go here
 		console.log(`Buying ${quantity} of ${listing.title} now`);
 	};
 
+	if (isLoading) return <div className='min-h-screen bg-background flex items-center justify-center'><LoadingSpinner /></div>;
+	if (!listing) return <div className='min-h-screen bg-background flex items-center justify-center text-white'>Listing not found</div>;
+
 	return (
-		<div className='min-h-screen bg-background text-foreground'>
+		<div className='min-h-screen bg-background text-white'>
 			<div className='container mx-auto px-4 py-8'>
 				{/* Breadcrumb */}
-				<nav className='mb-6 text-sm text-muted-foreground'>
-					<Link to='/' className='hover:text-primary'>Home</Link>
+				<nav className='mb-6 text-sm text-gray-400'>
+					<Link to='/' className='hover:text-green-400'>Home</Link>
 					<span className='mx-2'>/</span>
-					<Link to='/marketplace' className='hover:text-primary'>Marketplace</Link>
+					<Link to='/marketplace' className='hover:text-green-400'>Marketplace</Link>
 					<span className='mx-2'>/</span>
-					<span className='text-foreground'>{listing.title}</span>
+					<span className='text-white'>{listing.title}</span>
 				</nav>
 
 				<motion.div
@@ -82,18 +89,18 @@ Eco Points: 25`,
 					<div>
 						<div className='mb-4'>
 							<img
-								src={listing.images[selectedImage]}
+								src={listing.images?.[selectedImage] || "/placeholder-image.jpg"}
 								alt={listing.title}
-								className='w-full h-96 object-cover rounded-xl border border-border'
+								className='w-full h-96 object-cover rounded-xl border border-gray-700'
 							/>
 						</div>
-						<div className='flex gap-2'>
-							{listing.images.map((image, index) => (
+						<div className='flex gap-2 overflow-x-auto pb-2'>
+							{listing.images?.map((image, index) => (
 								<button
 									key={index}
 									onClick={() => setSelectedImage(index)}
-									className={`w-20 h-20 rounded-lg overflow-hidden border-2 ${
-										selectedImage === index ? "border-primary" : "border-border"
+									className={`w-20 h-20 rounded-lg overflow-hidden border-2 flex-shrink-0 ${
+										selectedImage === index ? "border-green-500" : "border-gray-700"
 									}`}
 								>
 									<img src={image} alt={`Preview ${index + 1}`} className='w-full h-full object-cover' />
@@ -105,42 +112,46 @@ Eco Points: 25`,
 					{/* Product Info */}
 					<div>
 						<div className='mb-4'>
-							<h1 className='text-3xl font-bold mb-2'>{listing.title}</h1>
+							<div className='flex justify-between items-start'>
+								<h1 className='text-3xl font-bold mb-2'>{listing.title}</h1>
+								<button 
+									onClick={handleReport}
+									className='flex items-center text-red-400 hover:text-red-300 transition'
+									title='Report this listing'
+								>
+									<AlertTriangle size={20} className='mr-1' />
+									<span className='text-xs'>Report</span>
+								</button>
+							</div>
 							<div className='flex items-center mb-4'>
 								<div className='flex items-center mr-4'>
 									<Star size={20} className='text-yellow-400 fill-current' />
-									<span className='ml-1 font-bold'>{listing.seller.rating}</span>
-									<span className='text-muted-foreground ml-1'>({listing.seller.reviews} reviews)</span>
+									<span className='ml-1 font-bold'>{listing.seller?.rating || 4.5}</span>
+									<span className='text-gray-400 ml-1'>({listing.seller?.totalReviews || 0} reviews)</span>
 								</div>
-								<div className='flex items-center text-sm text-primary'>
-									<Shield size={16} className='mr-1' />
-									<span>Verified Seller</span>
-								</div>
+								{listing.seller?.verifiedSeller && (
+									<div className='flex items-center text-sm text-blue-400'>
+										<Shield size={16} className='mr-1' />
+										<span>Verified Seller</span>
+									</div>
+								)}
 							</div>
-							<div className='flex items-center text-muted-foreground mb-4'>
+							<div className='flex items-center text-gray-400 mb-4'>
 								<MapPin size={16} className='mr-1' />
-								<span>{listing.location}</span>
+								<span>{listing.location || "Addis Ababa"}</span>
 							</div>
 						</div>
 
 						{/* Price */}
 						<div className='mb-6'>
 							<div className='flex items-baseline'>
-								<span className='text-3xl font-bold text-primary'>${listing.price}</span>
-								{listing.originalPrice && (
-									<>
-										<span className='ml-3 text-xl text-muted-foreground line-through'>${listing.originalPrice}</span>
-										<span className='ml-3 px-2 py-1 bg-destructive text-destructive-foreground text-sm font-bold rounded'>
-											{listing.discount}% OFF
-										</span>
-									</>
-								)}
+								<span className='text-3xl font-bold text-green-400'>${listing.price}</span>
 							</div>
 							<div className='flex items-center mt-2'>
-								<span className='text-sm bg-green-900 text-green-300 px-2 py-1 rounded mr-2'>
-									{listing.ecoPoints} Eco Points
+								<span className='text-sm bg-green-900 bg-opacity-30 text-green-400 px-2 py-1 rounded-full mr-2'>
+									+{listing.ecoPoints || 10} Eco Points
 								</span>
-								<span className='text-sm text-gray-400'>Earn points for sustainable shopping</span>
+								<span className='text-sm text-gray-400 font-medium'>Earned upon purchase</span>
 							</div>
 						</div>
 
@@ -153,13 +164,16 @@ Eco Points: 25`,
 						{/* Specifications */}
 						<div className='mb-6'>
 							<h2 className='text-xl font-bold mb-3'>Specifications</h2>
-							<div className='grid grid-cols-2 gap-2'>
-								{listing.specifications.map((spec, index) => (
-									<div key={index} className='flex justify-between py-2 border-b border-border'>
-										<span className='text-muted-foreground'>{spec.label}:</span>
-										<span className='font-medium'>{spec.value}</span>
+							<div className='grid grid-cols-2 gap-x-8 gap-y-2'>
+								{listing.specifications && Object.entries(listing.specifications).map(([key, value], index) => (
+									<div key={index} className='flex justify-between py-2 border-b border-gray-700'>
+										<span className='text-gray-400 capitalize'>{key}:</span>
+										<span className='font-medium text-white'>{value}</span>
 									</div>
 								))}
+								{!listing.specifications && (
+									<p className='text-sm text-gray-500 italic'>No detailed specifications provided.</p>
+								)}
 							</div>
 						</div>
 
@@ -188,9 +202,7 @@ Eco Points: 25`,
 									onClick={handleAddToCart}
 									className='flex-1 min-w-[150px] px-6 py-3 bg-gray-800 text-white font-bold rounded-lg hover:bg-gray-700 transition duration-300 flex items-center justify-center'
 								>
-									<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13v4a2 2 0 01-2 2H9a2 2 0 01-2-2v-4m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
-									</svg>
+									<ShoppingCart className='h-5 w-5 mr-2' />
 									Add to Cart
 								</button>
 								<button
@@ -206,15 +218,15 @@ Eco Points: 25`,
 						<div className='grid grid-cols-3 gap-4 pt-6 border-t border-gray-700'>
 							<div className='text-center'>
 								<Truck className='mx-auto mb-2 text-green-400' size={24} />
-								<span className='text-sm'>Fast Delivery</span>
+								<span className='text-sm'>Local Delivery</span>
 							</div>
 							<div className='text-center'>
 								<Shield className='mx-auto mb-2 text-green-400' size={24} />
-								<span className='text-sm'>Secure Payment</span>
+								<span className='text-sm'>Verified Seller</span>
 							</div>
 							<div className='text-center'>
 								<RotateCcw className='mx-auto mb-2 text-green-400' size={24} />
-								<span className='text-sm'>30-Day Return</span>
+								<span className='text-sm'>Quality Guarantee</span>
 							</div>
 						</div>
 					</div>
@@ -228,31 +240,38 @@ Eco Points: 25`,
 					className='mt-12 p-6 bg-gray-800 rounded-xl border border-gray-700'
 				>
 					<h2 className='text-2xl font-bold mb-4'>Seller Information</h2>
-					<div className='flex items-center'>
-						<div className='w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center mr-4'>
-							<span className='text-2xl font-bold'>{listing.seller.name.charAt(0)}</span>
-						</div>
-						<div>
-							<div className='flex items-center'>
-								<h3 className='text-xl font-bold mr-2'>{listing.seller.name}</h3>
-								{listing.seller.verified && (
-									<Shield size={20} className='text-green-400' />
-								)}
+					<div className='flex flex-col md:flex-row items-center'>
+						<div className='flex items-center flex-1'>
+							<div className='w-16 h-16 rounded-full bg-green-900 flex items-center justify-center mr-4'>
+								<span className='text-2xl font-bold text-green-400'>
+									{listing.seller?.name?.charAt(0) || "S"}
+								</span>
 							</div>
-							<div className='flex items-center text-gray-400'>
-								<Star size={16} className='text-yellow-400 fill-current mr-1' />
-								<span>{listing.seller.rating} ({listing.seller.reviews} reviews)</span>
+							<div>
+								<div className='flex items-center'>
+									<h3 className='text-xl font-bold mr-2'>{listing.seller?.name || "Anonymous Seller"}</h3>
+									{listing.seller?.verifiedSeller && (
+										<Shield size={20} className='text-blue-400' />
+									)}
+								</div>
+								<div className='flex items-center text-gray-400'>
+									<Star size={16} className='text-yellow-400 fill-current mr-1' />
+									<span>{listing.seller?.rating || 4.5} ({listing.seller?.totalReviews || 0} reviews)</span>
+								</div>
 							</div>
 						</div>
-						<div className='ml-auto flex gap-2'>
+						<div className='mt-4 md:mt-0 flex gap-2'>
 							<button className='px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition duration-300 flex items-center'>
-								<Heart size={16} className='mr-2' />
-								Follow
+								<Mail size={16} className='mr-2' />
+								Contact Seller
 							</button>
-							<button className='px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition duration-300 flex items-center'>
-								<Share2 size={16} className='mr-2' />
-								Contact
-							</button>
+							<Link 
+								to={`/profile/${listing.seller?._id}`}
+								className='px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition duration-300 flex items-center'
+							>
+								<User size={16} className='mr-2' />
+								View Profile
+							</Link>
 						</div>
 					</div>
 				</motion.div>

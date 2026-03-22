@@ -101,7 +101,7 @@ const ActivityFeed = () => {
       ];
       
       const newActivity = {
-        id: activities.length + 1,
+        id: Date.now(),
         type: newActivityTypes[Math.floor(Math.random() * newActivityTypes.length)],
         user: newUserNames[Math.floor(Math.random() * newUserNames.length)],
         item: newItemNames[Math.floor(Math.random() * newItemNames.length)],

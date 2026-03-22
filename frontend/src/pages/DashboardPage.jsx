@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useAuthStore } from "../store/authStore";
 import { formatDate } from "../utils/date";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const DashboardPage = () => {
 	const { user, logout } = useAuthStore();
@@ -55,6 +55,25 @@ const DashboardPage = () => {
 						{formatDate(user.lastLogin)}
 					</p>
 				</motion.div>
+
+				{user.userType === "admin" && (
+					<motion.div
+						className='p-4 bg-gray-800 bg-opacity-50 rounded-lg border border-gray-700'
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.5 }}
+					>
+						<h3 className='text-xl font-semibold text-red-400 mb-3'>Admin Control Panel</h3>
+						<div className='space-y-3'>
+							<Link to="/admin/disputes" className='block w-full text-center py-2 bg-gray-700 rounded hover:bg-gray-600 transition'>
+								Manage Disputes
+							</Link>
+							<Link to="/admin/users" className='block w-full text-center py-2 bg-gray-700 rounded hover:bg-gray-600 transition'>
+								Verify Users & Technicians
+							</Link>
+						</div>
+					</motion.div>
+				)}
 			</div>
 
 			<motion.div

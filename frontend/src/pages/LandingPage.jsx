@@ -112,64 +112,70 @@ const LandingPage = () => {
 					transition={{ duration: 0.8, delay: 0.4 }}
 					className='flex flex-wrap justify-center gap-3 sm:gap-4 mb-12 sm:mb-16'
 				>
-					<Link
-						to='/marketplace'
-						className={`px-6 py-3 sm:px-8 sm:py-4 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-base sm:text-lg hover:from-green-600 hover:to-emerald-700 transition duration-300 shadow-lg hover:shadow-green-500/30 relative overflow-hidden group ${darkMode ? '' : 'shadow-md'}`}
+					<motion.div
 						whileHover={{ scale: 1.05 }}
 						whileTap={{ scale: 0.95 }}
 						transition={{ type: "spring", stiffness: 400, damping: 10 }}
 					>
-						<span className='relative z-10 flex items-center'>
-							Explore Marketplace
-							<motion.svg 
-								className='ml-2 w-4 h-4 sm:w-5 sm:h-5'
-								width='20'
-								height='20'
-								viewBox='0 0 24 24'
-								fill='none'
-								stroke='currentColor'
-								strokeWidth='2'
-								strokeLinecap='round'
-								strokeLinejoin='round'
-								whileHover={{ x: 5 }}
-								transition={{ type: "spring", stiffness: 300 }}
-							>
-								<path d='M5 12h14'/>
-								<path d='M12 5l7 7-7 7'/>
-							</motion.svg>
-						</span>
-						<div className='absolute inset-0 bg-gradient-to-r from-emerald-600 to-green-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left'></div>
-					</Link>
-					<Link
-						to='/signup'
-						className={`px-6 py-3 sm:px-8 sm:py-4 rounded-lg border-2 ${darkMode ? 'border-green-500 text-green-400 hover:bg-green-500 hover:text-white' : 'border-green-600 text-green-600 hover:bg-green-600 hover:text-white'} font-bold text-base sm:text-lg transition duration-300 relative overflow-hidden group ${darkMode ? '' : 'shadow-md'}`}
+						<Link
+							to='/marketplace'
+							className={`px-6 py-3 sm:px-8 sm:py-4 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-base sm:text-lg hover:from-green-600 hover:to-emerald-700 transition duration-300 shadow-lg hover:shadow-green-500/30 relative overflow-hidden group ${darkMode ? '' : 'shadow-md'}`}
+						>
+							<span className='relative z-10 flex items-center'>
+								Explore Marketplace
+								<motion.svg 
+									className='ml-2 w-4 h-4 sm:w-5 sm:h-5'
+									width='20'
+									height='20'
+									viewBox='0 0 24 24'
+									fill='none'
+									stroke='currentColor'
+									strokeWidth='2'
+									strokeLinecap='round'
+									strokeLinejoin='round'
+									whileHover={{ x: 5 }}
+									transition={{ type: "spring", stiffness: 300 }}
+								>
+									<path d='M5 12h14'/>
+									<path d='M12 5l7 7-7 7'/>
+								</motion.svg>
+							</span>
+							<div className='absolute inset-0 bg-gradient-to-r from-emerald-600 to-green-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left'></div>
+						</Link>
+					</motion.div>
+					<motion.div
 						whileHover={{ scale: 1.05 }}
 						whileTap={{ scale: 0.95 }}
 						transition={{ type: "spring", stiffness: 400, damping: 10 }}
 					>
-						<span className='relative z-10 flex items-center'>
-							Join the Community
-							<motion.svg 
-								className='ml-2 w-4 h-4 sm:w-5 sm:h-5'
-								width='20'
-								height='20'
-								viewBox='0 0 24 24'
-								fill='none'
-								stroke='currentColor'
-								strokeWidth='2'
-								strokeLinecap='round'
-								strokeLinejoin='round'
-								whileHover={{ x: 5 }}
-								transition={{ type: "spring", stiffness: 300 }}
-							>
-								<path d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/>
-								<circle cx='9' cy='7' r='4'/>
-								<line x1='19' y1='8' x2='19' y2='14'/>
-								<line x1='22' y1='11' x2='16' y2='11'/>
-							</motion.svg>
-						</span>
-						<div className='absolute inset-0 bg-gradient-to-r from-green-600 to-emerald-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left'></div>
-					</Link>
+						<Link
+							to='/signup'
+							className={`px-6 py-3 sm:px-8 sm:py-4 rounded-lg border-2 ${darkMode ? 'border-green-500 text-green-400 hover:bg-green-500 hover:text-white' : 'border-green-600 text-green-600 hover:bg-green-600 hover:text-white'} font-bold text-base sm:text-lg transition duration-300 relative overflow-hidden group ${darkMode ? '' : 'shadow-md'}`}
+						>
+							<span className='relative z-10 flex items-center'>
+								Join the Community
+								<motion.svg 
+									className='ml-2 w-4 h-4 sm:w-5 sm:h-5'
+									width='20'
+									height='20'
+									viewBox='0 0 24 24'
+									fill='none'
+									stroke='currentColor'
+									strokeWidth='2'
+									strokeLinecap='round'
+									strokeLinejoin='round'
+									whileHover={{ x: 5 }}
+									transition={{ type: "spring", stiffness: 300 }}
+								>
+									<path d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/>
+									<circle cx='9' cy='7' r='4'/>
+									<line x1='19' y1='8' x2='19' y2='14'/>
+									<line x1='22' y1='11' x2='16' y2='11'/>
+								</motion.svg>
+							</span>
+							<div className='absolute inset-0 bg-gradient-to-r from-green-600 to-emerald-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left'></div>
+						</Link>
+					</motion.div>
 				</motion.div>
 				
 				{/* Animated Stats */}
@@ -447,34 +453,37 @@ const LandingPage = () => {
 					viewport={{ once: true }}
 					transition={{ duration: 0.6, delay: 0.4 }}
 				>
-					<Link
-						to='/marketplace'
-						className={`inline-block px-6 py-3 sm:px-8 sm:py-4 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-base sm:text-lg hover:from-green-600 hover:to-emerald-700 transition duration-300 shadow-lg hover:shadow-green-500/30 relative overflow-hidden group ${darkMode ? '' : 'shadow-md'}`}
+					<motion.div
 						whileHover={{ scale: 1.05 }}
 						whileTap={{ scale: 0.95 }}
 						transition={{ type: "spring", stiffness: 400, damping: 10 }}
 					>
-						<span className='relative z-10 flex items-center justify-center'>
-							View All Listings
-							<motion.svg 
-								className='ml-2 w-4 h-4 sm:w-5 sm:h-5'
-								width='20'
-								height='20'
-								viewBox='0 0 24 24'
-								fill='none'
-								stroke='currentColor'
-								strokeWidth='2'
-								strokeLinecap='round'
-								strokeLinejoin='round'
-								whileHover={{ x: 5 }}
-								transition={{ type: "spring", stiffness: 300 }}
-							>
-								<path d='M5 12h14'/>
-								<path d='M12 5l7 7-7 7'/>
-							</motion.svg>
-						</span>
-						<div className='absolute inset-0 bg-gradient-to-r from-emerald-600 to-green-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left'></div>
-					</Link>
+						<Link
+							to='/marketplace'
+							className={`inline-block px-6 py-3 sm:px-8 sm:py-4 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-base sm:text-lg hover:from-green-600 hover:to-emerald-700 transition duration-300 shadow-lg hover:shadow-green-500/30 relative overflow-hidden group ${darkMode ? '' : 'shadow-md'}`}
+						>
+							<span className='relative z-10 flex items-center justify-center'>
+								View All Listings
+								<motion.svg 
+									className='ml-2 w-4 h-4 sm:w-5 sm:h-5'
+									width='20'
+									height='20'
+									viewBox='0 0 24 24'
+									fill='none'
+									stroke='currentColor'
+									strokeWidth='2'
+									strokeLinecap='round'
+									strokeLinejoin='round'
+									whileHover={{ x: 5 }}
+									transition={{ type: "spring", stiffness: 300 }}
+								>
+									<path d='M5 12h14'/>
+									<path d='M12 5l7 7-7 7'/>
+								</motion.svg>
+							</span>
+							<div className='absolute inset-0 bg-gradient-to-r from-emerald-600 to-green-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left'></div>
+						</Link>
+					</motion.div>
 				</motion.div>
 			</section>
 
@@ -615,36 +624,39 @@ const LandingPage = () => {
 					viewport={{ once: true }}
 					transition={{ duration: 0.6, delay: 0.4 }}
 				>
-					<Link
-						to='/signup'
-						className={`inline-block px-8 py-3 sm:px-10 sm:py-4 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-lg sm:text-xl hover:from-green-600 hover:to-emerald-700 transition duration-300 shadow-lg hover:shadow-green-500/30 relative overflow-hidden group ${darkMode ? '' : 'shadow-md'}`}
+					<motion.div
 						whileHover={{ scale: 1.05 }}
 						whileTap={{ scale: 0.95 }}
 						transition={{ type: "spring", stiffness: 400, damping: 10 }}
 					>
-						<span className='relative z-10 flex items-center justify-center'>
-							Get Started Today
-							<motion.svg 
-								className='ml-2 w-5 h-5 sm:w-6 sm:h-6'
-								width='24'
-								height='24'
-								viewBox='0 0 24 24'
-								fill='none'
-								stroke='currentColor'
-								strokeWidth='2'
-								strokeLinecap='round'
-								strokeLinejoin='round'
-								whileHover={{ x: 5 }}
-								transition={{ type: "spring", stiffness: 300 }}
-							>
-								<path d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/>
-								<circle cx='9' cy='7' r='4'/>
-								<line x1='19' y1='8' x2='19' y2='14'/>
-								<line x1='22' y1='11' x2='16' y2='11'/>
-							</motion.svg>
-						</span>
-						<div className='absolute inset-0 bg-gradient-to-r from-emerald-600 to-green-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left'></div>
-					</Link>
+						<Link
+							to='/signup'
+							className={`inline-block px-8 py-3 sm:px-10 sm:py-4 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-lg sm:text-xl hover:from-green-600 hover:to-emerald-700 transition duration-300 shadow-lg hover:shadow-green-500/30 relative overflow-hidden group ${darkMode ? '' : 'shadow-md'}`}
+						>
+							<span className='relative z-10 flex items-center justify-center'>
+								Get Started Today
+								<motion.svg 
+									className='ml-2 w-5 h-5 sm:w-6 sm:h-6'
+									width='24'
+									height='24'
+									viewBox='0 0 24 24'
+									fill='none'
+									stroke='currentColor'
+									strokeWidth='2'
+									strokeLinecap='round'
+									strokeLinejoin='round'
+									whileHover={{ x: 5 }}
+									transition={{ type: "spring", stiffness: 300 }}
+								>
+									<path d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/>
+									<circle cx='9' cy='7' r='4'/>
+									<line x1='19' y1='8' x2='19' y2='14'/>
+									<line x1='22' y1='11' x2='16' y2='11'/>
+								</motion.svg>
+							</span>
+							<div className='absolute inset-0 bg-gradient-to-r from-emerald-600 to-green-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left'></div>
+						</Link>
+					</motion.div>
 				</motion.div>
 			</section>
 

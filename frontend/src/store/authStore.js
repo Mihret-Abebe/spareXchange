@@ -95,4 +95,28 @@ export const useAuthStore = create((set) => ({
 			throw error;
 		}
 	},
+	requestVerification: async (userType, expertise, documents) => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await axios.post(`${API_URL}/request-verification`, { userType, expertise, documents });
+			set({ user: response.data.user, isLoading: false, message: response.data.message });
+		} catch (error) {
+			set({ error: error.response?.data?.message || "Error requesting verification", isLoading: false });
+			throw error;
+		}
+	},
+	redeemPoints: async (points, rewardDescription) => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await axios.post(`${import.meta.env.MODE === "development" ? "http://localhost:5000/api/users" : "/api/users"}/redeem-points`, { points, rewardDescription });
+			set({ 
+				user: { ...useAuthStore.getState().user, ecoPoints: response.data.currentPoints }, 
+				isLoading: false, 
+				message: response.data.message 
+			});
+		} catch (error) {
+			set({ error: error.response?.data?.message || "Error redeeming points", isLoading: false });
+			throw error;
+		}
+	},
 }));

@@ -1,9 +1,21 @@
 import { Listing } from "../models/listing.model.js";
+import { User } from "../models/user.model.js";
+import { SearchLog } from "../models/searchLog.model.js";
+import { EcoPointTransaction } from "../models/ecoPointTransaction.model.js";
+import { scanMatches } from "../services/matching.service.js";
 
 // Create a new listing
 export const createListing = async (req, res) => {
 	try {
 		const { title, description, price, category, condition, location, images, contactInfo, specifications } = req.body;
+
+		const user = await User.findById(req.userId);
+		if (!user || user.status === "banned") return res.status(403).json({ success: false, message: "Forbidden" });
+
+		// Only verified users or technicians can post spare parts
+		if (user.userType !== "technician" && user.roleStatus !== "verified") {
+			return res.status(403).json({ success: false, message: "Only verified users or technicians can post spare parts" });
+		}
 
 		// Validate required fields
 		if (!title || !description || !price || !category || !condition || !location) {
@@ -25,6 +37,30 @@ export const createListing = async (req, res) => {
 
 		const savedListing = await newListing.save();
 
+		// Award 10 eco-points for posting (according to SRS)
+		try {
+			user.ecoPoints += 10;
+			if (!user.achievements.includes("First Listing Posted")) {
+				user.achievements.push("First Listing Posted");
+			}
+			await user.save();
+
+			// Log transaction
+			const transaction = new EcoPointTransaction({
+				userId: user._id,
+				points: 10,
+				reason: "posting",
+				description: `Awarded 10 points for posting listing: ${savedListing.title}`,
+				referenceId: savedListing._id
+			});
+			await transaction.save();
+		} catch (pointError) {
+			console.error("Failed to award points for listing:", pointError);
+		}
+
+		// Trigger automated matching engine (async, don't block response)
+		scanMatches(savedListing);
+
 		res.status(201).json({
 			success: true,
 			message: "Listing created successfully",
@@ -42,12 +78,31 @@ export const getListings = async (req, res) => {
 		const { category, condition, minPrice, maxPrice, location, search, sort } = req.query;
 
 		// Build query object
-		const query = { available: true }; // Only show available listings
+		const query = { available: true, isActive: true }; // Only show available and active listings
 
 		if (category) query.category = category;
 		if (condition) query.condition = condition;
 		if (location) query.location = { $regex: location, $options: "i" }; // case-insensitive
 		if (search) query.title = { $regex: search, $options: "i" }; // case-insensitive
+
+		// Advanced Filtering: Brand, Model, Year
+		const { brand, model, year, latitude, longitude, radius } = req.query;
+		if (brand) query.brand = brand;
+		if (model) query.model = model;
+		if (year) query.year = Number(year);
+
+		// Proximity Search (GeoJSON)
+		if (latitude && longitude) {
+			query.locationCoords = {
+				$near: {
+					$geometry: {
+						type: "Point",
+						coordinates: [Number(longitude), Number(latitude)],
+					},
+					$maxDistance: (Number(radius) || 50) * 1000, // Default 50km
+				},
+			};
+		}
 
 		// Price range filter
 		if (minPrice || maxPrice) {
@@ -66,6 +121,21 @@ export const getListings = async (req, res) => {
 			.populate("seller", "name profilePicture verifiedSeller ecoPoints") // populate seller info
 			.sort(sortOption);
 
+		// Log search if search or category or location filters are used
+		if (search || category || location) {
+			try {
+				const log = new SearchLog({
+					userId: req.userId || null,
+					query: search,
+					filters: { category, condition, minPrice, maxPrice, location },
+					resultsCount: listings.length,
+				});
+				await log.save();
+			} catch (logError) {
+				console.error("Failed to log search:", logError);
+			}
+		}
+
 		res.status(200).json({
 			success: true,
 			count: listings.length,
@@ -82,7 +152,7 @@ export const getListing = async (req, res) => {
 	try {
 		const { id } = req.params;
 
-		const listing = await Listing.findById(id)
+		const listing = await Listing.findOne({ _id: id, isActive: true })
 			.populate("seller", "name profilePicture verifiedSeller ecoPoints location phone");
 
 		if (!listing) {
@@ -164,7 +234,8 @@ export const deleteListing = async (req, res) => {
 			return res.status(403).json({ success: false, message: "Not authorized to delete this listing" });
 		}
 
-		await Listing.findByIdAndDelete(id);
+		listing.isActive = false;
+		await listing.save();
 
 		res.status(200).json({
 			success: true,
@@ -179,7 +250,7 @@ export const deleteListing = async (req, res) => {
 // Get listings by current user
 export const getUserListings = async (req, res) => {
 	try {
-		const listings = await Listing.find({ seller: req.userId })
+		const listings = await Listing.find({ seller: req.userId, isActive: true })
 			.sort({ createdAt: -1 }); // newest first
 
 		res.status(200).json({

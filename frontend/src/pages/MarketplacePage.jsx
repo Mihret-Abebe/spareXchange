@@ -1,75 +1,71 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Filter, MapPin, Star, Heart, ShoppingCart } from "lucide-react";
+import { Search, Filter, MapPin, Star, Heart, ShoppingCart, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
+import { useDisputeStore } from "../store/disputeStore";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const MarketplacePage = () => {
+	const { user } = useAuthStore();
+	const { createDispute } = useDisputeStore();
 	const [searchTerm, setSearchTerm] = useState("");
+	
+	const handleReport = async (listing) => {
+		if (!user) {
+			alert("Please login to report a listing.");
+			return;
+		}
+		const reason = prompt("Reason for reporting?");
+		if (!reason) return;
+		const description = prompt("Please provide a description:");
+		if (!description) return;
+
+		try {
+			await createDispute({
+				targetId: listing.seller?._id,
+				exchangeId: null,
+				reason,
+				description
+			});
+			alert("Report submitted successfully.");
+		} catch (error) {
+			alert("Failed to submit report.");
+		}
+	};
 	const [selectedCategory, setSelectedCategory] = useState("all");
 	const [listings, setListings] = useState([]);
+	const [isLoading, setIsLoading] = useState(true);
 
-	// Mock data for spare part listings
-	const mockListings = [
-		{
-			id: 1,
-			title: "Car Engine Block - Toyota Camry 2015",
-			price: 450,
-			location: "Addis Ababa",
-			category: "vehicle",
-			image: "/placeholder-car-engine.jpg",
-			seller: "AutoParts Shop",
-			rating: 4.8,
-			condition: "Used - Good",
-			ecoPoints: 25,
-		},
-		{
-			id: 2,
-			title: "Laptop Battery - Dell Inspiron 15",
-			price: 85,
-			location: "Adama",
-			category: "electronics",
-			image: "/placeholder-laptop-battery.jpg",
-			seller: "TechSavers",
-			rating: 4.5,
-			condition: "Refurbished",
-			ecoPoints: 10,
-		},
-		{
-			id: 3,
-			title: "Motorcycle Carburetor - Honda CB125",
-			price: 120,
-			location: "Dire Dawa",
-			category: "vehicle",
-			image: "/placeholder-motorcycle-carburetor.jpg",
-			seller: "BikeFix Garage",
-			rating: 4.9,
-			condition: "New",
-			ecoPoints: 15,
-		},
-		{
-			id: 4,
-			title: "Washing Machine Motor - LG 8kg",
-			price: 220,
-			location: "Hawassa",
-			category: "appliances",
-			image: "/placeholder-washing-machine.jpg",
-			seller: "HomeAppliance Masters",
-			rating: 4.7,
-			condition: "Used - Excellent",
-			ecoPoints: 20,
-		},
-	];
+	const fetchListings = async () => {
+		setIsLoading(true);
+		try {
+			const params = new URLSearchParams();
+			if (searchTerm) params.append("search", searchTerm);
+			if (selectedCategory !== "all") params.append("category", selectedCategory);
+			
+			const response = await fetch(`http://localhost:5000/api/listings?${params.toString()}`);
+			const data = await response.json();
+			if (data.success) {
+				setListings(data.listings);
+			}
+		} catch (error) {
+			console.error("Error fetching listings:", error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
 	useEffect(() => {
-		// Simulate fetching listings from API
-		setListings(mockListings);
-	}, []);
+		fetchListings();
+	}, [selectedCategory]);
 
-	const filteredListings = listings.filter(listing => {
-		const matchesSearch = listing.title.toLowerCase().includes(searchTerm.toLowerCase());
-		const matchesCategory = selectedCategory === "all" || listing.category === selectedCategory;
-		return matchesSearch && matchesCategory;
-	});
+	const handleSearch = (e) => {
+		e.preventDefault();
+		fetchListings();
+	};
+
+	const filteredListings = listings; // Backend already filters
 
 	const categories = [
 		{ id: "all", name: "All Categories" },
@@ -104,7 +100,7 @@ const MarketplacePage = () => {
 					transition={{ duration: 0.5, delay: 0.1 }}
 					className='mb-10'
 				>
-					<div className='flex flex-col md:flex-row gap-4 mb-6'>
+					<form onSubmit={handleSearch} className='flex flex-col md:flex-row gap-4 mb-6'>
 						<div className='relative flex-grow'>
 							<div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
 								<Search className='text-muted-foreground' size={20} />
@@ -112,15 +108,18 @@ const MarketplacePage = () => {
 							<input
 								type='text'
 								placeholder='Search for spare parts...'
-								className='w-full pl-10 pr-4 py-3 bg-card rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary text-foreground placeholder-muted-foreground'
+								className='w-full pl-10 pr-4 py-3 bg-card rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary text-white placeholder-muted-foreground'
 								value={searchTerm}
 								onChange={(e) => setSearchTerm(e.target.value)}
 							/>
 						</div>
-						<button className='px-6 py-3 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-bold rounded-lg hover:from-primary/90 hover:to-secondary/90 transition duration-300'>
+						<button 
+							type='submit'
+							className='px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg hover:from-green-600 hover:to-emerald-700 transition duration-300'
+						>
 							Search
 						</button>
-					</div>
+					</form>
 
 					{/* Category Filters */}
 					<div className='flex flex-wrap gap-2'>
@@ -147,9 +146,13 @@ const MarketplacePage = () => {
 					transition={{ duration: 0.5, delay: 0.2 }}
 					className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
 				>
-					{filteredListings.map((listing, index) => (
+					{isLoading ? (
+						<div className='col-span-full flex justify-center py-12'>
+							<LoadingSpinner />
+						</div>
+					) : listings.map((listing, index) => (
 						<motion.div
-							key={listing.id}
+							key={listing._id}
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ duration: 0.3, delay: index * 0.1 }}
@@ -157,42 +160,49 @@ const MarketplacePage = () => {
 						>
 							<div className='relative'>
 								<img
-									src={listing.image || "/placeholder-image.jpg"}
+									src={listing.images?.[0] || "/placeholder-image.jpg"}
 									alt={listing.title}
 									className='w-full h-48 object-cover'
 								/>
-								<div className='absolute top-2 right-2'>
-									<button className='p-2 bg-card bg-opacity-50 rounded-full hover:bg-opacity-75 transition duration-300'>
-										<Heart size={20} className='text-foreground' />
+								<div className='absolute top-2 right-2 flex gap-2'>
+									<button className='p-2 bg-gray-900 bg-opacity-50 rounded-full hover:bg-opacity-75 transition duration-300'>
+										<Heart size={16} className='text-white' />
+									</button>
+									<button 
+										onClick={() => handleReport(listing)}
+										className='p-2 bg-red-900 bg-opacity-50 rounded-full hover:bg-opacity-75 transition duration-300'
+										title='Report Listing'
+									>
+										<AlertTriangle size={16} className='text-red-400' />
 									</button>
 								</div>
-								<div className='absolute bottom-2 left-2 bg-primary text-primary-foreground text-xs font-bold px-2 py-1 rounded'>
-									{listing.ecoPoints} EcoPts
+								<div className='absolute bottom-2 left-2 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded'>
+									+{listing.ecoPoints || 10} EcoPts
 								</div>
 							</div>
 							<div className='p-4'>
 								<div className='flex justify-between items-start mb-2'>
-									<h3 className='font-bold text-lg truncate'>{listing.title}</h3>
-									<span className='text-primary font-bold'>${listing.price}</span>
+									<h3 className='font-bold text-lg truncate' title={listing.title}>{listing.title}</h3>
+									<span className='text-green-400 font-bold'>${listing.price}</span>
 								</div>
-								<div className='flex items-center text-sm text-muted-foreground mb-2'>
+								<div className='flex items-center text-sm text-gray-400 mb-2'>
 									<MapPin size={16} className='mr-1' />
-									<span>{listing.location}</span>
+									<span>{listing.location || "Addis Ababa"}</span>
 								</div>
 								<div className='flex items-center justify-between mb-3'>
 									<div className='flex items-center'>
 										<Star size={16} className='text-yellow-400 fill-current' />
-										<span className='ml-1 text-sm'>{listing.rating}</span>
+										<span className='ml-1 text-sm'>{listing.seller?.rating || 4.5}</span>
 									</div>
-									<span className='text-xs bg-accent px-2 py-1 rounded'>{listing.condition}</span>
+									<span className='text-xs bg-gray-700 px-2 py-1 rounded'>{listing.condition}</span>
 								</div>
 								<div className='flex justify-between items-center'>
-									<span className='text-sm text-muted-foreground'>by {listing.seller}</span>
+									<span className='text-sm text-gray-400'>by {listing.seller?.name || "Seller"}</span>
 									<Link
-										to={`/listing/${listing.id}`}
-										className='px-3 py-1 bg-gradient-to-r from-primary to-secondary text-primary-foreground text-sm font-bold rounded-lg hover:from-primary/90 hover:to-secondary/90 transition duration-300'
+										to={`/listing/${listing._id}`}
+										className='px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold rounded-lg hover:from-green-600 hover:to-emerald-700 transition duration-300'
 									>
-										<ShoppingCart size={16} />
+										View
 									</Link>
 								</div>
 							</div>

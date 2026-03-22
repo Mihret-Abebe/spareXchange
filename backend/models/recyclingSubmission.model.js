@@ -59,6 +59,15 @@ const recyclingSubmissionSchema = new mongoose.Schema(
 		verifiedAt: {
 			type: Date,
 		},
+		verificationToken: {
+			type: String,
+			unique: true,
+			sparse: true, // Allow multiple nulls if token is only generated when needed
+		},
+		isVerifiedByRecycler: {
+			type: Boolean,
+			default: false,
+		},
 	},
 	{ timestamps: true }
 );

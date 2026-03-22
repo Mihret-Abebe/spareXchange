@@ -1,5 +1,7 @@
 import { RecyclingSubmission } from "../models/recyclingSubmission.model.js";
 import { User } from "../models/user.model.js";
+import { EcoPointTransaction } from "../models/ecoPointTransaction.model.js";
+import crypto from "crypto";
 
 // Calculate eco points based on item type and weight/value
 const calculateEcoPoints = (itemType, estimatedWeight, estimatedValue) => {
@@ -43,6 +45,8 @@ export const createRecyclingSubmission = async (req, res) => {
 		// Calculate eco points
 		const ecoPointsEarned = calculateEcoPoints(itemType, estimatedWeight, estimatedValue);
 
+		const verificationToken = crypto.randomInt(100000, 999999).toString();
+
 		const newSubmission = new RecyclingSubmission({
 			userId: req.userId, // from middleware
 			itemType,
@@ -53,14 +57,19 @@ export const createRecyclingSubmission = async (req, res) => {
 			location,
 			verificationImages: verificationImages || [],
 			notes,
+			verificationToken,
 		});
 
 		const savedSubmission = await newSubmission.save();
+
+		// Generate a placeholder QR code data (in a real app, use a library like 'qrcode')
+		const qrCodeData = `sparexchange:recycle:${verificationToken}`;
 
 		res.status(201).json({
 			success: true,
 			message: "Recycling submission created successfully",
 			submission: savedSubmission,
+			qrCodeData, // Frontend can use this to generate a QR code
 		});
 	} catch (error) {
 		console.error("Error in createRecyclingSubmission:", error);
@@ -163,6 +172,16 @@ export const approveRecyclingSubmission = async (req, res) => {
 		if (user) {
 			user.ecoPoints += submission.ecoPointsEarned;
 			await user.save();
+
+			// Add to Ledger
+			const transaction = new EcoPointTransaction({
+				userId: user._id,
+				points: submission.ecoPointsEarned,
+				reason: "recycling",
+				description: `Recycled ${submission.itemType}: ${submission.itemDescription}`,
+				referenceId: submission._id
+			});
+			await transaction.save();
 		}
 
 		res.status(200).json({
@@ -235,6 +254,54 @@ export const completeRecyclingSubmission = async (req, res) => {
 		});
 	} catch (error) {
 		console.error("Error in completeRecyclingSubmission:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+// Verify recycling by token (Recycler Role)
+export const verifyRecyclingByToken = async (req, res) => {
+	try {
+		const { token } = req.body;
+
+		// Find the pending submission with this token
+		const submission = await RecyclingSubmission.findOne({ verificationToken: token, status: "pending" });
+
+		if (!submission) {
+			return res.status(404).json({ success: false, message: "Invalid or expired verification token" });
+		}
+
+		submission.status = "approved";
+		submission.isVerifiedByRecycler = true;
+		submission.verifiedBy = req.userId; // ID of the recycler verifying the action
+		submission.verifiedAt = new Date();
+		await submission.save();
+
+		// Update user's eco points and ledger
+		const user = await User.findById(submission.userId);
+		if (user) {
+			user.ecoPoints += submission.ecoPointsEarned;
+			if (!user.achievements.includes("Eco Warrior (First Recycle)")) {
+				user.achievements.push("Eco Warrior (First Recycle)");
+			}
+			await user.save();
+
+			const transaction = new EcoPointTransaction({
+				userId: user._id,
+				points: submission.ecoPointsEarned,
+				reason: "recycling",
+				description: `Recycled ${submission.itemType} (Verified by Recycler)`,
+				referenceId: submission._id
+			});
+			await transaction.save();
+		}
+
+		res.status(200).json({
+			success: true,
+			message: "Recycling verified successfully and eco points awarded",
+			submission,
+		});
+	} catch (error) {
+		console.error("Error in verifyRecyclingByToken:", error);
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };

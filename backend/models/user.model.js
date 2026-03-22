@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema(
 		},
 		userType: {
 			type: String,
-			enum: ["individual", "garage", "repair-shop", "recycler", "admin"],
+			enum: ["individual", "garage", "repair-shop", "recycler", "technician", "admin"],
 			default: "individual",
 		},
 		verifiedSeller: {
@@ -53,16 +53,41 @@ const userSchema = new mongoose.Schema(
 			type: String,
 			default: "",
 		},
-		trustScore: {
-			type: Number,
-			default: 0,
-		},
 		totalReviews: {
 			type: Number,
 			default: 0,
 		},
+		interests: [String],
+		achievements: [String],
+		locationCoords: {
+			type: {
+				type: String,
+				enum: ["Point"],
+				default: "Point",
+			},
+			coordinates: {
+				type: [Number],
+				default: [0, 0],
+			},
+		},
+		verificationDocs: [String], // URLs to PDF or images
+		roleStatus: {
+			type: String,
+			enum: ["none", "pending", "verified", "rejected"],
+			default: "none",
+		},
+		isBanned: {
+			type: Boolean,
+			default: false,
+		},
+		isActive: {
+			type: Boolean,
+			default: true,
+		},
 	},
 	{ timestamps: true }
 );
+
+userSchema.index({ locationCoords: "2dsphere" });
 
 export const User = mongoose.model("User", userSchema);

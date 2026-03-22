@@ -1,24 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { User, Mail, MapPin, Phone, Edit3, Star, Package, CreditCard, Settings, LogOut } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { User, Mail, MapPin, Phone, Edit3, Star, Package, CreditCard, Settings, LogOut, CheckCircle, AlertCircle, Clock, ShieldCheck, Award } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
 
 const ProfilePage = () => {
 	const navigate = useNavigate();
+	const { user, logout, requestVerification, redeemPoints, isLoading } = useAuthStore();
 	const [activeTab, setActiveTab] = useState("profile");
+	const [isRedeeming, setIsRedeeming] = useState(false);
 
-	// Mock user data
-	const user = {
-		name: "Abeselom Tsegazeab",
-		email: "abeselom@example.com",
-		location: "Adama, Ethiopia",
-		phone: "+251 912 345 678",
-		memberSince: "January 2024",
-		ecoPoints: 1250,
-		listings: 24,
-		rating: 4.8,
-		reviews: 42,
-	};
+	if (!user) return null;
 
 	// Mock listings data
 	const listings = [
@@ -75,7 +67,12 @@ const ProfilePage = () => {
 								<span className='text-3xl font-bold text-white'>{user.name.charAt(0)}</span>
 							</div>
 							<div className='flex-1 text-center md:text-left'>
-								<h1 className='text-3xl font-bold mb-2'>{user.name}</h1>
+								<h1 className='text-3xl font-bold mb-2 flex items-center'>
+									{user.name}
+									{user.roleStatus === "verified" && (
+										<ShieldCheck className='ml-2 text-blue-400' size={24} title='Verified Professional' />
+									)}
+								</h1>
 								<div className='flex flex-wrap justify-center md:justify-start gap-4 mb-4'>
 									<div className='flex items-center text-gray-300'>
 										<Mail size={16} className='mr-2' />
@@ -83,7 +80,24 @@ const ProfilePage = () => {
 									</div>
 									<div className='flex items-center text-gray-300'>
 										<MapPin size={16} className='mr-2' />
-										<span>{user.location}</span>
+										<span>{user.location || "Location not set"}</span>
+									</div>
+									<div className='flex items-center'>
+										{user.roleStatus === "none" && (
+											<span className='flex items-center text-yellow-500 text-sm bg-yellow-900 bg-opacity-30 px-2 py-1 rounded-full'>
+												<AlertCircle size={14} className='mr-1' /> Unverified
+											</span>
+										)}
+										{user.roleStatus === "pending" && (
+											<span className='flex items-center text-blue-400 text-sm bg-blue-900 bg-opacity-30 px-2 py-1 rounded-full'>
+												<Clock size={14} className='mr-1' /> Verification Pending
+											</span>
+										)}
+										{user.roleStatus === "verified" && (
+											<span className='flex items-center text-green-400 text-sm bg-green-900 bg-opacity-30 px-2 py-1 rounded-full'>
+												<CheckCircle size={14} className='mr-1' /> Verified {user.userType}
+											</span>
+										)}
 									</div>
 								</div>
 								<div className='flex flex-wrap justify-center md:justify-start gap-6 mb-4'>
@@ -167,12 +181,47 @@ const ProfilePage = () => {
 										</div>
 										<div>
 											<label className='block text-sm text-gray-400 mb-1'>Location</label>
-											<div className='px-4 py-2 bg-gray-700 rounded-lg'>{user.location}</div>
+											<div className='px-4 py-2 bg-gray-700 rounded-lg'>{user.location || "Not set"}</div>
 										</div>
 									</div>
+
+									{user.roleStatus === "none" && (
+										<div className='mt-8 p-4 bg-gray-700 bg-opacity-50 rounded-lg border border-yellow-600 border-opacity-50'>
+											<h3 className='text-lg font-bold mb-2 flex items-center text-yellow-500'>
+												<AlertCircle size={20} className='mr-2' />
+												Get Verified
+											</h3>
+											<p className='text-sm text-gray-300 mb-4'>
+												To post spare parts or work as a technician, you must verify your identity.
+											</p>
+											<div className='space-y-4'>
+												<div>
+													<label className='block text-xs text-gray-400 mb-1'>Account Type</label>
+													<select 
+														className='w-full bg-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500'
+														onChange={(e) => {/* State for verification request would go here */}}
+													>
+														<option value='individual'>Individual Seller</option>
+														<option value='technician'>Technician</option>
+														<option value='repair-shop'>Repair Shop</option>
+														<option value='recycler'>Recycler</option>
+													</select>
+												</div>
+												<button 
+													onClick={() => requestVerification(user.userType, "Automotive", ["https://example.com/doc1.pdf"])}
+													className='w-full py-2 bg-green-600 rounded font-bold hover:bg-green-700 transition duration-300'
+												>
+													Submit Verification Request
+												</button>
+											</div>
+										</div>
+									)}
 								</div>
 								<div>
-									<h3 className='text-lg font-bold mb-4'>Eco Achievements</h3>
+									<h3 className='text-lg font-bold mb-4 flex items-center'>
+										<Award size={20} className='mr-2 text-yellow-400' />
+										Eco Achievements
+									</h3>
 									<div className='bg-gray-700 rounded-lg p-4 mb-4'>
 										<div className='flex justify-between items-center mb-2'>
 											<span className='text-gray-300'>Total Eco Points</span>
@@ -184,10 +233,46 @@ const ProfilePage = () => {
 												style={{ width: `${Math.min(100, (user.ecoPoints / 2000) * 100)}%` }}
 											></div>
 										</div>
-										<div className='text-sm text-gray-400 mt-2'>
-											{2000 - user.ecoPoints} points to reach next level
+										<div className='text-sm text-gray-400 mt-2 flex justify-between'>
+											<span>{2000 - user.ecoPoints} points to next level</span>
+											<button 
+												onClick={() => {
+													if (user.roleStatus !== "verified") {
+														alert("Only verified users can redeem points.");
+													} else {
+														setIsRedeeming(true);
+													}
+												}}
+												className='text-green-400 hover:text-green-300 font-bold ml-4'
+											>
+												Redeem Rewards
+											</button>
 										</div>
 									</div>
+									{isRedeeming && (
+										<motion.div 
+											initial={{ height: 0, opacity: 0 }}
+											animate={{ height: "auto", opacity: 1 }}
+											className='bg-gray-900 p-4 rounded-lg mb-4 border border-green-500'
+										>
+											<h4 className='font-bold mb-2'>Redeem 500 Points?</h4>
+											<p className='text-xs text-gray-400 mb-3'>Redeem points for specialized technician tools or discounts.</p>
+											<div className='flex gap-2'>
+												<button 
+													onClick={() => redeemPoints(500, "Point Redemption Test")}
+													className='px-3 py-1 bg-green-600 rounded text-sm hover:bg-green-700'
+												>
+													Confirm (500 Pts)
+												</button>
+												<button 
+													onClick={() => setIsRedeeming(false)}
+													className='px-3 py-1 bg-gray-700 rounded text-sm hover:bg-gray-600'
+												>
+													Cancel
+												</button>
+											</div>
+										</motion.div>
+									)}
 									<div className='grid grid-cols-2 gap-4'>
 										<div className='bg-gray-700 rounded-lg p-4 text-center'>
 											<div className='text-2xl font-bold text-green-400'>{user.listings}</div>
