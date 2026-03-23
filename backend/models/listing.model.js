@@ -103,6 +103,10 @@ const listingSchema = new mongoose.Schema(
 				default: [0, 0],
 			},
 		},
+		expiresAt: {
+			type: Date,
+			default: () => new Date(+new Date() + 30 * 24 * 60 * 60 * 1000), // 30 days
+		},
 	},
 	{ timestamps: true }
 );

@@ -1,6 +1,6 @@
+import mongoose from "mongoose";
 import { RecyclingSubmission } from "../models/recyclingSubmission.model.js";
 import { User } from "../models/user.model.js";
-import { EcoPointTransaction } from "../models/ecoPointTransaction.model.js";
 import crypto from "crypto";
 
 // Calculate eco points based on item type and weight/value
@@ -174,7 +174,7 @@ export const approveRecyclingSubmission = async (req, res) => {
 			await user.save();
 
 			// Add to Ledger
-			const transaction = new EcoPointTransaction({
+			const transaction = new (mongoose.model("EcoPointTransaction"))({
 				userId: user._id,
 				points: submission.ecoPointsEarned,
 				reason: "recycling",
@@ -285,7 +285,7 @@ export const verifyRecyclingByToken = async (req, res) => {
 			}
 			await user.save();
 
-			const transaction = new EcoPointTransaction({
+			const transaction = new (mongoose.model("EcoPointTransaction"))({
 				userId: user._id,
 				points: submission.ecoPointsEarned,
 				reason: "recycling",

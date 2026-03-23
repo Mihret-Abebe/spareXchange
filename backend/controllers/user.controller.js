@@ -1,5 +1,5 @@
+import mongoose from "mongoose";
 import { User } from "../models/user.model.js";
-import { EcoPointTransaction } from "../models/ecoPointTransaction.model.js";
 
 // Get all verified technicians
 export const getTechnicians = async (req, res) => {
@@ -75,7 +75,7 @@ export const redeemPoints = async (req, res) => {
 		await user.save();
 
 		// Log transaction
-		const transaction = new EcoPointTransaction({
+		const transaction = new (mongoose.model("EcoPointTransaction"))({
 			userId,
 			points: -points, // Negative for redemption
 			reason: "redemption",
@@ -131,6 +131,27 @@ export const requestRoleVerification = async (req, res) => {
 		});
 	} catch (error) {
 		console.error("Error in requestRoleVerification:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+// Update User Profile
+export const updateProfile = async (req, res) => {
+	try {
+		const { name, phone, location, profilePicture, interests } = req.body;
+		const user = await User.findById(req.userId);
+		if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+		if (name) user.name = name.trim();
+		if (phone) user.phone = phone.trim();
+		if (location) user.location = location.trim();
+		if (profilePicture) user.profilePicture = profilePicture;
+		if (interests && Array.isArray(interests)) user.interests = interests;
+
+		await user.save();
+		res.status(200).json({ success: true, message: "Profile updated successfully", user });
+	} catch (error) {
+		console.error("Error in updateProfile:", error);
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };

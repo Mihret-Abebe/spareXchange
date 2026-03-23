@@ -57,6 +57,16 @@ export const verifyRoleStatus = async (req, res) => {
 		user.roleStatus = status;
 		if (status === "verified") {
 			user.verifiedSeller = true; // Automatically make them a verified seller too
+			
+			// Grant permissions based on userType
+			const permsToAdd = [];
+			if (user.userType === "technician") permsToAdd.push("receive_service_requests");
+			if (user.userType === "recycler") permsToAdd.push("receive_pickup_requests");
+			if (user.userType === "garage") permsToAdd.push("create_bulk_listings");
+
+			permsToAdd.forEach(p => {
+				if (!user.permissions.includes(p)) user.permissions.push(p);
+			});
 		}
 		
 		await user.save();

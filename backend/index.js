@@ -7,6 +7,7 @@ import http from "http";
 import { initSocket } from "./utils/socket.js";
 
 import { connectDB } from "./db/connectDB.js";
+import { startExpiryCron } from "./services/cron.service.js";
 
 import authRoutes from "./routes/auth.route.js";
 import listingRoutes from "./routes/listing.route.js";
@@ -56,7 +57,12 @@ if (process.env.NODE_ENV === "production") {
 const server = http.createServer(app);
 initSocket(server);
 
-server.listen(PORT, () => {
-	connectDB();
-	console.log("Server is running on port: ", PORT);
-});
+if (process.env.NODE_ENV !== "test") {
+	server.listen(PORT, () => {
+		connectDB();
+		startExpiryCron();
+		console.log("Server is running on port: ", PORT);
+	});
+}
+
+export { app, server };

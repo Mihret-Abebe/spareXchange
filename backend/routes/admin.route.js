@@ -11,12 +11,12 @@ import { User } from "../models/user.model.js";
 
 const router = express.Router();
 
-import { isAdmin } from "../middleware/isAdmin.js";
+import { authorize } from "../middleware/authorize.js";
 
-router.get("/stats", verifyToken, isAdmin, getPlatformStats);
-router.get("/users", verifyToken, isAdmin, getAllUsers);
-router.get("/verifications/pending", verifyToken, isAdmin, getPendingVerifications);
-router.post("/users/:id/ban", verifyToken, isAdmin, toggleUserBan);
-router.post("/users/:id/verify", verifyToken, isAdmin, verifyRoleStatus);
+router.get("/stats", verifyToken, authorize(["view_stats"]), getPlatformStats);
+router.get("/users", verifyToken, authorize(["view_users"]), getAllUsers);
+router.get("/verifications/pending", verifyToken, authorize(["verify_roles"]), getPendingVerifications);
+router.post("/users/:id/ban", verifyToken, authorize(["ban_users"]), toggleUserBan);
+router.post("/users/:id/verify", verifyToken, authorize(["verify_roles"]), verifyRoleStatus);
 
 export default router;

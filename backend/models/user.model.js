@@ -57,8 +57,8 @@ const userSchema = new mongoose.Schema(
 			type: Number,
 			default: 0,
 		},
-		interests: [String],
-		achievements: [String],
+		interests: { type: [String], default: [] },
+		achievements: { type: [String], default: [] },
 		locationCoords: {
 			type: {
 				type: String,
@@ -76,6 +76,11 @@ const userSchema = new mongoose.Schema(
 			enum: ["none", "pending", "verified", "rejected"],
 			default: "none",
 		},
+		refreshToken: { type: String },
+		mfaSecret: { type: String },
+		isMfaEnabled: { type: Boolean, default: false },
+		mfaBackupCodes: [{ type: String }],
+		permissions: [{ type: String }],
 		isBanned: {
 			type: Boolean,
 			default: false,

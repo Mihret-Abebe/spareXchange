@@ -1,87 +1,305 @@
+import mongoose from "mongoose";
 import { Exchange } from "../models/exchange.model.js";
 import { User } from "../models/user.model.js";
 import { Listing } from "../models/listing.model.js";
+import { Notification } from "../models/notification.model.js";
 import { emitToUser } from "../utils/socket.js";
-import { EcoPointTransaction } from "../models/ecoPointTransaction.model.js";
 
+// ─── Helper: append to exchange history ───────────────────────────────────
+const addHistory = (exchange, action, by, note = null) => {
+	exchange.history.push({ action, by, at: new Date(), note });
+};
+
+// ─── Helper: check and mark auto-expired ─────────────────────────────────
+const checkExpiry = async (exchange) => {
+	if (exchange.status === "pending" && exchange.expiresAt < new Date()) {
+		exchange.status = "expired";
+		addHistory(exchange, "auto_expired", null, "Proposal expired after 7 days");
+		await exchange.save();
+		try {
+			emitToUser(exchange.buyerId.toString(), "exchange:expired", { exchangeId: exchange._id });
+			emitToUser(exchange.sellerId.toString(), "exchange:expired", { exchangeId: exchange._id });
+		} catch (_) {}
+		return true;
+	}
+	return false;
+};
+
+// ──────────────────────────────────────────────────────────────────────────
+// 1. Propose a new exchange
+//    Improvements: self-proposal guard, spam protection (max 3 active),
+//                  offeredListingId ownership validation
+// ──────────────────────────────────────────────────────────────────────────
 export const proposeExchange = async (req, res) => {
 	try {
-		const { listingId, offeredItems, meetingLocation, meetingTime, lastMessageId } = req.body;
+		const { listingId, offeredItems, offeredListingId, meetingLocation, meetingTime } = req.body;
 		const buyerId = req.userId;
 
+		// 1a. Listing must exist and be available
 		const listing = await Listing.findById(listingId);
 		if (!listing) return res.status(404).json({ success: false, message: "Listing not found" });
+		if (!listing.available) return res.status(400).json({ success: false, message: "Listing is no longer available" });
+
+		// 1b. Cannot propose on your own listing
+		if (listing.seller.toString() === buyerId) {
+			return res.status(400).json({ success: false, message: "You cannot propose an exchange on your own listing" });
+		}
+
+		// 1c. 🛡 Spam protection — max 3 pending/counter_offered proposals per listing per buyer
+		const activeCount = await Exchange.countDocuments({
+			listingId,
+			buyerId,
+			status: { $in: ["pending", "counter_offered"] },
+		});
+		if (activeCount >= 3) {
+			return res.status(429).json({ success: false, message: "You already have 3 active proposals on this listing. Please wait for a response." });
+		}
+
+		// 1d. Validate offeredListingId ownership & availability
+		if (offeredListingId) {
+			const offeredListing = await Listing.findById(offeredListingId);
+			if (!offeredListing) return res.status(404).json({ success: false, message: "Offered listing not found" });
+			if (offeredListing.seller.toString() !== buyerId) {
+				return res.status(403).json({ success: false, message: "You can only offer listings you own" });
+			}
+			if (!offeredListing.available) {
+				return res.status(400).json({ success: false, message: "The listing you are offering is no longer available" });
+			}
+		}
 
 		const newExchange = new Exchange({
 			buyerId,
 			sellerId: listing.seller,
 			listingId,
-			offeredItems,
-			meetingDetails: {
-				location: meetingLocation,
-				time: meetingTime,
-			},
-			lastMessage: lastMessageId,
+			offeredItems: offeredItems || "",
+			offeredListingId: offeredListingId || null,
+			meetingDetails: { location: meetingLocation, time: meetingTime },
 		});
 
+		addHistory(newExchange, "proposed", buyerId, offeredItems || "");
 		await newExchange.save();
+
+		// Add Notification & Socket
+		try {
+			await Notification.create({
+				userId: listing.seller,
+				type: "exchange_proposed",
+				message: `You have a new exchange proposal for your listing.`,
+				metadata: { exchangeId: newExchange._id },
+			});
+			emitToUser(listing.seller.toString(), "exchange:proposed", { exchangeId: newExchange._id });
+		} catch (_) {}
+
 		res.status(201).json({ success: true, message: "Exchange proposed successfully", data: newExchange });
 	} catch (error) {
-		console.error("Error in proposeExchange: ", error);
+		console.error("Error in proposeExchange:", error);
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };
 
-export const negotiateExchange = async (req, res) => {
+// ──────────────────────────────────────────────────────────────────────────
+// 2. Get a single exchange by ID (participants only)
+//    Improvement: auto-expiry check on fetch
+// ──────────────────────────────────────────────────────────────────────────
+export const getExchangeById = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const { negotiationNotes, meetingLocation, meetingTime, lastMessageId } = req.body;
 		const userId = req.userId;
 
-		const exchange = await Exchange.findById(id);
+		const exchange = await Exchange.findById(id)
+			.populate("buyerId", "name profilePicture trustScore totalReviews ecoPoints")
+			.populate("sellerId", "name profilePicture trustScore totalReviews ecoPoints")
+			.populate("listingId", "title images price category condition")
+			.populate("offeredListingId", "title images price")
+			.populate("counterOffers.offeredListingId", "title images price");
+
 		if (!exchange) return res.status(404).json({ success: false, message: "Exchange not found" });
 
-		if (exchange.buyerId.toString() !== userId && exchange.sellerId.toString() !== userId) {
-			return res.status(403).json({ success: false, message: "Not authorized" });
+		const isBuyer = exchange.buyerId._id.toString() === userId;
+		const isSeller = exchange.sellerId._id.toString() === userId;
+		if (!isBuyer && !isSeller) {
+			return res.status(403).json({ success: false, message: "Not authorized to view this exchange" });
 		}
 
-		if (negotiationNotes) exchange.negotiationNotes = negotiationNotes;
-		if (meetingLocation) exchange.meetingDetails.location = meetingLocation;
-		if (meetingTime) exchange.meetingDetails.time = meetingTime;
-		if (lastMessageId) exchange.lastMessage = lastMessageId;
+		// Auto-expire check
+		await checkExpiry(exchange);
 
-		await exchange.save();
-		res.status(200).json({ success: true, message: "Exchange details updated", data: exchange });
+		res.status(200).json({ success: true, data: exchange });
 	} catch (error) {
-		console.error("Error in negotiateExchange: ", error);
+		console.error("Error in getExchangeById:", error);
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };
 
+// ──────────────────────────────────────────────────────────────────────────
+// 3. Update exchange status (accept / reject / cancel)
+//    Improvements: role-enforcement, cancelReason required,
+//                  status-transition guard, history log
+// ──────────────────────────────────────────────────────────────────────────
 export const updateExchangeStatus = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const { status } = req.body; // accepted, rejected, cancelled
+		const { status, cancelReason } = req.body;
 		const userId = req.userId;
 
 		const exchange = await Exchange.findById(id);
 		if (!exchange) return res.status(404).json({ success: false, message: "Exchange not found" });
 
-		// Verify user is part of the exchange
-		if (exchange.buyerId.toString() !== userId && exchange.sellerId.toString() !== userId) {
-			return res.status(403).json({ success: false, message: "Not authorized" });
+		const isBuyer = exchange.buyerId.toString() === userId;
+		const isSeller = exchange.sellerId.toString() === userId;
+		if (!isBuyer && !isSeller) return res.status(403).json({ success: false, message: "Not authorized" });
+
+		// Role enforcement
+		if ((status === "accepted" || status === "rejected") && !isSeller) {
+			return res.status(403).json({ success: false, message: "Only the seller can accept or reject" });
+		}
+
+		// Cancel requires reason
+		if (status === "cancelled") {
+			if (!cancelReason) return res.status(400).json({ success: false, message: "A cancellation reason is required" });
+			exchange.cancelReason = cancelReason;
+		}
+
+		// Transition guard
+		const allowedTransitions = {
+			accepted: ["pending", "counter_offered"],
+			rejected: ["pending", "counter_offered"],
+			cancelled: ["pending", "counter_offered", "accepted"],
+		};
+		if (allowedTransitions[status] && !allowedTransitions[status].includes(exchange.status)) {
+			return res.status(400).json({ success: false, message: `Cannot transition from "${exchange.status}" to "${status}"` });
+		}
+
+		// Apply counter-offer terms if accepting from a counter-offer
+		if (status === "accepted" && exchange.status === "counter_offered" && exchange.counterOffers.length > 0) {
+			const latestOffer = exchange.counterOffers[exchange.counterOffers.length - 1];
+			exchange.offeredItems = latestOffer.offeredItems;
+			exchange.offeredListingId = latestOffer.offeredListingId;
 		}
 
 		exchange.status = status;
+		addHistory(exchange, status, userId, cancelReason || null);
 		await exchange.save();
+
+		try {
+			const other = isBuyer ? exchange.sellerId.toString() : exchange.buyerId.toString();
+			await Notification.create({
+				userId: other,
+				type: "exchange_status_updated",
+				message: `An exchange proposal status was updated to ${status}.`,
+				metadata: { exchangeId: exchange._id },
+			});
+			emitToUser(other, "exchange:status_updated", { exchangeId: exchange._id, status });
+		} catch (_) {}
 
 		res.status(200).json({ success: true, message: `Exchange ${status}`, data: exchange });
 	} catch (error) {
-		console.error("Error in updateExchangeStatus: ", error);
+		console.error("Error in updateExchangeStatus:", error);
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };
 
+// ──────────────────────────────────────────────────────────────────────────
+// 4. Counter-offer (seller proposes modified terms)
+//    Improvement: full counter-offer negotiation flow
+// ──────────────────────────────────────────────────────────────────────────
+export const makeCounterOffer = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const { offeredItems, offeredListingId, note } = req.body;
+		const userId = req.userId;
+
+		if (!offeredItems && !offeredListingId) {
+			return res.status(400).json({ success: false, message: "counteroffer must include offeredItems or offeredListingId" });
+		}
+
+		const exchange = await Exchange.findById(id);
+		if (!exchange) return res.status(404).json({ success: false, message: "Exchange not found" });
+
+		const isBuyer = exchange.buyerId.toString() === userId;
+		const isSeller = exchange.sellerId.toString() === userId;
+		if (!isBuyer && !isSeller) return res.status(403).json({ success: false, message: "Not authorized" });
+
+		if (!["pending", "counter_offered"].includes(exchange.status)) {
+			return res.status(400).json({ success: false, message: "Counter-offers can only be made on pending or counter-offered exchanges" });
+		}
+
+		// Validate offeredListingId if provided
+		if (offeredListingId) {
+			const ol = await Listing.findById(offeredListingId);
+			if (!ol) return res.status(404).json({ success: false, message: "Offered listing not found" });
+			if (ol.seller.toString() !== userId) return res.status(403).json({ success: false, message: "You can only offer your own listings" });
+		}
+
+		exchange.counterOffers.push({
+			offeredItems: offeredItems || null,
+			offeredListingId: offeredListingId || null,
+			proposedBy: userId,
+			note: note || null,
+			createdAt: new Date(),
+		});
+		exchange.status = "counter_offered";
+		addHistory(exchange, "counter_offered", userId, note || offeredItems);
+		await exchange.save();
+
+		// Add Notification & Socket
+		try {
+			const notifyId = isBuyer ? exchange.sellerId.toString() : exchange.buyerId.toString();
+			await Notification.create({
+				userId: notifyId,
+				type: "exchange_counter_offered",
+				message: `A counter-offer was made on your exchange.`,
+				metadata: { exchangeId: exchange._id },
+			});
+			emitToUser(notifyId, "exchange:counter_offered", { exchangeId: exchange._id });
+		} catch (_) {}
+
+		res.status(200).json({ success: true, message: "Counter-offer sent", data: exchange });
+	} catch (error) {
+		console.error("Error in makeCounterOffer:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+// ──────────────────────────────────────────────────────────────────────────
+// 5. Negotiate meeting details (only on accepted exchanges)
+// ──────────────────────────────────────────────────────────────────────────
+export const negotiateExchange = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const { negotiationNotes, meetingLocation, meetingTime, isLocked } = req.body;
+		const userId = req.userId;
+
+		const exchange = await Exchange.findById(id);
+		if (!exchange) return res.status(404).json({ success: false, message: "Exchange not found" });
+		if (exchange.buyerId.toString() !== userId && exchange.sellerId.toString() !== userId) {
+			return res.status(403).json({ success: false, message: "Not authorized" });
+		}
+		if (exchange.status !== "accepted") {
+			return res.status(400).json({ success: false, message: "Exchange must be accepted before negotiating meeting details" });
+		}
+		if (exchange.meetingDetails?.isLocked) {
+			return res.status(400).json({ success: false, message: "Meeting details are locked and cannot be changed anymore" });
+		}
+
+		if (negotiationNotes !== undefined) exchange.negotiationNotes = negotiationNotes;
+		if (meetingLocation) exchange.meetingDetails.location = meetingLocation;
+		if (meetingTime) exchange.meetingDetails.time = meetingTime;
+		if (isLocked === true) exchange.meetingDetails.isLocked = true;
+
+		addHistory(exchange, isLocked ? "meeting_locked" : "meeting_updated", userId, meetingLocation || negotiationNotes);
+		await exchange.save();
+		res.status(200).json({ success: true, message: "Meeting details updated", data: exchange });
+	} catch (error) {
+		console.error("Error in negotiateExchange:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+// ──────────────────────────────────────────────────────────────────────────
+// 6. Complete exchange (dual-confirmation)
+//    Improvement: mongoose session for atomicity
+// ──────────────────────────────────────────────────────────────────────────
 export const completeExchange = async (req, res) => {
 	try {
 		const { id } = req.params;
@@ -90,81 +308,255 @@ export const completeExchange = async (req, res) => {
 		const exchange = await Exchange.findById(id);
 		if (!exchange) return res.status(404).json({ success: false, message: "Exchange not found" });
 
-		if (exchange.status !== "accepted" && exchange.status !== "completed_by_buyer" && exchange.status !== "completed_by_seller") {
-			return res.status(400).json({ success: false, message: "Exchange must be accepted first or is already fully completed" });
+		if (!["accepted", "completed_by_buyer", "completed_by_seller"].includes(exchange.status)) {
+			return res.status(400).json({ success: false, message: "Exchange must be accepted before marking complete" });
 		}
 
-		let newStatus = exchange.status;
-		
-		if (exchange.buyerId.toString() === userId) {
+		const isBuyer = exchange.buyerId.toString() === userId;
+		const isSeller = exchange.sellerId.toString() === userId;
+		if (!isBuyer && !isSeller) return res.status(403).json({ success: false, message: "Not authorized" });
+
+		let newStatus;
+		if (isBuyer) {
 			newStatus = exchange.status === "completed_by_seller" ? "fully_completed" : "completed_by_buyer";
-		} else if (exchange.sellerId.toString() === userId) {
-			newStatus = exchange.status === "completed_by_buyer" ? "fully_completed" : "completed_by_seller";
 		} else {
-			return res.status(403).json({ success: false, message: "Not authorized" });
+			newStatus = exchange.status === "completed_by_buyer" ? "fully_completed" : "completed_by_seller";
 		}
 
 		exchange.status = newStatus;
+		addHistory(exchange, newStatus, userId);
 		await exchange.save();
 
-		// If fully completed, award Eco Points and check achievements
+		// 🔴 Atomic block on full completion via session
 		if (newStatus === "fully_completed") {
-			const rewardPoints = 50; // Points per successful exchange
+			const session = await mongoose.startSession();
+			try {
+				await session.withTransaction(async () => {
+					const rewardPoints = 50;
+					const [buyer, seller] = await Promise.all([
+						User.findById(exchange.buyerId).session(session),
+						User.findById(exchange.sellerId).session(session),
+					]);
 
-			const buyer = await User.findById(exchange.buyerId);
-			const seller = await User.findById(exchange.sellerId);
+					if (!buyer || !seller) throw new Error("User data missing");
 
-			if (!buyer || !seller) {
-				console.error("Error: Buyer or Seller not found for completed exchange.");
-				return res.status(500).json({ success: false, message: "Server error: User data missing" });
+					for (const u of [buyer, seller]) {
+						u.ecoPoints = (u.ecoPoints || 0) + rewardPoints;
+						if (!u.achievements.includes("First Successful Exchange")) {
+							u.achievements.push("First Successful Exchange");
+						}
+					}
+					await Promise.all([buyer.save({ session }), seller.save({ session })]);
+
+					// Eco-point ledger
+					try {
+						const EcoTx = mongoose.model("EcoPointTransaction");
+						await EcoTx.insertMany(
+							[
+								{ userId: exchange.buyerId, points: rewardPoints, reason: "exchange", description: `Exchange #${exchange._id} completed`, referenceId: exchange._id },
+								{ userId: exchange.sellerId, points: rewardPoints, reason: "exchange", description: `Exchange #${exchange._id} completed`, referenceId: exchange._id },
+							],
+							{ session }
+						);
+					} catch (_) {} // non-critical
+
+					await Listing.findByIdAndUpdate(exchange.listingId, { available: false }, { session });
+					if (exchange.offeredListingId) {
+						await Listing.findByIdAndUpdate(exchange.offeredListingId, { available: false }, { session });
+					}
+				});
+			} finally {
+				await session.endSession();
 			}
 
-			// Update seller stats and achievements
-			seller.ecoPoints += rewardPoints;
-			if (!seller.achievements.includes("First Successful Exchange")) {
-				seller.achievements.push("First Successful Exchange");
-			}
-			await seller.save();
-
-			// Update buyer stats and achievements
-			buyer.ecoPoints += rewardPoints;
-			if (!buyer.achievements.includes("First Successful Exchange")) {
-				buyer.achievements.push("First Successful Exchange");
-			}
-			await buyer.save();
-
-			// Create Ledger entries
-			const transactions = [
-				{ userId: exchange.buyerId, points: rewardPoints, reason: "exchange", description: `Completed exchange for listing ${exchange.listingId}`, referenceId: exchange._id },
-				{ userId: exchange.sellerId, points: rewardPoints, reason: "exchange", description: `Completed exchange for listing ${exchange.listingId}`, referenceId: exchange._id }
-			];
-			await EcoPointTransaction.insertMany(transactions);
-            
-            // Mark listing as unavailable
-            await Listing.findByIdAndUpdate(exchange.listingId, { available: false });
+			try {
+				await Notification.insertMany([
+					{ userId: exchange.buyerId, type: "exchange_completed", message: "Your exchange has been fully completed!", metadata: { exchangeId: exchange._id } },
+					{ userId: exchange.sellerId, type: "exchange_completed", message: "Your exchange has been fully completed!", metadata: { exchangeId: exchange._id } },
+				]);
+				emitToUser(exchange.buyerId.toString(), "exchange:completed", { exchangeId: exchange._id });
+				emitToUser(exchange.sellerId.toString(), "exchange:completed", { exchangeId: exchange._id });
+			} catch (_) {}
 		}
 
 		res.status(200).json({ success: true, message: "Exchange completion updated", data: exchange });
 	} catch (error) {
-		console.error("Error in completeExchange: ", error);
+		console.error("Error in completeExchange:", error);
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };
 
+// ──────────────────────────────────────────────────────────────────────────
+// 7. Open a dispute
+// ──────────────────────────────────────────────────────────────────────────
+export const openDispute = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const { reason } = req.body;
+		const userId = req.userId;
+
+		if (!reason) return res.status(400).json({ success: false, message: "A dispute reason is required" });
+
+		const exchange = await Exchange.findById(id);
+		if (!exchange) return res.status(404).json({ success: false, message: "Exchange not found" });
+
+		const isParticipant = exchange.buyerId.toString() === userId || exchange.sellerId.toString() === userId;
+		if (!isParticipant) return res.status(403).json({ success: false, message: "Not authorized" });
+
+		if (!["accepted", "completed_by_buyer", "completed_by_seller"].includes(exchange.status)) {
+			return res.status(400).json({ success: false, message: "Disputes can only be opened on accepted/active exchanges" });
+		}
+		if (exchange.disputeStatus === "open") {
+			return res.status(400).json({ success: false, message: "A dispute is already open for this exchange" });
+		}
+
+		exchange.disputeStatus = "open";
+		exchange.disputeReason = reason;
+		exchange.disputeOpenedBy = userId;
+		exchange.status = "disputed";
+		addHistory(exchange, "dispute_opened", userId, reason);
+		await exchange.save();
+
+		try {
+			const other = exchange.buyerId.toString() === userId ? exchange.sellerId.toString() : exchange.buyerId.toString();
+			await Notification.create({
+				userId: other,
+				type: "exchange_disputed",
+				message: `A dispute has been opened for your exchange.`,
+				metadata: { exchangeId: exchange._id },
+			});
+		} catch (_) {}
+
+		res.status(201).json({ success: true, message: "Dispute opened. Our team will review it shortly.", data: exchange });
+	} catch (error) {
+		console.error("Error in openDispute:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+// ──────────────────────────────────────────────────────────────────────────
+// 8. Admin: Resolve a dispute
+//    NEW endpoint — was missing before
+// ──────────────────────────────────────────────────────────────────────────
+export const resolveDispute = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const { resolution, outcome } = req.body; // outcome: "buyer_wins" | "seller_wins" | "mutual"
+		const adminId = req.userId;
+
+		if (!resolution) return res.status(400).json({ success: false, message: "A resolution note is required" });
+
+		const exchange = await Exchange.findById(id);
+		if (!exchange) return res.status(404).json({ success: false, message: "Exchange not found" });
+		if (exchange.disputeStatus !== "open") {
+			return res.status(400).json({ success: false, message: "No open dispute on this exchange" });
+		}
+
+		exchange.disputeStatus = "resolved";
+		exchange.disputeResolution = resolution;
+		exchange.disputeResolvedBy = adminId;
+		// Outcome determines final status
+		if (outcome === "mutual") exchange.status = "cancelled";
+		else exchange.status = "fully_completed"; // admin forces completion
+
+		addHistory(exchange, `dispute_resolved:${outcome}`, adminId, resolution);
+		await exchange.save();
+
+		// 🔴 Force atomic completion logic if admin ruled in favor of completion
+		if (exchange.status === "fully_completed") {
+			const session = await mongoose.startSession();
+			try {
+				await session.withTransaction(async () => {
+					const rewardPoints = 50;
+					const [buyer, seller] = await Promise.all([
+						User.findById(exchange.buyerId).session(session),
+						User.findById(exchange.sellerId).session(session),
+					]);
+
+					if (buyer && seller) {
+						for (const u of [buyer, seller]) {
+							u.ecoPoints = (u.ecoPoints || 0) + rewardPoints;
+							if (!u.achievements.includes("First Successful Exchange")) {
+								u.achievements.push("First Successful Exchange");
+							}
+						}
+						await Promise.all([buyer.save({ session }), seller.save({ session })]);
+					}
+
+					try {
+						const EcoTx = mongoose.model("EcoPointTransaction");
+						await EcoTx.insertMany([
+							{ userId: exchange.buyerId, points: rewardPoints, reason: "exchange", description: `Dispute resolved -> completion`, referenceId: exchange._id },
+							{ userId: exchange.sellerId, points: rewardPoints, reason: "exchange", description: `Dispute resolved -> completion`, referenceId: exchange._id },
+						], { session });
+					} catch (_) {}
+
+					await Listing.findByIdAndUpdate(exchange.listingId, { available: false }, { session });
+					if (exchange.offeredListingId) {
+						await Listing.findByIdAndUpdate(exchange.offeredListingId, { available: false }, { session });
+					}
+				});
+			} finally {
+				await session.endSession();
+			}
+		}
+
+		try {
+			await Notification.insertMany([
+				{ userId: exchange.buyerId, type: "exchange_dispute_resolved", message: "Your exchange dispute was resolved.", metadata: { exchangeId: exchange._id } },
+				{ userId: exchange.sellerId, type: "exchange_dispute_resolved", message: "Your exchange dispute was resolved.", metadata: { exchangeId: exchange._id } },
+			]);
+			emitToUser(exchange.buyerId.toString(), "exchange:dispute_resolved", { exchangeId: exchange._id, outcome });
+			emitToUser(exchange.sellerId.toString(), "exchange:dispute_resolved", { exchangeId: exchange._id, outcome });
+		} catch (_) {}
+
+		res.status(200).json({ success: true, message: "Dispute resolved", data: exchange });
+	} catch (error) {
+		console.error("Error in resolveDispute:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+// ──────────────────────────────────────────────────────────────────────────
+// 9. Get all exchanges (paginated, filterable by status)
+//     Improvement: pagination + auto-expiry sweep
+// ──────────────────────────────────────────────────────────────────────────
 export const getUserExchanges = async (req, res) => {
 	try {
 		const userId = req.userId;
-		const exchanges = await Exchange.find({
-			$or: [{ buyerId: userId }, { sellerId: userId }]
-		})
-        .sort({ createdAt: -1 })
-        .populate("buyerId", "name profilePicture")
-        .populate("sellerId", "name profilePicture")
-        .populate("listingId", "title images price");
+		const { status, page = 1, limit = 10 } = req.query;
 
-		res.status(200).json({ success: true, data: exchanges });
+		const query = { $or: [{ buyerId: userId }, { sellerId: userId }] };
+		if (status) query.status = status;
+
+		const skip = (Number(page) - 1) * Number(limit);
+		const total = await Exchange.countDocuments(query);
+
+		const exchanges = await Exchange.find(query)
+			.sort({ createdAt: -1 })
+			.skip(skip)
+			.limit(Number(limit))
+			.populate("buyerId", "name profilePicture trustScore")
+			.populate("sellerId", "name profilePicture trustScore")
+			.populate("listingId", "title images price");
+
+		// Auto-expire any pending proposals in the result (lightweight sweep)
+		for (const ex of exchanges) {
+			if (ex.status === "pending" && ex.expiresAt < new Date()) {
+				await checkExpiry(ex);
+			}
+		}
+
+		res.status(200).json({
+			success: true,
+			total,
+			page: Number(page),
+			totalPages: Math.ceil(total / Number(limit)),
+			count: exchanges.length,
+			data: exchanges,
+		});
 	} catch (error) {
-		console.error("Error in getUserExchanges: ", error);
+		console.error("Error in getUserExchanges:", error);
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };

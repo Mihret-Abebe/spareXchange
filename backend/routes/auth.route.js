@@ -8,7 +8,20 @@ import {
 	resetPassword,
 	checkAuth,
 	requestRoleVerification,
+	refreshToken,
+	setupMFA,
+	verifyMFA,
+	validateMFALogin,
+	googleLogin
 } from "../controllers/auth.controller.js";
+
+const syncPermissions = (user) => {
+	const defaultPerms = ["create_listings", "propose_exchanges"];
+	if (user.role === "admin" && !user.permissions.includes("admin")) {
+		user.permissions.push("admin");
+	}
+	// ... more logic as needed
+};
 import { verifyToken } from "../middleware/verifyToken.js";
 
 const router = express.Router();
@@ -23,6 +36,15 @@ router.post("/verify-email", verifyEmail);
 router.post("/forgot-password", forgotPassword);
 
 router.post("/reset-password/:token", resetPassword);
+router.get("/refresh-token", refreshToken);
 router.post("/request-verification", verifyToken, requestRoleVerification);
+
+// MFA Routes
+router.post("/mfa/setup", verifyToken, setupMFA);
+router.post("/mfa/verify", verifyToken, verifyMFA);
+router.post("/mfa/validate", validateMFALogin);
+
+// OAuth2 Routes
+router.post("/oauth/google", googleLogin);
 
 export default router;

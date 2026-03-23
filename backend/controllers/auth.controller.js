@@ -1,5 +1,8 @@
 import bcryptjs from "bcryptjs";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import { generateSecret, generateURI, verify, generate } from "otplib";
+import qrcode from "qrcode";
 
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
 import {
@@ -34,12 +37,15 @@ export const signup = async (req, res) => {
 			name,
 			verificationToken,
 			verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
+			permissions: ["create_listings", "propose_exchanges"] // Default base permissions
 		});
 
 		await user.save();
 
 		// jwt
-		const token = generateTokenAndSetCookie(res, user._id);
+		const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user._id);
+		user.refreshToken = refreshToken;
+		await user.save();
 
 		let emailSent = false;
 		try {
@@ -55,10 +61,11 @@ export const signup = async (req, res) => {
 		res.status(201).json({
 			success: true,
 			message: responseMessage,
-			token,
+			accessToken,
 			user: {
 				...user._doc,
 				password: undefined,
+				refreshToken: undefined,
 			},
 		});
 	} catch (error) {
@@ -119,18 +126,30 @@ export const login = async (req, res) => {
 			return res.status(403).json({ success: false, message: "Your account has been suspended. Please contact support." });
 		}
 
-		const token = generateTokenAndSetCookie(res, user._id);
-
 		user.lastLogin = new Date();
+		await user.save();
+
+		if (user.isMfaEnabled) {
+			return res.status(200).json({
+				success: true,
+				mfaRequired: true,
+				message: "MFA verification required",
+				email: user.email // Client will use this for validateMFALogin
+			});
+		}
+
+		const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user._id);
+		user.refreshToken = refreshToken;
 		await user.save();
 
 		res.status(200).json({
 			success: true,
 			message: "Logged in successfully",
-			token,
+			accessToken,
 			user: {
 				...user._doc,
 				password: undefined,
+				refreshToken: undefined,
 			},
 		});
 	} catch (error) {
@@ -140,7 +159,16 @@ export const login = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
+	const refreshToken = req.cookies.refreshToken;
+	if (refreshToken) {
+		const user = await User.findOne({ refreshToken });
+		if (user) {
+			user.refreshToken = undefined;
+			await user.save();
+		}
+	}
 	res.clearCookie("token");
+	res.clearCookie("refreshToken");
 	res.status(200).json({ success: true, message: "Logged out successfully" });
 };
 
@@ -249,6 +277,180 @@ export const requestRoleVerification = async (req, res) => {
 		});
 	} catch (error) {
 		console.log("Error in requestRoleVerification ", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+export const refreshToken = async (req, res) => {
+	const cookieRefreshToken = req.cookies.refreshToken;
+
+	if (!cookieRefreshToken) {
+		return res.status(401).json({ success: false, message: "Refresh token not found" });
+	}
+
+	try {
+		const decoded = jwt.verify(cookieRefreshToken, process.env.JWT_REFRESH_SECRET || "refresh_secret_123");
+		const user = await User.findById(decoded.userId);
+
+		if (!user || user.refreshToken !== cookieRefreshToken) {
+			return res.status(403).json({ success: false, message: "Invalid refresh token" });
+		}
+
+		// Generate new pair
+		const { accessToken, refreshToken: newRefreshToken } = generateTokenAndSetCookie(res, user._id);
+		
+		user.refreshToken = newRefreshToken;
+		await user.save();
+
+		res.status(200).json({ success: true, accessToken });
+	} catch (error) {
+		console.log("Error in refreshToken ", error);
+		res.status(403).json({ success: false, message: "Invalid or expired refresh token" });
+	}
+};
+
+// --- MFA Logic ---
+
+export const setupMFA = async (req, res) => {
+	try {
+		const user = await User.findById(req.userId);
+		if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+		const secret = generateSecret();
+		const otpauth = generateURI({ label: user.email, issuer: "SpareXChange", secret });
+		const qrCodeUrl = await qrcode.toDataURL(otpauth);
+
+		// Store secret temporarily (encrypted or as-is for setup)
+		user.mfaSecret = secret;
+		await user.save();
+
+		const backupCodes = Array.from({ length: 5 }, () => crypto.randomBytes(4).toString("hex"));
+		user.mfaBackupCodes = backupOfBackupCodes(backupCodes); // We'll hash these if we were ultra-secure
+
+		res.status(200).json({
+			success: true,
+			qrCodeUrl,
+			secret,
+			backupCodes
+		});
+	} catch (error) {
+		console.error("Error in setupMFA:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+function backupOfBackupCodes(codes) {
+	// Simple storage for now, ideally hashed
+	return codes;
+}
+
+export const verifyMFA = async (req, res) => {
+	try {
+		const { code } = req.body;
+		const user = await User.findById(req.userId);
+		if (!user || !user.mfaSecret) {
+			return res.status(400).json({ success: false, message: "MFA setup not initiated" });
+		}
+
+		const isValid = verify({ token: code, secret: user.mfaSecret });
+		if (!isValid) {
+			return res.status(400).json({ success: false, message: "Invalid verification code" });
+		}
+
+		user.isMfaEnabled = true;
+		await user.save();
+
+		res.status(200).json({ success: true, message: "MFA enabled successfully" });
+	} catch (error) {
+		console.error("Error in verifyMFA:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+export const validateMFALogin = async (req, res) => {
+	try {
+		const { email, code } = req.body;
+		const user = await User.findOne({ email });
+
+		if (!user || !user.isMfaEnabled) {
+			return res.status(400).json({ success: false, message: "MFA not enabled or user not found" });
+		}
+
+		const isValid = verify({ token: code, secret: user.mfaSecret });
+		const isBackupUsed = !isValid && user.mfaBackupCodes.includes(code);
+
+		if (!isValid && !isBackupUsed) {
+			return res.status(400).json({ success: false, message: "Invalid MFA code" });
+		}
+
+		if (isBackupUsed) {
+			user.mfaBackupCodes = user.mfaBackupCodes.filter(c => c !== code);
+			await user.save();
+		}
+
+		// Success -> issue tokens
+		const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user._id);
+		user.refreshToken = refreshToken;
+		await user.save();
+
+		res.status(200).json({
+			success: true,
+			accessToken,
+			user: { ...user._doc, password: undefined, refreshToken: undefined, mfaSecret: undefined }
+		});
+	} catch (error) {
+		console.error("Error in validateMFALogin:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+// --- Mock OAuth2 Logic ---
+
+export const googleLogin = async (req, res) => {
+	try {
+		const { credential } = req.body;
+		if (!credential) return res.status(400).json({ success: false, message: "Credential required" });
+
+		// In a real app, we'd use: const ticket = await client.verifyIdToken({ idToken: credential, audience: CLIENT_ID });
+		// For this mock, we'll assume 'credential' is a JSON string containing { email, name, sub }
+		let decoded;
+		try {
+			decoded = JSON.parse(credential);
+		} catch (e) {
+			return res.status(400).json({ success: false, message: "Invalid mock credential" });
+		}
+
+		const { email, name, sub } = decoded;
+		if (!email) return res.status(400).json({ success: false, message: "Email missing from credential" });
+
+		let user = await User.findOne({ email });
+
+		if (!user) {
+			// Create new user for first-time social login
+			user = new User({
+				email,
+				name,
+				isVerified: true, // Social accounts are trusted usually
+				password: crypto.randomBytes(16).toString("hex"), // Random dummy password
+				permissions: ["create_listings", "propose_exchanges"]
+			});
+			await user.save();
+		}
+
+		if (user.isBanned) return res.status(403).json({ success: false, message: "Account suspended" });
+
+		const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user._id);
+		user.refreshToken = refreshToken;
+		user.lastLogin = new Date();
+		await user.save();
+
+		res.status(200).json({
+			success: true,
+			accessToken,
+			user: { ...user._doc, password: undefined, refreshToken: undefined }
+		});
+	} catch (error) {
+		console.error("Error in googleLogin:", error);
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };
