@@ -26,7 +26,7 @@ async function testAuthModule() {
 	});
 	const signupData = await signupRes.json();
 	console.log("1. Signup Status:", signupRes.status, signupData.success ? "✓" : "✗");
-	const authToken = signupData.token;
+	let authToken = signupData.token || signupData.accessToken;
 
 	// 2. Login
 	const loginRes = await fetch(`${BASE_URL}/auth/login`, {
@@ -36,6 +36,7 @@ async function testAuthModule() {
 	});
 	const loginData = await loginRes.json();
 	console.log("2. Login Status:", loginRes.status, loginData.success ? "✓" : "✗");
+	if (loginData.accessToken) authToken = loginData.accessToken;
 
 	// 3. Profile Access (verifyToken)
 	const profileRes = await fetch(`${BASE_URL}/auth/check-auth`, {

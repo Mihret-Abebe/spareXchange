@@ -3,6 +3,8 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { generateSecret, generateURI, verify, generate } from "otplib";
 import qrcode from "qrcode";
+import { OAuth2Client } from "google-auth-library";
+import { encrypt, decrypt } from "../utils/encryption.js";
 
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
 import {
@@ -21,6 +23,15 @@ export const signup = async (req, res) => {
 			throw new Error("All fields are required");
 		}
 
+		// Strong Password Validation
+		const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+		if (!passwordRegex.test(password)) {
+			return res.status(400).json({ 
+				success: false, 
+				message: "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character." 
+			});
+		}
+
 		const userAlreadyExists = await User.findOne({ email });
 		console.log("userAlreadyExists", userAlreadyExists);
 
@@ -29,7 +40,8 @@ export const signup = async (req, res) => {
 		}
 
 		const hashedPassword = await bcryptjs.hash(password, 10);
-		const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
+		// Secure Random Verification Token (6 digits)
+		const verificationToken = crypto.randomInt(100000, 999999).toString();
 
 		const user = new User({
 			email,
@@ -320,8 +332,8 @@ export const setupMFA = async (req, res) => {
 		const otpauth = generateURI({ label: user.email, issuer: "SpareXChange", secret });
 		const qrCodeUrl = await qrcode.toDataURL(otpauth);
 
-		// Store secret temporarily (encrypted or as-is for setup)
-		user.mfaSecret = secret;
+		// Store encrypted secret
+		user.mfaSecret = encrypt(secret);
 		await user.save();
 
 		const backupCodes = Array.from({ length: 5 }, () => crypto.randomBytes(4).toString("hex"));
@@ -352,7 +364,8 @@ export const verifyMFA = async (req, res) => {
 			return res.status(400).json({ success: false, message: "MFA setup not initiated" });
 		}
 
-		const isValid = verify({ token: code, secret: user.mfaSecret });
+		const decryptedSecret = decrypt(user.mfaSecret);
+		const isValid = verify({ token: code, secret: decryptedSecret });
 		if (!isValid) {
 			return res.status(400).json({ success: false, message: "Invalid verification code" });
 		}
@@ -376,7 +389,8 @@ export const validateMFALogin = async (req, res) => {
 			return res.status(400).json({ success: false, message: "MFA not enabled or user not found" });
 		}
 
-		const isValid = verify({ token: code, secret: user.mfaSecret });
+		const decryptedSecret = decrypt(user.mfaSecret);
+		const isValid = verify({ token: code, secret: decryptedSecret });
 		const isBackupUsed = !isValid && user.mfaBackupCodes.includes(code);
 
 		if (!isValid && !isBackupUsed) {
@@ -404,37 +418,49 @@ export const validateMFALogin = async (req, res) => {
 	}
 };
 
-// --- Mock OAuth2 Logic ---
+// --- Real Google OAuth2 Implementation ---
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const googleLogin = async (req, res) => {
 	try {
 		const { credential } = req.body;
-		if (!credential) return res.status(400).json({ success: false, message: "Credential required" });
+		if (!credential) return res.status(400).json({ success: false, message: "Google ID Token (credential) is required" });
 
-		// In a real app, we'd use: const ticket = await client.verifyIdToken({ idToken: credential, audience: CLIENT_ID });
-		// For this mock, we'll assume 'credential' is a JSON string containing { email, name, sub }
-		let decoded;
-		try {
-			decoded = JSON.parse(credential);
-		} catch (e) {
-			return res.status(400).json({ success: false, message: "Invalid mock credential" });
-		}
+		// Verify the ID Token from Google
+		const ticket = await client.verifyIdToken({
+			idToken: credential,
+			audience: process.env.GOOGLE_CLIENT_ID,
+		});
 
-		const { email, name, sub } = decoded;
-		if (!email) return res.status(400).json({ success: false, message: "Email missing from credential" });
+		const payload = ticket.getPayload();
+		const { email, name, picture, sub: googleId } = payload;
+
+		if (!email) return res.status(400).json({ success: false, message: "Email not provided by Google" });
 
 		let user = await User.findOne({ email });
 
-		if (!user) {
-			// Create new user for first-time social login
+		const isNewUser = !user;
+		if (isNewUser) {
+			// SIGNUP: Create new user if they don't exist
+			const randomPassword = crypto.randomBytes(16).toString("hex") + "A1!";
 			user = new User({
 				email,
 				name,
-				isVerified: true, // Social accounts are trusted usually
-				password: crypto.randomBytes(16).toString("hex"), // Random dummy password
-				permissions: ["create_listings", "propose_exchanges"]
+				profilePicture: picture,
+				isVerified: true, // Social accounts are pre-verified
+				password: await bcryptjs.hash(randomPassword, 10), 
+				permissions: ["create_listings", "propose_exchanges"],
+				authProvider: "google",
+				googleId: googleId
 			});
 			await user.save();
+			console.log(`New user signed up via Google: ${email}`);
+		} else {
+			// LOGIN: Link Google ID if not already linked (optional security enhancement)
+			if (!user.googleId) {
+				user.googleId = googleId;
+			}
+			console.log(`User logged in via Google: ${email}`);
 		}
 
 		if (user.isBanned) return res.status(403).json({ success: false, message: "Account suspended" });
@@ -446,11 +472,16 @@ export const googleLogin = async (req, res) => {
 
 		res.status(200).json({
 			success: true,
+			message: isNewUser ? "Signed up successfully via Google" : "Logged in successfully via Google",
 			accessToken,
-			user: { ...user._doc, password: undefined, refreshToken: undefined }
+			user: { 
+				...user._doc, 
+				password: undefined, 
+				refreshToken: undefined 
+			}
 		});
 	} catch (error) {
 		console.error("Error in googleLogin:", error);
-		res.status(500).json({ success: false, message: "Server error" });
+		res.status(401).json({ success: false, message: "Invalid Google token or verification failed" });
 	}
 };

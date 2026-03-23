@@ -2,6 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import path from "path";
 import http from "http";
 import { initSocket } from "./utils/socket.js";
@@ -31,6 +33,21 @@ app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
 app.use(express.json()); // allows us to parse incoming requests:req.body
 app.use(cookieParser()); // allows us to parse incoming cookies
+
+// Security Middleware
+app.use(helmet());
+
+// Rate Limiting
+const authLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100, // Limit each IP to 100 requests per windowMs
+	message: "Too many requests from this IP, please try again after 15 minutes",
+	standardHeaders: true,
+	legacyHeaders: false,
+});
+
+app.use("/api/auth", authLimiter);
+app.use("/api/users", authLimiter);
 
 app.use("/uploads", express.static(path.join(path.resolve(), "uploads")));
 
