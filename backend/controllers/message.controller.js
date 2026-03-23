@@ -1,4 +1,7 @@
 import { Message } from "../models/message.model.js";
+import { User } from "../models/user.model.js";
+import { Exchange } from "../models/exchange.model.js";
+import { emitToUser } from "../utils/socket.js";
 
 export const sendMessage = async (req, res) => {
 	try {
@@ -17,6 +20,13 @@ export const sendMessage = async (req, res) => {
 		});
 
 		await newMessage.save();
+
+		// Real-time Notification
+		emitToUser(receiverId, "new_message", {
+			from: senderId,
+			text: content, // Changed 'message' to 'content' as per existing variable
+			conversationId: newMessage._id, // Using the new message's ID as a unique identifier for this specific message within a conversation
+		});
 
 		res.status(201).json({ success: true, message: "Message sent successfully.", data: newMessage });
 	} catch (error) {

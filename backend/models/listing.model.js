@@ -108,5 +108,7 @@ const listingSchema = new mongoose.Schema(
 );
 
 listingSchema.index({ locationCoords: "2dsphere" });
+listingSchema.index({ "compatibleVehicles.brand": 1, "compatibleVehicles.model": 1 });
+listingSchema.index({ "compatibleVehicles.yearStart": 1, "compatibleVehicles.yearEnd": 1 });
 
 export const Listing = mongoose.model("Listing", listingSchema);

@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
+import http from "http";
+import { initSocket } from "./utils/socket.js";
 
 import { connectDB } from "./db/connectDB.js";
 
@@ -51,7 +53,10 @@ if (process.env.NODE_ENV === "production") {
 	});
 }
 
-app.listen(PORT, () => {
+const server = http.createServer(app);
+initSocket(server);
+
+server.listen(PORT, () => {
 	connectDB();
 	console.log("Server is running on port: ", PORT);
 });

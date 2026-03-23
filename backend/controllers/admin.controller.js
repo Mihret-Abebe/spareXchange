@@ -1,6 +1,7 @@
 import { User } from "../models/user.model.js";
 import { Listing } from "../models/listing.model.js";
 import { Exchange } from "../models/exchange.model.js";
+import { emitToUser } from "../utils/socket.js";
 
 // Get all users (Admin only)
 export const getAllUsers = async (req, res) => {
@@ -59,11 +60,28 @@ export const verifyRoleStatus = async (req, res) => {
 		}
 		
 		await user.save();
-		// In a real app, send a notification here too
+		
+		// Real-time Notification
+		emitToUser(id, "role_verified", {
+			status,
+			userType: user.userType,
+			message: `Your request for ${user.userType} status has been ${status}.`
+		});
 		
 		res.status(200).json({ success: true, message: `Role status updated to ${status}`, user });
 	} catch (error) {
 		console.error("Error in verifyRoleStatus:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+// Get Pending Verifications
+export const getPendingVerifications = async (req, res) => {
+	try {
+		const pendingUsers = await User.find({ roleStatus: "pending" }).select("name email userType verificationDocs createdAt");
+		res.status(200).json({ success: true, count: pendingUsers.length, users: pendingUsers });
+	} catch (error) {
+		console.error("Error in getPendingVerifications:", error);
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };

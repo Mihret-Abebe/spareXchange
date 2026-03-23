@@ -1,6 +1,7 @@
 import { Exchange } from "../models/exchange.model.js";
 import { User } from "../models/user.model.js";
 import { Listing } from "../models/listing.model.js";
+import { emitToUser } from "../utils/socket.js";
 import { EcoPointTransaction } from "../models/ecoPointTransaction.model.js";
 
 export const proposeExchange = async (req, res) => {
