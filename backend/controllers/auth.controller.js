@@ -39,7 +39,7 @@ export const signup = async (req, res) => {
 		await user.save();
 
 		// jwt
-		generateTokenAndSetCookie(res, user._id);
+		const token = generateTokenAndSetCookie(res, user._id);
 
 		let emailSent = false;
 		try {
@@ -55,6 +55,7 @@ export const signup = async (req, res) => {
 		res.status(201).json({
 			success: true,
 			message: responseMessage,
+			token,
 			user: {
 				...user._doc,
 				password: undefined,
@@ -118,7 +119,7 @@ export const login = async (req, res) => {
 			return res.status(403).json({ success: false, message: "Your account has been suspended. Please contact support." });
 		}
 
-		generateTokenAndSetCookie(res, user._id);
+		const token = generateTokenAndSetCookie(res, user._id);
 
 		user.lastLogin = new Date();
 		await user.save();
@@ -126,6 +127,7 @@ export const login = async (req, res) => {
 		res.status(200).json({
 			success: true,
 			message: "Logged in successfully",
+			token,
 			user: {
 				...user._doc,
 				password: undefined,

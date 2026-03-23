@@ -29,6 +29,8 @@ app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json()); // allows us to parse incoming requests:req.body
 app.use(cookieParser()); // allows us to parse incoming cookies
 
+app.use("/uploads", express.static(path.join(path.resolve(), "uploads")));
+
 app.use("/api/auth", authRoutes);
 app.use("/api/listings", listingRoutes);
 app.use("/api/technician-requests", technicianRequestRoutes);

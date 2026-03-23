@@ -94,3 +94,43 @@ export const redeemPoints = async (req, res) => {
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };
+// Request Role Verification (Upload Documents)
+export const requestRoleVerification = async (req, res) => {
+	try {
+		const { requestedType } = req.body;
+		const userId = req.userId;
+
+		if (!requestedType) {
+			return res.status(400).json({ success: false, message: "Requested role type is required" });
+		}
+
+		const user = await User.findById(userId);
+		if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+		if (user.roleStatus === "verified" && user.userType === requestedType) {
+			return res.status(400).json({ success: false, message: "You are already verified for this role" });
+		}
+
+		// Handle file uploads
+		if (!req.files || req.files.length === 0) {
+			return res.status(400).json({ success: false, message: "At least one verification document is required" });
+		}
+
+		const docUrls = req.files.map(file => `/uploads/verification/${file.filename}`);
+
+		user.verificationDocs = [...user.verificationDocs, ...docUrls];
+		user.userType = requestedType; // Set intended role, but stay pending
+		user.roleStatus = "pending";
+		await user.save();
+
+		res.status(200).json({
+			success: true,
+			message: "Verification request submitted successfully",
+			roleStatus: "pending",
+			docsCount: docUrls.length
+		});
+	} catch (error) {
+		console.error("Error in requestRoleVerification:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};

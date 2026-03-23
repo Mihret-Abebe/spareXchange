@@ -1,11 +1,13 @@
 import express from "express";
-import { getTechnicians, getTechnicianById, redeemPoints } from "../controllers/user.controller.js";
+import { getTechnicians, getTechnicianById, redeemPoints, requestRoleVerification } from "../controllers/user.controller.js";
 import { verifyToken } from "../middleware/verifyToken.js";
+import { upload } from "../middleware/upload.middleware.js";
 
 const router = express.Router();
 
 router.get("/technicians", getTechnicians);
 router.get("/technicians/:id", getTechnicianById);
 router.post("/redeem-points", verifyToken, redeemPoints);
+router.post("/verify-role", verifyToken, upload.array("documents", 5), requestRoleVerification);
 
 export default router;

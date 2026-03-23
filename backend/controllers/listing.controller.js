@@ -7,7 +7,7 @@ import { scanMatches } from "../services/matching.service.js";
 // Create a new listing
 export const createListing = async (req, res) => {
 	try {
-		const { title, description, price, category, condition, location, images, contactInfo, specifications } = req.body;
+		const { title, description, price, category, condition, location, images, contactInfo, specifications, compatibleVehicles } = req.body;
 
 		const user = await User.findById(req.userId);
 		if (!user || user.status === "banned") return res.status(403).json({ success: false, message: "Forbidden" });
@@ -33,6 +33,7 @@ export const createListing = async (req, res) => {
 			seller: req.userId, // from middleware
 			contactInfo,
 			specifications,
+			compatibleVehicles: compatibleVehicles || [],
 		});
 
 		const savedListing = await newListing.save();
@@ -40,19 +41,21 @@ export const createListing = async (req, res) => {
 		// Award 10 eco-points for posting (according to SRS)
 		try {
 			user.ecoPoints += 10;
+			const pointsAwarded = 10;
+			user.ecoPoints += pointsAwarded;
 			if (!user.achievements.includes("First Listing Posted")) {
 				user.achievements.push("First Listing Posted");
 			}
 			await user.save();
 
 			// Log transaction
-			const transaction = new EcoPointTransaction({
-				userId: user._id,
-				points: 10,
-				reason: "posting",
-				description: `Awarded 10 points for posting listing: ${savedListing.title}`,
-				referenceId: savedListing._id
-			});
+				const transaction = new EcoPointTransaction({
+					userId: req.userId,
+					points: pointsAwarded,
+					reason: "listing",
+					description: `Posted a new spare part listing: ${savedListing.title}`,
+					referenceId: savedListing._id,
+				});
 			await transaction.save();
 		} catch (pointError) {
 			console.error("Failed to award points for listing:", pointError);
@@ -85,11 +88,35 @@ export const getListings = async (req, res) => {
 		if (location) query.location = { $regex: location, $options: "i" }; // case-insensitive
 		if (search) query.title = { $regex: search, $options: "i" }; // case-insensitive
 
-		// Advanced Filtering: Brand, Model, Year
+		// Advanced Filtering: Brand, Model, Year (Structured Compatibility)
 		const { brand, model, year, latitude, longitude, radius } = req.query;
-		if (brand) query.brand = brand;
-		if (model) query.model = model;
-		if (year) query.year = Number(year);
+		
+		if (brand || model || year) {
+			const compatQuery = {};
+			if (brand) compatQuery["compatibleVehicles.brand"] = { $regex: brand, $options: "i" };
+			if (model) compatQuery["compatibleVehicles.model"] = { $regex: model, $options: "i" };
+			if (year) {
+				const yr = Number(year);
+				compatQuery["compatibleVehicles"] = {
+					$elemMatch: {
+						yearStart: { $lte: yr },
+						yearEnd: { $gte: yr }
+					}
+				};
+			}
+			
+			// Combine with existing text filters or overwrite if preferred. 
+			// For now, let's use $or to search both top-level and compatibleVehicles
+			const topLevelFilter = {};
+			if (brand) topLevelFilter.brand = { $regex: brand, $options: "i" };
+			if (model) topLevelFilter.model = { $regex: model, $options: "i" };
+			if (year) topLevelFilter.year = Number(year);
+
+			query.$or = [
+				topLevelFilter,
+				compatQuery
+			];
+		}
 
 		// Proximity Search (GeoJSON)
 		if (latitude && longitude) {
@@ -177,7 +204,7 @@ export const getListing = async (req, res) => {
 export const updateListing = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const { title, description, price, category, condition, location, images, contactInfo, specifications, available } = req.body;
+		const { title, description, price, category, condition, location, images, contactInfo, specifications, available, compatibleVehicles } = req.body;
 
 		const listing = await Listing.findById(id);
 
@@ -203,6 +230,7 @@ export const updateListing = async (req, res) => {
 				contactInfo,
 				specifications,
 				available,
+				compatibleVehicles: compatibleVehicles || listing.compatibleVehicles,
 			},
 			{ new: true } // return updated document
 		).populate("seller", "name profilePicture verifiedSeller");
@@ -290,6 +318,25 @@ export const toggleListingAvailability = async (req, res) => {
 		});
 	} catch (error) {
 		console.error("Error in toggleListingAvailability:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+import { getRecommendations as fetchRecommendations } from "../services/recommendation.service.js";
+
+// Get personalized recommendations
+export const getRecommendations = async (req, res) => {
+	try {
+		const userId = req.userId;
+		const recommendations = await fetchRecommendations(userId);
+
+		res.status(200).json({
+			success: true,
+			count: recommendations.length,
+			listings: recommendations
+		});
+	} catch (error) {
+		console.error("Error in getRecommendations controller:", error);
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };

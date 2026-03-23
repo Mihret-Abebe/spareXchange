@@ -29,6 +29,14 @@ const exchangeSchema = new mongoose.Schema(
 			location: String,
 			time: Date,
 		},
+		negotiationNotes: {
+			type: String,
+			default: "",
+		},
+		lastMessage: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "Message",
+		},
 	},
 	{ timestamps: true }
 );

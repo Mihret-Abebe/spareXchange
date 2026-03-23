@@ -46,6 +46,12 @@ const listingSchema = new mongoose.Schema(
 			type: Number,
 			required: false,
 		},
+		compatibleVehicles: [{
+			brand: { type: String, required: true },
+			model: { type: String, required: true },
+			yearStart: { type: Number },
+			yearEnd: { type: Number },
+		}],
 		location: {
 			type: String,
 			required: true,

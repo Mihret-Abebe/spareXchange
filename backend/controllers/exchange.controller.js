@@ -5,7 +5,7 @@ import { EcoPointTransaction } from "../models/ecoPointTransaction.model.js";
 
 export const proposeExchange = async (req, res) => {
 	try {
-		const { listingId, offeredItems, meetingLocation, meetingTime } = req.body;
+		const { listingId, offeredItems, meetingLocation, meetingTime, lastMessageId } = req.body;
 		const buyerId = req.userId;
 
 		const listing = await Listing.findById(listingId);
@@ -20,12 +20,39 @@ export const proposeExchange = async (req, res) => {
 				location: meetingLocation,
 				time: meetingTime,
 			},
+			lastMessage: lastMessageId,
 		});
 
 		await newExchange.save();
 		res.status(201).json({ success: true, message: "Exchange proposed successfully", data: newExchange });
 	} catch (error) {
 		console.error("Error in proposeExchange: ", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+export const negotiateExchange = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const { negotiationNotes, meetingLocation, meetingTime, lastMessageId } = req.body;
+		const userId = req.userId;
+
+		const exchange = await Exchange.findById(id);
+		if (!exchange) return res.status(404).json({ success: false, message: "Exchange not found" });
+
+		if (exchange.buyerId.toString() !== userId && exchange.sellerId.toString() !== userId) {
+			return res.status(403).json({ success: false, message: "Not authorized" });
+		}
+
+		if (negotiationNotes) exchange.negotiationNotes = negotiationNotes;
+		if (meetingLocation) exchange.meetingDetails.location = meetingLocation;
+		if (meetingTime) exchange.meetingDetails.time = meetingTime;
+		if (lastMessageId) exchange.lastMessage = lastMessageId;
+
+		await exchange.save();
+		res.status(200).json({ success: true, message: "Exchange details updated", data: exchange });
+	} catch (error) {
+		console.error("Error in negotiateExchange: ", error);
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };
