@@ -479,3 +479,93 @@ export const getRecommendations = async (req, res) => {
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };
+
+// Community Compatibility Voting
+export const voteCompatibility = async (req, res) => {
+	try {
+		const { id, vehicleId } = req.params;
+		const { voteType } = req.body; // "up" or "down"
+
+		if (!["up", "down"].includes(voteType)) {
+			return res.status(400).json({ success: false, message: "Invalid vote type. Must be 'up' or 'down'." });
+		}
+
+		const listing = await Listing.findById(id);
+		if (!listing) {
+			return res.status(404).json({ success: false, message: "Listing not found" });
+		}
+
+		const vehicle = listing.compatibleVehicles.id(vehicleId);
+		if (!vehicle) {
+			return res.status(404).json({ success: false, message: "Compatible vehicle entry not found" });
+		}
+
+		// Check if user has already voted
+		const existingVoteIndex = vehicle.voters.findIndex(v => v.user.toString() === req.userId);
+
+		if (existingVoteIndex !== -1) {
+			const existingVote = vehicle.voters[existingVoteIndex];
+			if (existingVote.voteType === voteType) {
+				return res.status(400).json({ success: false, message: "You have already voted this way." });
+			} else {
+				// Change vote
+				if (voteType === "up") {
+					vehicle.upvotes += 1;
+					vehicle.downvotes = Math.max(0, vehicle.downvotes - 1);
+				} else {
+					vehicle.downvotes += 1;
+					vehicle.upvotes = Math.max(0, vehicle.upvotes - 1);
+				}
+				existingVote.voteType = voteType;
+			}
+		} else {
+			// New vote
+			if (voteType === "up") {
+				vehicle.upvotes += 1;
+			} else {
+				vehicle.downvotes += 1;
+			}
+			vehicle.voters.push({ user: req.userId, voteType });
+		}
+
+		await listing.save();
+
+		res.status(200).json({
+			success: true,
+			message: "Vote recorded successfully",
+			vehicle
+		});
+	} catch (error) {
+		console.error("Error in voteCompatibility:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+// High Demand/Low Supply Analytics for Sellers
+export const getHighDemandAnalytics = async (req, res) => {
+	try {
+        // Find most frequent searches where result count was 0 or very small (e.g. < 2)
+		const highDemandQueries = await SearchLog.aggregate([
+			{ $match: { resultsCount: { $lt: 2 }, query: { $exists: true, $ne: "" }, createdAt: { $exists: true } } },
+			{
+				$group: {
+					_id: { $toLower: "$query" },
+					searchCount: { $sum: 1 },
+					avgResults: { $avg: "$resultsCount" },
+					lastSearched: { $max: "$createdAt" }
+				}
+			},
+			{ $sort: { searchCount: -1 } },
+			{ $limit: 20 }
+		]);
+
+		res.status(200).json({
+			success: true,
+			count: highDemandQueries.length,
+			analytics: highDemandQueries
+		});
+	} catch (error) {
+		console.error("Error in getHighDemandAnalytics:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
