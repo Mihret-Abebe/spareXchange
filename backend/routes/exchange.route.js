@@ -9,8 +9,13 @@ import {
 	openDispute,
 	resolveDispute,
 	getUserExchanges,
+	getSafeZones,
+	generateHandshakeToken,
+	verifyHandshake,
+	uploadHandoverPhoto,
 } from "../controllers/exchange.controller.js";
 import { verifyToken } from "../middleware/verifyToken.js";
+import { authorize } from "../middleware/authorize.js";
 
 const router = express.Router();
 
@@ -25,6 +30,12 @@ router.put("/:id/counter-offer", verifyToken, makeCounterOffer);    // PUT  /api
 router.put("/:id/negotiate", verifyToken, negotiateExchange);       // PUT  /api/exchanges/:id/negotiate
 router.put("/:id/complete", verifyToken, completeExchange);         // PUT  /api/exchanges/:id/complete
 router.post("/:id/dispute", verifyToken, openDispute);              // POST /api/exchanges/:id/dispute
-router.put("/:id/dispute/resolve", verifyToken, resolveDispute);    // PUT  /api/exchanges/:id/dispute/resolve (admin)
+router.put("/:id/dispute/resolve", verifyToken, authorize(["admin"]), resolveDispute);    // PUT  /api/exchanges/:id/dispute/resolve (admin)
+
+// Modernization Routes
+router.get("/info/safe-zones", verifyToken, getSafeZones);
+router.put("/:id/handshake/generate", verifyToken, generateHandshakeToken);
+router.put("/:id/handshake/verify", verifyToken, verifyHandshake);
+router.put("/:id/handover-photo", verifyToken, uploadHandoverPhoto);
 
 export default router;

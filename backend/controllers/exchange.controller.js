@@ -25,6 +25,31 @@ const checkExpiry = async (exchange) => {
 	return false;
 };
 
+// ─── Helper: Sweep pending exchanges ──────────────────────────────────────
+const sweepPendingExchanges = async (listingId, wonExchangeId) => {
+	if (!listingId) return;
+	const pending = await Exchange.find({
+		$or: [{ listingId }, { offeredListingId: listingId }],
+		_id: { $ne: wonExchangeId },
+		status: { $in: ["pending", "counter_offered", "accepted"] }
+	});
+	for (const p of pending) {
+		p.status = "cancelled";
+		p.cancelReason = "Item was sold to another user";
+		addHistory(p, "cancelled", null, "Auto-sweep: Item sold");
+		await p.save();
+		try {
+			emitToUser(p.buyerId.toString(), "exchange:status_updated", { exchangeId: p._id, status: "cancelled" });
+			await Notification.create({
+				userId: p.buyerId,
+				type: "exchange_status_updated",
+				message: `An exchange proposal was automatically cancelled because the item was sold.`,
+				metadata: { exchangeId: p._id },
+			});
+		} catch (_) {}
+	}
+};
+
 // ──────────────────────────────────────────────────────────────────────────
 // 1. Propose a new exchange
 //    Improvements: self-proposal guard, spam protection (max 3 active),
@@ -117,7 +142,12 @@ export const getExchangeById = async (req, res) => {
 
 		const isBuyer = exchange.buyerId._id.toString() === userId;
 		const isSeller = exchange.sellerId._id.toString() === userId;
-		if (!isBuyer && !isSeller) {
+
+		// Check if admin
+		const user = await User.findById(userId);
+		const isAdmin = user && (user.userType === "admin" || user.permissions.includes("admin"));
+
+		if (!isBuyer && !isSeller && !isAdmin) {
 			return res.status(403).json({ success: false, message: "Not authorized to view this exchange" });
 		}
 
@@ -289,6 +319,12 @@ export const negotiateExchange = async (req, res) => {
 
 		addHistory(exchange, isLocked ? "meeting_locked" : "meeting_updated", userId, meetingLocation || negotiationNotes);
 		await exchange.save();
+
+		try {
+			const otherId = exchange.buyerId.toString() === userId ? exchange.sellerId.toString() : exchange.buyerId.toString();
+			emitToUser(otherId, "exchange:meeting_negotiated", { exchangeId: exchange._id });
+		} catch (_) {}
+
 		res.status(200).json({ success: true, message: "Meeting details updated", data: exchange });
 	} catch (error) {
 		console.error("Error in negotiateExchange:", error);
@@ -296,9 +332,66 @@ export const negotiateExchange = async (req, res) => {
 	}
 };
 
+// ─── Internal Helper: Execute Atomic Full Completion ─────────────────────
+const executeFullCompletion = async (exchange) => {
+	const session = await mongoose.startSession();
+	try {
+		await session.withTransaction(async () => {
+			const rewardPoints = 50;
+			const [buyer, seller] = await Promise.all([
+				User.findById(exchange.buyerId).session(session),
+				User.findById(exchange.sellerId).session(session),
+			]);
+
+			if (!buyer || !seller) throw new Error("User data missing");
+
+			for (const u of [buyer, seller]) {
+				u.ecoPoints = (u.ecoPoints || 0) + rewardPoints;
+				if (!u.achievements.includes("First Successful Exchange")) {
+					u.achievements.push("First Successful Exchange");
+				}
+			}
+			await Promise.all([buyer.save({ session }), seller.save({ session })]);
+
+			// Eco-point ledger
+			try {
+				const EcoTx = mongoose.model("EcoPointTransaction");
+				await EcoTx.insertMany(
+					[
+						{ userId: exchange.buyerId, points: rewardPoints, reason: "exchange", description: `Exchange #${exchange._id} completed`, referenceId: exchange._id },
+						{ userId: exchange.sellerId, points: rewardPoints, reason: "exchange", description: `Exchange #${exchange._id} completed`, referenceId: exchange._id },
+					],
+					{ session }
+				);
+			} catch (_) {} 
+
+			await Listing.findByIdAndUpdate(exchange.listingId, { available: false }, { session });
+			if (exchange.offeredListingId) {
+				await Listing.findByIdAndUpdate(exchange.offeredListingId, { available: false }, { session });
+			}
+		});
+
+		try {
+			await Notification.insertMany([
+				{ userId: exchange.buyerId, type: "exchange_completed", message: "Your exchange has been fully completed!", metadata: { exchangeId: exchange._id } },
+				{ userId: exchange.sellerId, type: "exchange_completed", message: "Your exchange has been fully completed!", metadata: { exchangeId: exchange._id } },
+			]);
+			emitToUser(exchange.buyerId.toString(), "exchange:completed", { exchangeId: exchange._id });
+			emitToUser(exchange.sellerId.toString(), "exchange:completed", { exchangeId: exchange._id });
+		} catch (_) {}
+
+		// Auto-sweep pending exchanges
+		await sweepPendingExchanges(exchange.listingId, exchange._id);
+		if (exchange.offeredListingId) {
+			await sweepPendingExchanges(exchange.offeredListingId, exchange._id);
+		}
+	} finally {
+		await session.endSession();
+	}
+};
+
 // ──────────────────────────────────────────────────────────────────────────
 // 6. Complete exchange (dual-confirmation)
-//    Improvement: mongoose session for atomicity
 // ──────────────────────────────────────────────────────────────────────────
 export const completeExchange = async (req, res) => {
 	try {
@@ -327,56 +420,8 @@ export const completeExchange = async (req, res) => {
 		addHistory(exchange, newStatus, userId);
 		await exchange.save();
 
-		// 🔴 Atomic block on full completion via session
 		if (newStatus === "fully_completed") {
-			const session = await mongoose.startSession();
-			try {
-				await session.withTransaction(async () => {
-					const rewardPoints = 50;
-					const [buyer, seller] = await Promise.all([
-						User.findById(exchange.buyerId).session(session),
-						User.findById(exchange.sellerId).session(session),
-					]);
-
-					if (!buyer || !seller) throw new Error("User data missing");
-
-					for (const u of [buyer, seller]) {
-						u.ecoPoints = (u.ecoPoints || 0) + rewardPoints;
-						if (!u.achievements.includes("First Successful Exchange")) {
-							u.achievements.push("First Successful Exchange");
-						}
-					}
-					await Promise.all([buyer.save({ session }), seller.save({ session })]);
-
-					// Eco-point ledger
-					try {
-						const EcoTx = mongoose.model("EcoPointTransaction");
-						await EcoTx.insertMany(
-							[
-								{ userId: exchange.buyerId, points: rewardPoints, reason: "exchange", description: `Exchange #${exchange._id} completed`, referenceId: exchange._id },
-								{ userId: exchange.sellerId, points: rewardPoints, reason: "exchange", description: `Exchange #${exchange._id} completed`, referenceId: exchange._id },
-							],
-							{ session }
-						);
-					} catch (_) {} // non-critical
-
-					await Listing.findByIdAndUpdate(exchange.listingId, { available: false }, { session });
-					if (exchange.offeredListingId) {
-						await Listing.findByIdAndUpdate(exchange.offeredListingId, { available: false }, { session });
-					}
-				});
-			} finally {
-				await session.endSession();
-			}
-
-			try {
-				await Notification.insertMany([
-					{ userId: exchange.buyerId, type: "exchange_completed", message: "Your exchange has been fully completed!", metadata: { exchangeId: exchange._id } },
-					{ userId: exchange.sellerId, type: "exchange_completed", message: "Your exchange has been fully completed!", metadata: { exchangeId: exchange._id } },
-				]);
-				emitToUser(exchange.buyerId.toString(), "exchange:completed", { exchangeId: exchange._id });
-				emitToUser(exchange.sellerId.toString(), "exchange:completed", { exchangeId: exchange._id });
-			} catch (_) {}
+			await executeFullCompletion(exchange);
 		}
 
 		res.status(200).json({ success: true, message: "Exchange completion updated", data: exchange });
@@ -499,6 +544,12 @@ export const resolveDispute = async (req, res) => {
 			} finally {
 				await session.endSession();
 			}
+
+			// Auto-sweep pending exchanges
+			await sweepPendingExchanges(exchange.listingId, exchange._id);
+			if (exchange.offeredListingId) {
+				await sweepPendingExchanges(exchange.offeredListingId, exchange._id);
+			}
 		}
 
 		try {
@@ -540,23 +591,164 @@ export const getUserExchanges = async (req, res) => {
 			.populate("sellerId", "name profilePicture trustScore")
 			.populate("listingId", "title images price");
 
-		// Auto-expire any pending proposals in the result (lightweight sweep)
-		for (const ex of exchanges) {
-			if (ex.status === "pending" && ex.expiresAt < new Date()) {
-				await checkExpiry(ex);
-			}
-		}
-
 		res.status(200).json({
 			success: true,
 			total,
 			page: Number(page),
 			totalPages: Math.ceil(total / Number(limit)),
 			count: exchanges.length,
-			data: exchanges,
+			data: data,
 		});
 	} catch (error) {
 		console.error("Error in getUserExchanges:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+// ──────────────────────────────────────────────────────────────────────────
+// 10. Modernization: QR Handshake - Generate Token (Seller)
+// ──────────────────────────────────────────────────────────────────────────
+export const generateHandshakeToken = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const userId = req.userId;
+
+		const exchange = await Exchange.findById(id);
+		if (!exchange) return res.status(404).json({ success: false, message: "Exchange not found" });
+
+		if (exchange.sellerId.toString() !== userId) {
+			return res.status(403).json({ success: false, message: "Only the seller can generate a handshake token" });
+		}
+
+		if (exchange.status !== "accepted" && !exchange.status.startsWith("completed_by")) {
+			return res.status(400).json({ success: false, message: "Exchange is not in a valid state for handshake" });
+		}
+
+		// Generate 6-digit cryptographically secure token
+		const crypto = await import("crypto");
+		const token = crypto.randomInt(100000, 999999).toString();
+		
+		exchange.handshakeToken = token;
+		exchange.handshakeExpiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 mins
+		addHistory(exchange, "handshake_token_generated", userId, "Token ready for scanning");
+		await exchange.save();
+
+		// Inform buyer via socket
+		try {
+			emitToUser(exchange.buyerId.toString(), "exchange:handshake_ready", { exchangeId: exchange._id });
+		} catch (_) {}
+
+		res.status(200).json({
+			success: true,
+			message: "Handshake token generated",
+			token, // Frontend uses this to render QR
+			expiresAt: exchange.handshakeExpiresAt
+		});
+	} catch (error) {
+		console.error("Error in generateHandshakeToken:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+// ──────────────────────────────────────────────────────────────────────────
+// 11. Modernization: QR Handshake - Verify and Complete (Buyer)
+// ──────────────────────────────────────────────────────────────────────────
+export const verifyHandshake = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const { token } = req.body;
+		const userId = req.userId;
+
+		if (!token) return res.status(400).json({ success: false, message: "Verification token is required" });
+
+		const exchange = await Exchange.findById(id);
+		if (!exchange) return res.status(404).json({ success: false, message: "Exchange not found" });
+
+		if (exchange.buyerId.toString() !== userId) {
+			return res.status(403).json({ success: false, message: "Only the buyer can verify the handshake" });
+		}
+
+		if (!exchange.handshakeToken || exchange.handshakeToken !== token) {
+			return res.status(400).json({ success: false, message: "Invalid verification token" });
+		}
+
+		if (exchange.handshakeExpiresAt < new Date()) {
+			return res.status(400).json({ success: false, message: "Verification token has expired. Please ask the seller to generate a new one." });
+		}
+
+		// Success! Proceed to fully_completed status immediately
+		exchange.status = "fully_completed";
+		exchange.handshakeToken = null; // Clear token after use
+		addHistory(exchange, "fully_completed_vid_handshake", userId);
+		await exchange.save();
+
+		// Atomic Logic
+		await executeFullCompletion(exchange);
+
+		res.status(200).json({
+			success: true,
+			message: "Handshake verified successfully! Exchange completed.",
+			data: exchange
+		});
+	} catch (error) {
+		console.error("Error in verifyHandshake:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+// ──────────────────────────────────────────────────────────────────────────
+// 12. Modernization: Safe Zone Discovery
+// ──────────────────────────────────────────────────────────────────────────
+export const getSafeZones = async (req, res) => {
+	try {
+		// Mocked data for demo purposes. 
+		// Real app would fetch from a 'SafeZone' collection or external API.
+		const safeZones = [
+			{ id: "sz_001", name: "Central Police Station Hub", address: "123 Main St, Downtown", type: "police", location: { lat: 40.7128, lng: -74.0060 } },
+			{ id: "sz_002", name: "SuperFix Partner Garage", address: "45 Industrial Ave", type: "garage", location: { lat: 40.7306, lng: -73.9352 } },
+			{ id: "sz_003", name: "Metro Library Plaza", address: "89 Knowledge Way", type: "public", location: { lat: 40.7580, lng: -73.9855 } },
+		];
+
+		res.status(200).json({
+			success: true,
+			count: safeZones.length,
+			data: safeZones
+		});
+	} catch (error) {
+		console.error("Error in getSafeZones:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+// ──────────────────────────────────────────────────────────────────────────
+// 13. Modernization: Handover Photo Proof
+// ──────────────────────────────────────────────────────────────────────────
+export const uploadHandoverPhoto = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const { photoUrl } = req.body;
+		const userId = req.userId;
+
+		if (!photoUrl) return res.status(400).json({ success: false, message: "Photo URL is required" });
+
+		const exchange = await Exchange.findById(id);
+		if (!exchange) return res.status(404).json({ success: false, message: "Exchange not found" });
+
+		if (exchange.buyerId.toString() !== userId && exchange.sellerId.toString() !== userId) {
+			return res.status(403).json({ success: false, message: "Not authorized" });
+		}
+
+		exchange.handoverPhotos.push(photoUrl);
+		addHistory(exchange, "handover_photo_uploaded", userId, "Condition proof added");
+		await exchange.save();
+
+		res.status(200).json({
+			success: true,
+			message: "Handover photo uploaded successfully",
+			photos: exchange.handoverPhotos
+		});
+	} catch (error) {
+		console.error("Error in uploadHandoverPhoto:", error);
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };

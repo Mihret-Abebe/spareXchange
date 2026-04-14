@@ -10,6 +10,7 @@ import { initSocket } from "./utils/socket.js";
 
 import { connectDB } from "./db/connectDB.js";
 import { startExpiryCron } from "./services/cron.service.js";
+import "./models/ecoPointTransaction.model.js"; // Ensure ledger model is registered
 
 import authRoutes from "./routes/auth.route.js";
 import listingRoutes from "./routes/listing.route.js";

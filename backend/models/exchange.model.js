@@ -93,6 +93,12 @@ const exchangeSchema = new mongoose.Schema(
 			type: Date,
 			default: () => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
 		},
+
+		// --- Modernization Features ---
+		handshakeToken: { type: String, default: null }, // 6-digit TOTP token
+		handshakeExpiresAt: { type: Date, default: null },
+		handoverPhotos: [{ type: String }], // Proof of condition at handover
+		safeZoneId: { type: String, default: null }, // Reference to a verified meeting point
 	},
 	{ timestamps: true }
 );
