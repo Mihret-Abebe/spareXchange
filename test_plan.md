@@ -277,6 +277,38 @@ This document outlines the comprehensive test plan for the SpareXChange applicat
 - Links in emails work correctly
 - Unsubscribe options are available
 
+### 8. Premium Marketplace Features (Modernization)
+
+#### 8.1 Proximity-Based Discovery
+**Test ID**: T015
+**Objective**: Verify listings can be filtered by geo-proximity (2dsphere)
+**Preconditions**: Listing exists with `locationCoords`
+**Steps**:
+1. Query `/api/listings` with `latitude`, `longitude`, and `radius`
+2. Verify listings within range are returned
+3. Verify listings out of range are excluded
+**Status**: **Verified** (via `module2_exhaustive.test.js`)
+
+#### 8.2 Community Fitment Verification
+**Test ID**: T016
+**Objective**: Verify crowdsourced voting on vehicle compatibility
+**Preconditions**: Listing has `compatibleVehicles` entries
+**Steps**:
+1. PUT vote as "up" to `/api/listings/:id/compatibility/:vehicleId/vote`
+2. Verify increment in `upvotes`
+3. Change vote to "down" and verify logic handles the switch correctly
+**Status**: **Verified** (via `module2_exhaustive.test.js`)
+
+#### 8.3 Market Intelligence (High Demand Analytics)
+**Test ID**: T017
+**Objective**: Verify system tracks low-result searches to inform sellers
+**Preconditions**: Users perform searches that yield zero or few results
+**Steps**:
+1. Perform unique searches like "ObscurePartABC"
+2. Query `/api/listings/analytics/high-demand`
+3. Verify the search term appears in the "High Demand" leaderboard
+**Status**: **Verified** (via `module2_exhaustive.test.js`)
+
 ## Test Data Requirements
 
 ### User Test Data

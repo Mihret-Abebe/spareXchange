@@ -10,7 +10,7 @@ import { getRecommendations as fetchRecommendations } from "../services/recommen
 // Create a new listing
 export const createListing = async (req, res) => {
 	try {
-		const { title, description, price, category, condition, location, images, contactInfo, specifications, compatibleVehicles } = req.body;
+		const { title, description, price, category, condition, location, locationCoords, images, contactInfo, specifications, compatibleVehicles } = req.body;
 
 		const user = await User.findById(req.userId);
 		if (!user || user.isBanned) return res.status(403).json({ success: false, message: "Forbidden" });
@@ -35,6 +35,7 @@ export const createListing = async (req, res) => {
 			category,
 			condition,
 			location,
+			locationCoords: locationCoords || { type: "Point", coordinates: [0, 0] },
 			images: processedImages,
 			seller: req.userId, // from middleware
 			contactInfo,
@@ -233,7 +234,7 @@ export const getListing = async (req, res) => {
 export const updateListing = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const { title, description, price, category, condition, location, images, contactInfo, specifications, available, compatibleVehicles } = req.body;
+		const { title, description, price, category, condition, location, locationCoords, images, contactInfo, specifications, available, compatibleVehicles } = req.body;
 
 		const listing = await Listing.findById(id);
 
@@ -255,6 +256,7 @@ export const updateListing = async (req, res) => {
 				category,
 				condition,
 				location,
+				locationCoords: locationCoords || listing.locationCoords,
 				images: images || listing.images,
 				contactInfo,
 				specifications,
