@@ -6,7 +6,7 @@ dotenv.config();
 // Create a transporter object using the default SMTP transport
 const createTransporter = () => {
   // If no SMTP credentials are provided, return null (for development mode)
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER) {
+  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
     return null;
   }
 
@@ -26,21 +26,24 @@ const fromEmail = process.env.FROM_EMAIL;
 export const sendEmail = async (to, subject, html) => {
   // Check if we have SMTP credentials
   const hasCredentials = process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS;
-  
-  // If we don't have credentials in any environment, skip sending
+
   if (!hasCredentials) {
-    console.log("Email sending skipped (no SMTP credentials available)");
-    // In development, log what would have been sent
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`Would send email to: ${to}`);
-      console.log(`Subject: ${subject}`);
-      console.log(`Body: ${html.substring(0, 100)}...`); // Log first 100 characters
-    }
-    return true;
+    const missingVars = [];
+    if (!process.env.SMTP_HOST) missingVars.push('SMTP_HOST');
+    if (!process.env.SMTP_USER) missingVars.push('SMTP_USER');
+    if (!process.env.SMTP_PASS) missingVars.push('SMTP_PASS');
+
+    console.error(`Email sending failed: missing SMTP env vars: ${missingVars.join(', ')}`);
+    return false;
+  }
+
+  if (!fromEmail) {
+    console.error('Email sending failed: FROM_EMAIL is not configured');
+    return false;
   }
 
   const transporter = createTransporter();
-  
+
   // If transporter is null, we're in development without credentials
   if (!transporter) {
     console.log("Email sending skipped (no transporter available)");
@@ -52,7 +55,7 @@ export const sendEmail = async (to, subject, html) => {
     console.log(`Attempting to send email to: ${to}`);
     console.log(`Using SMTP host: ${process.env.SMTP_HOST}:${process.env.SMTP_PORT}`);
     console.log(`From: SpareXchange <${fromEmail}>`);
-    
+
     const info = await transporter.sendMail({
       from: `SpareXchange <${fromEmail}>`,
       to,
@@ -71,13 +74,13 @@ export const sendEmail = async (to, subject, html) => {
     if (error.response) {
       console.error(`SMTP Response: ${error.response}`);
     }
-    
+
     // For authentication errors, provide more specific feedback
     if (error.code === 'EAUTH') {
       console.error('Authentication failed. Please check your SMTP credentials.');
       console.error('Make sure you are using an App Password, not your regular Gmail password.');
     }
-    
+
     return false;
   }
 };
