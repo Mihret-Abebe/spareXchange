@@ -597,7 +597,7 @@ export const getUserExchanges = async (req, res) => {
 			page: Number(page),
 			totalPages: Math.ceil(total / Number(limit)),
 			count: exchanges.length,
-			data: data,
+			data: exchanges,
 		});
 	} catch (error) {
 		console.error("Error in getUserExchanges:", error);
