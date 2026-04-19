@@ -4,6 +4,7 @@
 
 @layer base {
   :root {
+    --primary-color: #16a34a;
     --background: 220 20% 98%;
     --foreground: 220 20% 10%;
     --card: 220 20% 98%;
@@ -25,7 +26,7 @@
     --ring: 160 84% 39%;
     --radius: 0.5rem;
   }
-  
+
   .dark {
     --background: 220 20% 10%;
     --foreground: 220 20% 98%;
@@ -47,12 +48,12 @@
     --input: 220 20% 20%;
     --ring: 160 84% 39%;
   }
-  
+
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
   }
-  
+
   @keyframes fadeInDown {
     0% {
       opacity: 0;
@@ -63,11 +64,11 @@
       transform: translateY(0);
     }
   }
-  
+
   .animate-fadeInDown {
     animation: fadeInDown 0.3s ease-out forwards;
   }
-  
+
   @keyframes fadeIn {
     0% {
       opacity: 0;
@@ -76,11 +77,11 @@
       opacity: 1;
     }
   }
-  
+
   .animate-fadeIn {
     animation: fadeIn 0.3s ease-out forwards;
   }
-  
+
   @keyframes bounceIn {
     0% {
       opacity: 0;
@@ -94,7 +95,7 @@
       transform: scale(1);
     }
   }
-  
+
   .animate-bounceIn {
     animation: bounceIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
   }
