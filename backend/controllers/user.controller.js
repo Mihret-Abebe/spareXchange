@@ -155,3 +155,22 @@ export const updateProfile = async (req, res) => {
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };
+
+// Get Eco-Leaderboard
+export const getLeaderboard = async (req, res) => {
+	try {
+		const leaderboard = await User.find({ isBanned: false })
+			.sort({ ecoPoints: -1 })
+			.limit(20)
+			.select("name profilePicture ecoPoints achievements ecoTier");
+
+		res.status(200).json({
+			success: true,
+			count: leaderboard.length,
+			leaderboard
+		});
+	} catch (error) {
+		console.error("Error in getLeaderboard:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};

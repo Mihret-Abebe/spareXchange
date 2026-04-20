@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { useAuthStore } from "../store/authStore";
 import { formatDate } from "../utils/date";
 import { useNavigate, Link } from "react-router-dom";
+import TierBadge from "../components/TierBadge";
+import { Trophy } from "lucide-react";
 
 const DashboardPage = () => {
 	const { user, logout } = useAuthStore();
@@ -54,6 +56,60 @@ const DashboardPage = () => {
 
 						{formatDate(user.lastLogin)}
 					</p>
+				</motion.div>
+
+				<motion.div
+					className='p-4 bg-gray-800 bg-opacity-50 rounded-lg border border-gray-700'
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.5 }}
+				>
+					<div className='flex items-center justify-between mb-4'>
+						<h3 className='text-xl font-semibold text-green-400'>Eco Status</h3>
+						<TierBadge tier={user.ecoTier} />
+					</div>
+					
+					<div className='space-y-4'>
+						<div className='flex justify-between items-end'>
+							<span className='text-gray-400 text-sm'>Total Eco Points</span>
+							<span className='text-2xl font-bold text-white'>{user.ecoPoints || 0}</span>
+						</div>
+
+						{/* Progress Bar */}
+						<div className='space-y-1'>
+							<div className='h-2 w-full bg-gray-700 rounded-full overflow-hidden'>
+								<motion.div 
+									initial={{ width: 0 }}
+									animate={{ 
+										width: `${Math.min(100, ((user.ecoPoints || 0) / (
+											user.ecoTier === "Seed" ? 100 :
+											user.ecoTier === "Sprout" ? 500 :
+											user.ecoTier === "Sapling" ? 1500 :
+											user.ecoTier === "Oak" ? 5000 : 10000
+										)) * 100)}%` 
+									}}
+									className='h-full bg-gradient-to-r from-green-400 to-emerald-600'
+								/>
+							</div>
+							<div className='flex justify-between text-[10px] uppercase tracking-tighter text-gray-500 font-bold'>
+								<span>Current: {user.ecoTier}</span>
+								<span>Next Tier: {
+									user.ecoTier === "Seed" ? "Sprout" :
+									user.ecoTier === "Sprout" ? "Sapling" :
+									user.ecoTier === "Sapling" ? "Oak" :
+									user.ecoTier === "Oak" ? "Gaia" : "Maxed Out"
+								}</span>
+							</div>
+						</div>
+
+						<Link 
+							to='/leaderboard' 
+							className='flex items-center justify-center gap-2 w-full py-2 bg-gray-700 bg-opacity-50 hover:bg-opacity-80 rounded-lg text-sm text-gray-300 transition duration-200'
+						>
+							<Trophy className='size-4 text-yellow-500' />
+							View Global Leaderboard
+						</Link>
+					</div>
 				</motion.div>
 
 				{user.userType === "admin" && (

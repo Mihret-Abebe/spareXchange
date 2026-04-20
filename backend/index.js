@@ -50,6 +50,16 @@ const authLimiter = rateLimit({
 app.use("/api/auth", authLimiter);
 app.use("/api/users", authLimiter);
 
+// Strict limiter for recycling to prevent point farming
+const recyclingLimiter = rateLimit({
+	windowMs: 60 * 60 * 1000, // 1 hour
+	max: 10, // Limit each IP to 10 submissions per hour
+	message: "Too many recycling submissions from this IP, please try again after an hour",
+	standardHeaders: true,
+	legacyHeaders: false,
+});
+app.use("/api/recycling-submissions", recyclingLimiter);
+
 app.use("/uploads", express.static(path.join(path.resolve(), "uploads")));
 
 app.use("/api/auth", authRoutes);

@@ -31,6 +31,7 @@ const userSchema = new mongoose.Schema(
 		ecoPoints: {
 			type: Number,
 			default: 0,
+			index: true,
 		},
 		userType: {
 			type: String,
@@ -100,8 +101,21 @@ const userSchema = new mongoose.Schema(
 			default: "local"
 		}
 	},
-	{ timestamps: true }
+	{ 
+		timestamps: true,
+		toJSON: { virtuals: true },
+		toObject: { virtuals: true }
+	}
 );
+
+userSchema.virtual("ecoTier").get(function () {
+	const points = this.ecoPoints || 0;
+	if (points <= 100) return "Seed";
+	if (points <= 500) return "Sprout";
+	if (points <= 1500) return "Sapling";
+	if (points <= 5000) return "Oak";
+	return "Gaia";
+});
 
 userSchema.index({ locationCoords: "2dsphere" });
 
