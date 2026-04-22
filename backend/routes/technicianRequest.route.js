@@ -4,23 +4,29 @@ import {
 	getUserTechnicianRequests, 
 	getAllTechnicianRequests,
 	getTechnicianRequest,
-	updateTechnicianRequest,
-	assignTechnician,
-	completeTechnicianRequest,
+	submitQuote,
+	acceptQuote,
+	generateVerificationToken,
+	completeWithToken,
 	cancelTechnicianRequest
 } from "../controllers/technicianRequest.controller.js";
 import { verifyToken } from "../middleware/verifyToken.js";
 
 const router = express.Router();
 
-// Protected routes (require authentication)
-router.post("/", verifyToken, createTechnicianRequest);
+// General / Discovery
+router.get("/", verifyToken, getAllTechnicianRequests); // Global discovery for technicians/admins
 router.get("/my-requests", verifyToken, getUserTechnicianRequests);
-router.get("/", verifyToken, getAllTechnicianRequests); // for admin/technicians
 router.get("/:id", verifyToken, getTechnicianRequest);
-router.put("/:id", verifyToken, updateTechnicianRequest);
-router.put("/:id/assign", verifyToken, assignTechnician); // for admin/technicians
-router.put("/:id/complete", verifyToken, completeTechnicianRequest);
+
+// User Actions
+router.post("/", verifyToken, createTechnicianRequest);
+router.post("/:id/accept-quote/:techId", verifyToken, acceptQuote);
+router.post("/:id/complete-handshake", verifyToken, completeWithToken);
 router.put("/:id/cancel", verifyToken, cancelTechnicianRequest);
+
+// Technician Actions
+router.post("/:id/quote", verifyToken, submitQuote);
+router.post("/:id/handshake-token", verifyToken, generateVerificationToken);
 
 export default router;

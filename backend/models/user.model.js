@@ -60,6 +60,8 @@ const userSchema = new mongoose.Schema(
 		},
 		interests: { type: [String], default: [] },
 		achievements: { type: [String], default: [] },
+		expertise: { type: String, default: "" },
+		trustScore: { type: Number, default: 80 }, // Starting trust score
 		locationCoords: {
 			type: {
 				type: String,
