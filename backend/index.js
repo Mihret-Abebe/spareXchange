@@ -9,7 +9,7 @@ import http from "http";
 import { initSocket } from "./utils/socket.js";
 
 import { connectDB } from "./db/connectDB.js";
-import { startExpiryCron } from "./services/cron.service.js";
+import { startExpiryCron, startSavedSearchCron } from "./services/cron.service.js";
 import "./models/ecoPointTransaction.model.js"; // Ensure ledger model is registered
 
 import authRoutes from "./routes/auth.route.js";
@@ -89,6 +89,7 @@ if (process.env.NODE_ENV !== "test") {
 	server.listen(PORT, () => {
 		connectDB();
 		startExpiryCron();
+		startSavedSearchCron();
 		console.log("Server is running on port: ", PORT);
 	});
 }

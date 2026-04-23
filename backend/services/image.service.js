@@ -19,7 +19,11 @@ export const uploadImage = async (base64Data) => {
 		const buffer = Buffer.from(base64Content, "base64");
 		
 		const filename = `${crypto.randomBytes(16).toString("hex")}.jpg`;
-		const filePath = path.join(path.resolve(), "backend", "uploads", filename);
+		const uploadsDir = path.join(path.resolve(), "backend", "uploads");
+		const filePath = path.join(uploadsDir, filename);
+		
+		// Ensure uploads directory exists (important for tests/CI)
+		await fs.promises.mkdir(uploadsDir, { recursive: true });
 		
 		await fs.promises.writeFile(filePath, buffer);
 		

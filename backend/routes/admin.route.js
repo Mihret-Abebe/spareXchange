@@ -5,9 +5,9 @@ import {
 	toggleUserBan, 
 	verifyRoleStatus, 
 	getPlatformStats,
-	getPendingVerifications
+	getPendingVerifications,
+	runSavedSearchAlertsJob
 } from "../controllers/admin.controller.js";
-import { User } from "../models/user.model.js";
 
 const router = express.Router();
 
@@ -18,5 +18,6 @@ router.get("/users", verifyToken, authorize(["view_users"]), getAllUsers);
 router.get("/verifications/pending", verifyToken, authorize(["verify_roles"]), getPendingVerifications);
 router.post("/users/:id/ban", verifyToken, authorize(["ban_users"]), toggleUserBan);
 router.post("/users/:id/verify", verifyToken, authorize(["verify_roles"]), verifyRoleStatus);
+router.post("/jobs/saved-search-alerts", verifyToken, authorize(["run_jobs"]), runSavedSearchAlertsJob);
 
 export default router;

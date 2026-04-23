@@ -32,8 +32,13 @@ export const createTechnicianRequest = async (req, res) => {
 
 		const savedRequest = await newRequest.save();
 
-		// Trigger background matching service
-		scanTechnicianMatches(savedRequest);
+		// Trigger matching service
+		// In tests we await to make notification assertions deterministic.
+		if (process.env.NODE_ENV === "test") {
+			await scanTechnicianMatches(savedRequest);
+		} else {
+			scanTechnicianMatches(savedRequest);
+		}
 
 		res.status(201).json({
 			success: true,
@@ -239,4 +244,4 @@ export const cancelTechnicianRequest = async (req, res) => {
 	} catch (error) {
 		res.status(500).json({ success: false, message: "Server error" });
 	}
-};
+};

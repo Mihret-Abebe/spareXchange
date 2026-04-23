@@ -184,7 +184,7 @@ export const getListings = async (req, res) => {
 				const log = new SearchLog({
 					userId: req.userId || null,
 					query: search,
-					filters: { category, condition, minPrice, maxPrice, location },
+					filters: { category, condition, brand, model, year: year ? Number(year) : undefined, minPrice, maxPrice, location, latitude: latitude ? Number(latitude) : undefined, longitude: longitude ? Number(longitude) : undefined, radius: radius ? Number(radius) : undefined },
 					resultsCount: listings.length,
 				});
 				await log.save();
