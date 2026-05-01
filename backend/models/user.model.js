@@ -83,6 +83,26 @@ const userSchema = new mongoose.Schema(
 		mfaSecret: { type: String },
 		isMfaEnabled: { type: Boolean, default: false },
 		mfaBackupCodes: [{ type: String }],
+		// Push notification device tokens
+		deviceTokens: [{
+			token: String,
+			deviceType: { type: String, enum: ['android', 'ios', 'web'] },
+			deviceName: String,
+			isActive: { type: Boolean, default: true },
+			createdAt: { type: Date, default: Date.now },
+			lastUsed: Date
+		}],
+		// Notification preferences
+		notificationPreferences: {
+			emailNotifications: { type: Boolean, default: true },
+			pushNotifications: { type: Boolean, default: true },
+			smsNotifications: { type: Boolean, default: false },
+			listingAlerts: { type: Boolean, default: true },
+			exchangeUpdates: { type: Boolean, default: true },
+			messageNotifications: { type: Boolean, default: true },
+			systemAnnouncements: { type: Boolean, default: true },
+			marketingEmails: { type: Boolean, default: false }
+		},
 		permissions: [{ type: String }],
 		isBanned: {
 			type: Boolean,

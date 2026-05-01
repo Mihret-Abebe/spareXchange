@@ -7,6 +7,8 @@ import rateLimit from "express-rate-limit";
 import path from "path";
 import http from "http";
 import { initSocket } from "./utils/socket.js";
+import { logger, httpLogger } from "./utils/logger.js";
+import errorHandler, { notFoundHandler, handleUnhandledRejection, handleUncaughtException } from "./middleware/errorHandler.js";
 
 import { connectDB } from "./db/connectDB.js";
 import { startExpiryCron, startSavedSearchCron } from "./services/cron.service.js";
@@ -62,6 +64,10 @@ app.use("/api/recycling-submissions", recyclingLimiter);
 
 app.use("/uploads", express.static(path.join(path.resolve(), "uploads")));
 
+// HTTP Request Logging (after routes, before error handler)
+app.use(httpLogger);
+
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/listings", listingRoutes);
 app.use("/api/technician-requests", technicianRequestRoutes);
@@ -74,6 +80,12 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/disputes", disputeRoutes);
 
+// 404 Handler - Must be after all routes
+app.use(notFoundHandler);
+
+// Global Error Handler - Must be last
+app.use(errorHandler);
+
 if (process.env.NODE_ENV === "production") {
 	app.use(express.static(path.join(__dirname, "/frontend/dist")));
 
@@ -85,12 +97,17 @@ if (process.env.NODE_ENV === "production") {
 const server = http.createServer(app);
 initSocket(server);
 
+// Handle uncaught exceptions and rejections
+process.on("uncaughtException", handleUncaughtException);
+process.on("unhandledRejection", handleUnhandledRejection);
+
 if (process.env.NODE_ENV !== "test") {
 	server.listen(PORT, () => {
 		connectDB();
 		startExpiryCron();
 		startSavedSearchCron();
-		console.log("Server is running on port: ", PORT);
+		logger.info(`🚀 Server is running on port: ${PORT}`);
+		logger.info(`📝 Environment: ${process.env.NODE_ENV || "development"}`);
 	});
 }
 
