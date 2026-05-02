@@ -1,127 +1,214 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { ChevronDown, ChevronUp, HelpCircle } from "lucide-react";
+// import { useState } from "react";
+// import { Link } from 'react-router';
+import { Button } from '../components/ui/button';
+// import { motion } from "framer-motion";
+import { MessageCircle, Mail, Recycle } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion';
+import { Card, CardContent } from '../components/ui/card';
+
+// import { Card, CardContent } from '../components/ui/card';
+// import { Link } from 'react-router';
+// import { Button } from '../components/ui/button';
 
 const FaqPage = () => {
-	const [openIndex, setOpenIndex] = useState(null);
+	// const [openIndex, setOpenIndex] = useState(null);
 
-	const toggleAccordion = (index) => {
-		setOpenIndex(openIndex === index ? null : index);
-	};
+	// const toggleAccordion = (index) => {
+	// 	setOpenIndex(openIndex === index ? null : index);
+	// };
 
-	const faqs = [
+	const FAQ_CATEGORIES = [
 		{
-			question: "What is SpareXChange?",
-			answer: "SpareXChange is a marketplace platform that connects users who want to buy, sell, or exchange spare parts for vehicles, machinery, and electronics. Our platform promotes sustainability by extending the life of spare parts and reducing electronic waste."
+			category: 'Getting Started',
+			questions: [
+				{
+					question: 'How do I create an account?',
+					answer: 'Click on the "Get Started" or "Sign Up" button in the top right corner. Choose your account type (User, Business, or Recycler), fill in your details, and verify your email address.',
+				},
+				{
+					question: 'What are the different account types?',
+					answer: 'We offer three account types: User (for individual buyers/sellers), Business (for repair shops and garages), and Recycler (for recycling centers). Each type has features tailored to your needs.',
+				},
+				{
+					question: 'Is it free to join?',
+					answer: 'Yes! Creating an account and browsing parts is completely free. We only charge a small commission fee when you successfully sell an item.',
+				},
+			],
 		},
 		{
-			question: "How does the exchange system work?",
-			answer: "Our exchange system allows users to trade spare parts directly with other users. You can list parts you no longer need and specify what you're looking for in return. Our matching algorithm helps connect users with complementary needs."
+			category: 'Buying Parts',
+			questions: [
+				{
+					question: 'How do I search for parts?',
+					answer: 'Use the search bar on the marketplace page to search by part name, part number, or brand. You can also filter by category, condition, price range, and location.',
+				},
+				{
+					question: 'What payment methods do you accept?',
+					answer: 'We accept all major credit cards (Visa, Mastercard, American Express), debit cards, and PayPal. All transactions are secure and encrypted.',
+				},
+				{
+					question: 'How does shipping work?',
+					answer: 'Shipping is handled by the seller. Each listing includes shipping costs and estimated delivery times. Orders over $50 often qualify for free shipping.',
+				},
+				{
+					question: 'What is buyer protection?',
+					answer: 'Our buyer protection program ensures you receive the item as described. If there\'s an issue, we offer refunds and dispute resolution within 30 days of purchase.',
+				},
+			],
 		},
 		{
-			question: "Is my personal information secure?",
-			answer: "Yes, we take security seriously. All personal information is encrypted and stored securely. We follow industry best practices for data protection and never share your information with third parties without your consent."
+			category: 'Selling Parts',
+			questions: [
+				{
+					question: 'How do I list a part for sale?',
+					answer: 'Go to your profile, click "Create Listing," and fill in the details including photos, description, price, and condition. Your listing will be live within minutes.',
+				},
+				{
+					question: 'What fees do sellers pay?',
+					answer: 'We charge a 5% commission on successful sales. There are no listing fees or monthly charges. You only pay when you sell.',
+				},
+				{
+					question: 'How do I get paid?',
+					answer: 'Payments are processed within 2-3 business days after the buyer confirms receipt. Funds are transferred directly to your linked bank account or PayPal.',
+				},
+				{
+					question: 'Can I edit my listings after posting?',
+					answer: 'Yes! You can edit your listings at any time from your profile dashboard. Update prices, photos, descriptions, or mark items as sold.',
+				},
+			],
 		},
 		{
-			question: "How do I verify my account?",
-			answer: "After signing up, you'll receive a verification email. Click the link in the email to verify your account. Verified accounts have access to all platform features including listing items and participating in exchanges."
+			category: 'Account & Security',
+			questions: [
+				{
+					question: 'How do I reset my password?',
+					answer: 'Click on "Forgot Password" on the login page, enter your email, and we\'ll send you a reset link. The link expires in 1 hour for security.',
+				},
+				{
+					question: 'Is my information secure?',
+					answer: 'Absolutely. We use industry-standard encryption to protect your data. Payment information is processed through secure payment gateways and never stored on our servers.',
+				},
+				{
+					question: 'How do I verify my account?',
+					answer: 'After signing up, check your email for a verification link. Click the link to verify your account. Verified accounts build trust with other users.',
+				},
+				{
+					question: 'Can I delete my account?',
+					answer: 'Yes, you can delete your account anytime from Account Settings. Note that this action is permanent and cannot be undone.',
+				},
+			],
 		},
-		{
-			question: "What is the Eco Points system?",
-			answer: "Eco Points are rewards you earn for participating in sustainable activities on our platform, such as recycling parts, completing exchanges, or listing items for reuse. These points can be redeemed for discounts on future transactions."
-		},
-		{
-			question: "Are there any fees for using SpareXChange?",
-			answer: "Basic membership is free. We charge a small transaction fee only when you successfully complete a purchase or exchange. The exact fee percentage is displayed before you confirm any transaction."
-		},
-		{
-			question: "How do I contact a seller or buyer?",
-			answer: "Once you're logged in, you can use our built-in messaging system to communicate with other users. Simply navigate to a listing and click the 'Message Seller' button to start a conversation."
-		},
-		{
-			question: "What if I receive a damaged or incorrect item?",
-			answer: "We recommend inspecting items upon receipt. If you receive a damaged or incorrect item, contact the seller immediately through our messaging system. If you can't resolve the issue directly, our support team can help mediate the dispute."
-		},
-		{
-			question: "Can I sell used parts?",
-			answer: "Yes, we encourage selling used parts that are still functional. Please be honest about the condition of your items and provide clear photos. This helps build trust in our community and supports our sustainability mission."
-		},
-		{
-			question: "How do I report a problem or suspicious activity?",
-			answer: "If you encounter any issues or suspect fraudulent activity, please contact our support team immediately through the 'Contact Us' page. We investigate all reports promptly and take appropriate action to maintain platform safety."
-		}
 	];
 
 	return (
-		<div className='min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white py-12'>
-			<div className='container mx-auto px-4'>
-				<motion.div
-					initial={{ opacity: 0, y: -20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.5 }}
-					className='text-center mb-16'
-				>
-					<h1 className='text-5xl font-bold mb-6 bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text flex items-center justify-center'>
-						<HelpCircle className='mr-4' size={48} />
-						Frequently Asked Questions
-					</h1>
-					<p className='text-xl text-gray-300 max-w-3xl mx-auto'>
-						Find answers to common questions about SpareXChange and how our platform works
+		<div className='min-h-screen bg-white text-white py-12'>
+			{/* Hero Section */}
+			<div className="bg-gradient-to-br from-green-600 to-green-900 text-white py-16 my-4">
+				<div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+					<h1 className="text-5xl mb-4 text-white">Frequently Asked Questions</h1>
+					<p className="text-xl text-green-50">
+						Find answers to common questions about SpareXchange
 					</p>
-				</motion.div>
+				</div>
+			</div>
+			{/* FAQ Content */}
+			<div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
 
-				<div className='max-w-3xl mx-auto'>
-					{faqs.map((faq, index) => (
-						<motion.div
-							key={index}
-							initial={{ opacity: 0, y: 20 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ duration: 0.3, delay: index * 0.1 }}
-							className='mb-4 bg-gray-800 rounded-xl border border-gray-700 overflow-hidden'
-						>
-							<button
-								className='w-full p-6 text-left flex justify-between items-center hover:bg-gray-750 transition duration-300'
-								onClick={() => toggleAccordion(index)}
-							>
-								<h3 className='text-xl font-semibold'>{faq.question}</h3>
-								{openIndex === index ? 
-									<ChevronUp size={24} className='text-green-400' /> : 
-									<ChevronDown size={24} className='text-green-400' />
-								}
-							</button>
-							{openIndex === index && (
-								<motion.div
-									initial={{ height: 0, opacity: 0 }}
-									animate={{ height: 'auto', opacity: 1 }}
-									exit={{ height: 0, opacity: 0 }}
-									transition={{ duration: 0.3 }}
-									className='px-6 pb-6 text-gray-300'
-								>
-									{faq.answer}
-								</motion.div>
-							)}
-						</motion.div>
+				<div className="space-y-8 text-black">
+					{FAQ_CATEGORIES.map((category, categoryIndex) => (
+						<div key={categoryIndex}>
+							<h2 className="text-2xl mb-4 text-foreground">{category.category}</h2>
+							<Accordion type="single" collapsible className="space-y-2">
+								{category.questions.map((item, index) => (
+									<AccordionItem
+										key={index}
+										value={`${categoryIndex}-${index}`}
+										className="border border-border rounded-lg px-6 bg-card"
+									>
+										<AccordionTrigger className="hover:no-underline text-left">
+											{item.question}
+										</AccordionTrigger>
+										<AccordionContent className="text-muted-foreground">
+											{item.answer}
+										</AccordionContent>
+									</AccordionItem>
+								))}
+							</Accordion>
+						</div>
 					))}
 				</div>
+				{/* Contact Support Section */}
+				<Card className="mt-16 text-black">
+					<CardContent className="text-center">
+						<MessageCircle className="w-12 h-12 text-[var(--primary)] mx-auto mb-4" />
+						<h3 className="text-2xl mb-2 text-foreground">Still Have Questions?</h3>
+						<p className="text-muted-foreground mb-6">
+							Can't find what you're looking for? Our support team is here to help.
+						</p>
+						<div className="flex flex-wrap justify-center gap-4">
+							<Button className='bg-[var(--primary)] hover:bg-[#16a34a]/90'>
+								<a href='/contact' className='flex text-white'>
+									<Mail className="w-4 h-4 mr-2" />
+									Contact Support
+								</a>
+							</Button>
+							<Button variant="outline" asChild>
+								<a href="mailto:support@sparexchange.com" className='hover:bg-[#16a34a]/70 hover:text-[var(--background)]'>
+									Email Us
+								</a>
+							</Button>
 
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.5, delay: 0.5 }}
-					className='mt-16 text-center'
-				>
-					<h2 className='text-3xl font-bold mb-6 text-green-400'>Still Have Questions?</h2>
-					<p className='text-xl text-gray-300 max-w-2xl mx-auto mb-8'>
-						Can't find the answer you're looking for? Our support team is here to help.
-					</p>
-					<a 
-						href='/contact' 
-						className='inline-block px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg hover:from-green-600 hover:to-emerald-700 transition duration-300'
-					>
-						Contact Support
-					</a>
-				</motion.div>
+						</div>
+					</CardContent>
+				</Card>
 			</div>
+
+			{/* Footer */}
+			<footer className="border-t border-border bg-card py-12 mt-16 ">
+				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+					<div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+						<div>
+							<div className="flex items-center gap-3 mb-4">
+								<div className="bg-[var(--primary)] p-2 rounded-lg">
+									<Recycle className="w-5 h-5 text-[var(--primary-foreground)]" />
+								</div>
+								<span className="text-lg text-[var(--foreground)]">SpareXchange</span>
+							</div>
+							<p className="text-sm text-[var(--muted-foreground)]">
+								Your trusted marketplace for sustainable auto parts exchange.
+							</p>
+						</div>
+						<div>
+							<h4 className="mb-4 text-[var(--foreground)]">Product</h4>
+							<ul className="space-y-2 text-sm text-[var(--muted-foreground)]">
+								<li><a href="/marketplace" className="hover:text-primary">Marketplace</a></li>
+								<li><a href="/leaderboard" className="hover:text-primary">Leaderboard</a></li>
+								<li><a href="/dashboard" className="hover:text-primary">Dashboard</a></li>
+							</ul>
+						</div>
+						<div>
+							<h4 className="mb-4 text-[var(--foreground)]">Support</h4>
+							<ul className="space-y-2 text-sm text-[var(--muted-foreground)]">
+								<li><a href="/faq" className="hover:text-primary">FAQ</a></li>
+								<li><a href="/contact" className="hover:text-primary">Contact Us</a></li>
+							</ul>
+						</div>
+						<div>
+							<h4 className="mb-4 text-[var(--foreground)]">Legal</h4>
+							<ul className="space-y-2 text-sm text-[var(--muted-foreground)]">
+								<li><a href="/terms" className="hover:text-primary">Terms of Service</a></li>
+								<li><a href="/privacy" className="hover:text-primary">Privacy Policy</a></li>
+							</ul>
+						</div>
+					</div>
+					<div className="border-t border-border pt-8 text-center text-sm text-[var(--muted-foreground)]">
+						<p>&copy; 2026 SpareXchange. All rights reserved.</p>
+					</div>
+				</div>
+			</footer>
+
+
+
 		</div>
 	);
 };

@@ -1,89 +1,89 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Recycle, Shuffle, Users, Wrench, Leaf, Truck, Car, Cpu, Smartphone, Gamepad2, Camera, Watch, Headphones, Laptop,ArrowRight, Star } from "lucide-react";
+import { Recycle, Shuffle, Users, Wrench, Leaf, Truck, Car, Cpu, Smartphone, Gamepad2, Camera, Watch, Headphones, Laptop, ArrowRight, Star } from "lucide-react";
 import ListingCard from "../components/ListingCard";
 import CategoryCard from "../components/CategoryCard";
-import InteractiveMap from "../components/InteractiveMap";
-import PersonalizedCTA from "../components/PersonalizedCTA";
-import ActivityFeed from "../components/ActivityFeed";
-import SocialProofNotification from "../components/SocialProofNotification";
-import AnimatedFooter from "../components/AnimatedFooter";
+// import InteractiveMap from "../components/InteractiveMap";
+// import PersonalizedCTA from "../components/PersonalizedCTA";
+// import ActivityFeed from "../components/ActivityFeed";
+// import SocialProofNotification from "../components/SocialProofNotification";
+// import AnimatedFooter from "../components/AnimatedFooter";
 import { useTheme } from "../contexts/ThemeContext";
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 
 const LandingPage = () => {
-	const { darkMode } = useTheme();
-	const STATS = [
-  { value: '50K+', label: 'Active Parts' },
-  { value: '10K+', label: 'Happy Users' },
-  { value: '5K+', label: 'Verified Sellers' },
-  { value: '4.8', label: 'Avg Rating' },
-];
+  const { darkMode } = useTheme();
+  const STATS = [
+    { value: '50K+', label: 'Active Parts' },
+    { value: '10K+', label: 'Happy Users' },
+    { value: '5K+', label: 'Verified Sellers' },
+    { value: '4.8', label: 'Avg Rating' },
+  ];
 
-const FEATURES = [
-						{
-							icon: Recycle,
-							title: "Buy & Sell Spare Parts",
-							description: "Find affordable spare parts for vehicles, machinery, and electronics from verified sellers in our secure marketplace.",
-						},
-						{
-							icon: Shuffle,
-							title: "Exchange Program",
-							description: "Trade your spare parts directly with other users through our peer-to-peer exchange system.",
-						},
-						{
-							icon: Users,
-							title: "Community Network",
-							description: "Connect with garages, repair shops, recyclers, and electronics enthusiasts in a collaborative ecosystem.",
-						},
-						{
-							icon: Leaf,
-							title: "Eco Points System",
-							description: "Earn rewards for recycling spare parts and contributing to sustainable practices.",
-						},
-						{
-							icon: Wrench,
-							title: "Technician Support",
-							description: "Request professional technician assistance for complex repairs and installations.",
-						},
-						{
-							icon: Truck,
-							title: "Real-Time Matching",
-							description: "Instantly find compatible spare parts with our advanced search and matching algorithms.",
-						},
-					];
-	const TESTIMONIALS = [
-  {
-    name: 'Sarah Johnson',
-    role: 'Individual Buyer',
-    content: 'Found the perfect transmission for my Honda at half the dealer price. SpareXchange made it so easy!',
-    rating: 5,
-  },
-  {
-    name: 'Mike\'s Auto Shop',
-    role: 'Business',
-    content: 'We source all our parts through SpareXchange now. Great inventory and reliable sellers.',
-    rating: 5,
-  },
-  {
-    name: 'Green Recycling Co.',
-    role: 'Recycler',
-    content: 'The platform has helped us reach more customers and move inventory faster than ever.',
-    rating: 5,
-  },
-];
+  const FEATURES = [
+    {
+      icon: Recycle,
+      title: "Buy & Sell Spare Parts",
+      description: "Find affordable spare parts for vehicles, machinery, and electronics from verified sellers in our secure marketplace.",
+    },
+    {
+      icon: Shuffle,
+      title: "Exchange Program",
+      description: "Trade your spare parts directly with other users through our peer-to-peer exchange system.",
+    },
+    {
+      icon: Users,
+      title: "Community Network",
+      description: "Connect with garages, repair shops, recyclers, and electronics enthusiasts in a collaborative ecosystem.",
+    },
+    {
+      icon: Leaf,
+      title: "Eco Points System",
+      description: "Earn rewards for recycling spare parts and contributing to sustainable practices.",
+    },
+    {
+      icon: Wrench,
+      title: "Technician Support",
+      description: "Request professional technician assistance for complex repairs and installations.",
+    },
+    {
+      icon: Truck,
+      title: "Real-Time Matching",
+      description: "Instantly find compatible spare parts with our advanced search and matching algorithms.",
+    },
+  ];
+  const TESTIMONIALS = [
+    {
+      name: 'Sarah Johnson',
+      role: 'Individual Buyer',
+      content: 'Found the perfect transmission for my Honda at half the dealer price. SpareXchange made it so easy!',
+      rating: 5,
+    },
+    {
+      name: 'Mike\'s Auto Shop',
+      role: 'Business',
+      content: 'We source all our parts through SpareXchange now. Great inventory and reliable sellers.',
+      rating: 5,
+    },
+    {
+      name: 'Green Recycling Co.',
+      role: 'Recycler',
+      content: 'The platform has helped us reach more customers and move inventory faster than ever.',
+      rating: 5,
+    },
+  ];
 
 
-	return (
-		<div className={`min-h-screen overflow-hidden ${darkMode ? 'bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white' : 'bg-gradient-to-br from-gray-100 via-green-50 to-emerald-50 text-gray-900'}`}>
-			{/* <SocialProofNotification /> */}
-			{/* Floating Shapes */}
-			
+  return (
+    <div className={`min-h-screen overflow-hidden ${darkMode ? 'bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white' : 'bg-gradient-to-br from-gray-100 via-green-50 to-emerald-50 text-gray-900'}`}>
+      {/* <SocialProofNotification /> */}
+      {/* Floating Shapes */}
 
-			
 
-			{/* Hero Section */}
+
+
+      {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-green-600 to-green-900 text-white">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{
@@ -131,7 +131,7 @@ const FEATURES = [
           </div>
         </div>
       </section>
-				
+
 
 
       {/* Features Section */}
@@ -195,8 +195,8 @@ const FEATURES = [
                 Communicate with sellers/buyers and securely complete purchases or exchanges through our platform.
               </p>
             </div>
-			
-			<div className="text-center">
+
+            <div className="text-center">
               <div className="w-20 h-20 bg-[var(--primary)] rounded-full flex items-center justify-center text-primary-foreground text-3xl mx-auto mb-4">
                 4
               </div>
@@ -219,126 +219,126 @@ const FEATURES = [
           </div>
         </div>
       </section>
-{/* this is left from version 1 */}
-			{/* Categories Showcase */}
-			<section className='container mx-auto px-4 sm:px-6 py-12 sm:py-16 relative z-10'>
-				<motion.div
-					initial={{ scale: 0.8, opacity: 0 }}
-					whileInView={{ scale: 1, opacity: 1 }}
-					viewport={{ once: true }}
-					transition={{ duration: 0.6 }}
-					className='relative mb-12 sm:mb-16'
-				>
-					<div className='absolute -inset-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full blur-xl opacity-20'></div>
-					<motion.h2
-						className={`text-3xl sm:text-4xl font-bold text-center relative bg-gradient-to-r ${darkMode ? 'from-green-400 to-emerald-500' : 'from-green-600 to-emerald-700'} text-transparent bg-clip-text`}
-						initial={{ y: 20 }}
-						whileInView={{ y: 0 }}
-						viewport={{ once: true }}
-						transition={{ duration: 0.3 }}
-					>
-						Popular Categories
-					</motion.h2>
-				</motion.div>
-				<div className='grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6'>
-					{[
-						{ name: "Automotive", count: "2.5K" },
-						{ name: "Electronics", count: "1.8K" },
-						{ name: "Mobile Devices", count: "3.2K" },
-						{ name: "Gaming", count: "900" },
-						{ name: "Cameras", count: "750" },
-						{ name: "Wearables", count: "1.2K" },
-						{ name: "Audio", count: "1.5K" },
-						{ name: "Computers", count: "2.1K" }
-					].map((category, index) => (
-						<CategoryCard key={index} category={category} index={index} />
-					))}
-				</div>
-			</section>
-{/* this is left from version 1 */}
-			{/* Recent Listings Preview */}
-			<section className='container mx-auto px-4 sm:px-6 py-12 sm:py-16 relative z-10'>
-				<motion.div
-					initial={{ scale: 0.8, opacity: 0 }}
-					whileInView={{ scale: 1, opacity: 1 }}
-					viewport={{ once: true }}
-					transition={{ duration: 0.6 }}
-					className='relative mb-12 sm:mb-16 text-center'
-				>
-					<div className='absolute -inset-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full blur-xl opacity-20 mx-auto left-1/2 transform -translate-x-1/2'></div>
-					<motion.h2
-						className={`text-3xl sm:text-4xl font-bold relative bg-gradient-to-r ${darkMode ? 'from-green-400 to-emerald-500' : 'from-green-600 to-emerald-700'} text-transparent bg-clip-text`}
-						initial={{ y: 20 }}
-						whileInView={{ y: 0 }}
-						viewport={{ once: true }}
-						transition={{ duration: 0.3 }}
-					>
-						Recent Listings
-					</motion.h2>
-					<motion.p
-						className={`${darkMode ? 'text-gray-400' : 'text-gray-600'} mt-4 max-w-2xl mx-auto`}
-						initial={{ opacity: 0 }}
-						whileInView={{ opacity: 1 }}
-						viewport={{ once: true }}
-						transition={{ duration: 0.6, delay: 0.2 }}
-					>
-						Check out the latest spare parts added to our marketplace
-					</motion.p>
-				</motion.div>
-				<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6'>
-					{[
-						{ title: "iPhone 12 Pro Max Battery", price: "25", condition: "New", seller: "TechSolutions", location: "San Francisco, CA", timeAgo: "2 hours ago" },
-						{ title: "BMW X5 Brake Pads", price: "85", condition: "Refurbished", seller: "AutoPartsHub", location: "Los Angeles, CA", timeAgo: "5 hours ago" },
-						{ title: "PlayStation 5 Controller", price: "45", condition: "Like New", seller: "GameSwap", location: "New York, NY", timeAgo: "1 day ago" },
-						{ title: "Dell XPS 13 Screen", price: "120", condition: "Used", seller: "LaptopRepair", location: "Chicago, IL", timeAgo: "1 day ago" }
-					].map((listing, index) => (
-						<ListingCard key={index} listing={listing} index={index} />
-					))}
-				</div>
-				<motion.div
-					className='text-center mt-10'
-					initial={{ opacity: 0, y: 20 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true }}
-					transition={{ duration: 0.6, delay: 0.4 }}
-				>
-					<motion.div
-						whileHover={{ scale: 1.05 }}
-						whileTap={{ scale: 0.95 }}
-						transition={{ type: "spring", stiffness: 400, damping: 10 }}
-					>
-						<Link
-							to='/marketplace'
-							className={`inline-block px-6 py-3 sm:px-8 sm:py-4 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-base sm:text-lg hover:from-green-600 hover:to-emerald-700 transition duration-300 shadow-lg hover:shadow-green-500/30 relative overflow-hidden group ${darkMode ? '' : 'shadow-md'}`}
-						>
-							<span className='relative z-10 flex items-center justify-center'>
-								View All Listings
-								<motion.svg 
-									className='ml-2 w-4 h-4 sm:w-5 sm:h-5'
-									width='20'
-									height='20'
-									viewBox='0 0 24 24'
-									fill='none'
-									stroke='currentColor'
-									strokeWidth='2'
-									strokeLinecap='round'
-									strokeLinejoin='round'
-									whileHover={{ x: 5 }}
-									transition={{ type: "spring", stiffness: 300 }}
-								>
-									<path d='M5 12h14'/>
-									<path d='M12 5l7 7-7 7'/>
-								</motion.svg>
-							</span>
-							<div className='absolute inset-0 bg-gradient-to-r from-emerald-600 to-green-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left'></div>
-						</Link>
-					</motion.div>
-				</motion.div>
-			</section>
+      {/* this is left from version 1 */}
+      {/* Categories Showcase */}
+      <section className='container mx-auto px-4 sm:px-6 py-12 sm:py-16 relative z-10'>
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className='relative mb-12 sm:mb-16'
+        >
+          <div className='absolute -inset-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full blur-xl opacity-20'></div>
+          <motion.h2
+            className={`text-3xl sm:text-4xl font-bold text-center relative bg-gradient-to-r ${darkMode ? 'from-green-400 to-emerald-500' : 'from-green-600 to-emerald-700'} text-transparent bg-clip-text`}
+            initial={{ y: 20 }}
+            whileInView={{ y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.3 }}
+          >
+            Popular Categories
+          </motion.h2>
+        </motion.div>
+        <div className='grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6'>
+          {[
+            { name: "Automotive", count: "2.5K" },
+            { name: "Electronics", count: "1.8K" },
+            { name: "Mobile Devices", count: "3.2K" },
+            { name: "Gaming", count: "900" },
+            { name: "Cameras", count: "750" },
+            { name: "Wearables", count: "1.2K" },
+            { name: "Audio", count: "1.5K" },
+            { name: "Computers", count: "2.1K" }
+          ].map((category, index) => (
+            <CategoryCard key={index} category={category} index={index} />
+          ))}
+        </div>
+      </section>
+      {/* this is left from version 1 */}
+      {/* Recent Listings Preview */}
+      <section className='container mx-auto px-4 sm:px-6 py-12 sm:py-16 relative z-10'>
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className='relative mb-12 sm:mb-16 text-center'
+        >
+          <div className='absolute -inset-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full blur-xl opacity-20 mx-auto left-1/2 transform -translate-x-1/2'></div>
+          <motion.h2
+            className={`text-3xl sm:text-4xl font-bold relative bg-gradient-to-r ${darkMode ? 'from-green-400 to-emerald-500' : 'from-green-600 to-emerald-700'} text-transparent bg-clip-text`}
+            initial={{ y: 20 }}
+            whileInView={{ y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.3 }}
+          >
+            Recent Listings
+          </motion.h2>
+          <motion.p
+            className={`${darkMode ? 'text-gray-400' : 'text-gray-600'} mt-4 max-w-2xl mx-auto`}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            Check out the latest spare parts added to our marketplace
+          </motion.p>
+        </motion.div>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6'>
+          {[
+            { title: "iPhone 12 Pro Max Battery", price: "25", condition: "New", seller: "TechSolutions", location: "San Francisco, CA", timeAgo: "2 hours ago" },
+            { title: "BMW X5 Brake Pads", price: "85", condition: "Refurbished", seller: "AutoPartsHub", location: "Los Angeles, CA", timeAgo: "5 hours ago" },
+            { title: "PlayStation 5 Controller", price: "45", condition: "Like New", seller: "GameSwap", location: "New York, NY", timeAgo: "1 day ago" },
+            { title: "Dell XPS 13 Screen", price: "120", condition: "Used", seller: "LaptopRepair", location: "Chicago, IL", timeAgo: "1 day ago" }
+          ].map((listing, index) => (
+            <ListingCard key={index} listing={listing} index={index} />
+          ))}
+        </div>
+        <motion.div
+          className='text-center mt-10'
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+          >
+            <Link
+              to='/marketplace'
+              className={`inline-block px-6 py-3 sm:px-8 sm:py-4 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-base sm:text-lg hover:from-green-600 hover:to-emerald-700 transition duration-300 shadow-lg hover:shadow-green-500/30 relative overflow-hidden group ${darkMode ? '' : 'shadow-md'}`}
+            >
+              <span className='relative z-10 flex items-center justify-center'>
+                View All Listings
+                <motion.svg
+                  className='ml-2 w-4 h-4 sm:w-5 sm:h-5'
+                  width='20'
+                  height='20'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth='2'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  whileHover={{ x: 5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <path d='M5 12h14' />
+                  <path d='M12 5l7 7-7 7' />
+                </motion.svg>
+              </span>
+              <div className='absolute inset-0 bg-gradient-to-r from-emerald-600 to-green-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left'></div>
+            </Link>
+          </motion.div>
+        </motion.div>
+      </section>
 
-{/* this is feaature is undercontruction */}
-			{/* Interactive Map Section */}
-			{/* <section className='container mx-auto px-4 sm:px-6 py-12 sm:py-16 relative z-10'>
+      {/* this is feaature is undercontruction */}
+      {/* Interactive Map Section */}
+      {/* <section className='container mx-auto px-4 sm:px-6 py-12 sm:py-16 relative z-10'>
 				<motion.div
 					initial={{ scale: 0.8, opacity: 0 }}
 					whileInView={{ scale: 1, opacity: 1 }}
@@ -370,7 +370,7 @@ const FEATURES = [
 					<InteractiveMap />
 				</div>
 			</section> */}
-			{/* Testimonials */}
+      {/* Testimonials */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -420,7 +420,7 @@ const FEATURES = [
           </div>
         </div>
       </section>
-	
+
       {/* Footer */}
       <footer className="border-t border-border bg-card py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -466,9 +466,9 @@ const FEATURES = [
       </footer>
 
 
-			{/* <AnimatedFooter /> */}
-		</div>
-	);
+      {/* <AnimatedFooter /> */}
+    </div>
+  );
 };
 
 export default LandingPage;
