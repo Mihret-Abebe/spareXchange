@@ -183,7 +183,12 @@ const ContactPage = () => {
 				</div>
 			</div>
 
-
+			{/* Back to Home Link */}
+			_<p className="text-center text-sm text-muted-foreground">
+				<a href="/" className="text-primary hover:underline">
+					Back to Home
+				</a>
+			</p>
 		</div>
 
 	);
