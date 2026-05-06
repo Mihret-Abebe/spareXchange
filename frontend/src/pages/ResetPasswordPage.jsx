@@ -1,14 +1,37 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+// import { motion } from "framer-motion";
 import { useAuthStore } from "../store/authStore";
 import { useNavigate, useParams } from "react-router-dom";
-import Input from "../components/Input";
-import { Lock } from "lucide-react";
+import { Input } from "../components/ui/input";
+import { Button } from "../components/ui/button"
+import { Label } from "../components/ui/label"
+import PasswordStrengthMeter from '../components/PasswordStrengthMeter'
+
+import { Recycle, Eye, EyeOff, CheckCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
 const ResetPasswordPage = () => {
-	const [password, setPassword] = useState("");
-	const [confirmPassword, setConfirmPassword] = useState("");
+	const [showPassword, setShowPassword] = useState(false);
+	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+	const [isSuccess, setIsSuccess] = useState(false);
+	const [formData, setFormData] = useState({
+		password: '',
+		confirmPassword: '',
+	});
+
+	const updateFormData = (field, value) => {
+		setFormData((prev) => ({ ...prev, [field]: value }));
+	};
+	//============================ FOR THE FUTURE========================
+	// remove this comment and add this variable to the 'reset password' button later in time
+	// const passwordRequirements = [
+	// 	{ text: 'At least 8 characters', met: formData.password.length >= 8 },
+	// 	{ text: 'Contains uppercase letter', met: /[A-Z]/.test(formData.password) },
+	// 	{ text: 'Contains lowercase letter', met: /[a-z]/.test(formData.password) },
+	// 	{ text: 'Contains number', met: /[0-9]/.test(formData.password) },
+	// ];
+
+
 	const { resetPassword, error, isLoading, message } = useAuthStore();
 
 	const { token } = useParams();
@@ -17,14 +40,15 @@ const ResetPasswordPage = () => {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
-		if (password !== confirmPassword) {
+		if (formData.password !== formData.confirmPassword) {
 			alert("Passwords do not match");
 			return;
 		}
 		try {
-			await resetPassword(token, password);
-
-			toast.success("Password reset successfully, redirecting to login page...");
+			await resetPassword(token, formData.password);
+			// reset successful!
+			// toast.success("Password reset successfully, redirecting to login page...");
+			setIsSuccess(true)
 			setTimeout(() => {
 				navigate("/login");
 			}, 2000);
@@ -34,51 +58,181 @@ const ResetPasswordPage = () => {
 		}
 	};
 
+	// const passwordRequirements = [
+	// 	{ text: 'At least 8 characters', met: formData.password.length >= 8 },
+	// 	{ text: 'Contains uppercase letter', met: /[A-Z]/.test(formData.password) },
+	// 	{ text: 'Contains lowercase letter', met: /[a-z]/.test(formData.password) },
+	// 	{ text: 'Contains number', met: /[0-9]/.test(formData.password) },
+	// ];
+
 	return (
-		<motion.div
-			initial={{ opacity: 0, y: 20 }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{ duration: 0.5 }}
-			className='max-w-md w-full bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden'
-		>
-			<div className='p-8'>
-				<h2 className='text-3xl font-bold mb-6 text-center bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'>
-					Reset Password
-				</h2>
-				{error && <p className='text-red-500 text-sm mb-4'>{error}</p>}
-				{message && <p className='text-green-500 text-sm mb-4'>{message}</p>}
-
-				<form onSubmit={handleSubmit}>
-					<Input
-						icon={Lock}
-						type='password'
-						placeholder='New Password'
-						value={password}
-						onChange={(e) => setPassword(e.target.value)}
-						required
-					/>
-
-					<Input
-						icon={Lock}
-						type='password'
-						placeholder='Confirm New Password'
-						value={confirmPassword}
-						onChange={(e) => setConfirmPassword(e.target.value)}
-						required
-					/>
-
-					<motion.button
-						whileHover={{ scale: 1.02 }}
-						whileTap={{ scale: 0.98 }}
-						className='w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200'
-						type='submit'
-						disabled={isLoading}
-					>
-						{isLoading ? "Resetting..." : "Set New Password"}
-					</motion.button>
-				</form>
+		<div className="min-h-screen flex">
+			{/* Left side - Image */}
+			<div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+				<div className="absolute inset-0 bg-gradient-to-br from-green-600/90 to-green-900/90 z-10" />
+				<img
+					src="https://images.unsplash.com/photo-1766650189458-bb0e7969ba5d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhdXRvJTIwcGFydHMlMjBtZWNoYW5pY2FsJTIwd29ya3Nob3B8ZW58MXx8fHwxNzc0MDI1NDUyfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+					alt="Reset Password"
+					className="absolute inset-0 w-full h-full object-cover"
+				/>
+				<div className="relative z-20 flex flex-col justify-center items-start p-16 text-white">
+					<div className="flex items-center gap-3 mb-12">
+						<div className="bg-white p-3 rounded-xl">
+							<Recycle className="w-8 h-8 text-green-600" />
+						</div>
+						<h1 className="text-4xl text-white">SpareXchange</h1>
+					</div>
+					<h2 className="text-5xl mb-6 leading-tight text-white">
+						Create New Password
+					</h2>
+					<p className="text-xl text-green-50 max-w-md">
+						Choose a strong password to keep your account secure and continue your auto parts journey.
+					</p>
+				</div>
 			</div>
-		</motion.div>
+
+			{/* Right side - Form */}
+			<div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background">
+				<div className="w-full max-w-md space-y-8">
+					{/* Mobile Logo */}
+					<div className="lg:hidden flex items-center gap-3 justify-center">
+						<div className="bg-green-600 p-2 rounded-lg">
+							<Recycle className="w-6 h-6 text-white" />
+						</div>
+						<h1 className="text-2xl">SpareXchange</h1>
+					</div>
+					{!isSuccess ?
+
+						(
+							<>
+								{/* Header */}
+								<div className="text-center lg:text-left">
+									<h2 className="text-3xl mb-2">Reset Password</h2>
+									<p className="text-muted-foreground">
+										Enter your new password below
+									</p>
+								</div>
+								<form onSubmit={handleSubmit} className="space-y-6">
+									<div className="space-y-2">
+										<Label htmlFor="password">New Password</Label>
+										<div className="relative">
+											<Input
+												id="password"
+												type={showPassword ? 'text' : 'password'}
+												placeholder="••••••••"
+												value={formData.password}
+												onChange={(e) => updateFormData('password', e.target.value)}
+												required
+												className="bg-[var(--input-background)] border border-border pr-10"
+											/>
+											<Button
+												type="button"
+												onClick={() => setShowPassword(!showPassword)}
+												className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+											>
+												{showPassword ? (
+													<EyeOff className="w-5 h-5" />
+												) : (
+													<Eye className="w-5 h-5" />
+												)}
+											</Button>
+										</div>
+									</div>
+									<div className="space-y-2">
+										<Label htmlFor="confirmPassword">Confirm New Password</Label>
+										<div className="relative">
+											<Input
+												id="confirmPassword"
+												type={showConfirmPassword ? 'text' : 'password'}
+												placeholder="••••••••"
+												value={formData.confirmPassword}
+												onChange={(e) => updateFormData('confirmPassword', e.target.value)}
+												required
+												className="bg-[var(--input-background)] border border-border pr-10"
+											/>
+											<Button
+												type="button"
+												onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+												className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+											>
+												{showConfirmPassword ? (
+													<EyeOff className="w-5 h-5" />
+												) : (
+													<Eye className="w-5 h-5" />
+												)}
+											</Button>
+										</div>
+									</div>
+									{formData.confirmPassword && formData.password !== formData.confirmPassword && (
+										<p className="text-sm text-[var(--destructive)]">Passwords do not match</p>
+									)}
+
+									{/*password strength checker*/}
+									{formData.password &&
+										<PasswordStrengthMeter password={formData.password} />
+									}
+
+
+									<Button
+										type="submit"
+										className="w-full bg-[var(--primary)] hover:bg-[#16a34a]/90"
+										disabled={
+											!formData.password ||
+											formData.password !== formData.confirmPassword
+										}
+									>
+										Reset Password
+									</Button>
+
+
+
+								</form>
+							</>) :
+
+						(<>
+							{/* Success Message */}
+							<div className="text-center space-y-6">
+								<div className="flex justify-center">
+									<div className="w-24 h-24 bg-[var(--secondary)] rounded-full flex items-center justify-center">
+										<CheckCircle className="w-12 h-12 text-primary" />
+									</div>
+								</div>
+
+								<div>
+									<h2 className="text-3xl mb-2">Password Reset Successful!</h2>
+									<p className="text-[var(--muted-foreground)]">
+										Your password has been reset successfully. Redirecting you to signin...
+									</p>
+								</div>
+								<div className=" border relative">
+									<p className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-1">or</p>
+								</div>
+								<>
+
+									<div className="bg-[var(--secondary)] p-6 rounded-lg">
+										<p className="text-sm text-[var(--foreground)]">
+											If not redirected automatically use button bellow to go to login page.
+										</p>
+									</div>
+
+									<a href="/login">
+										<Button className="w-full bg-[var(--primary)] hover:bg-[#16a34a]/90">
+											Continue to Login
+										</Button>
+									</a>
+								</>
+							</div>
+						</>)
+					}
+
+				</div>
+
+			</div>
+
+
+
+		</div>
+
 	);
 };
 export default ResetPasswordPage;
