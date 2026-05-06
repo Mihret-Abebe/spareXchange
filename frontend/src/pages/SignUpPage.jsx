@@ -23,6 +23,15 @@ const SignUpPage = () => {
 		accountType: "user" | "recycler" | "business",
 		agreeToTerms: false,
 	});
+
+	//============================ FOR THE FUTURE========================
+	// remove this comment and add this variable to the 'Create Account' button later in time
+	// const passwordRequirements = [
+	// 	{ text: 'At least 8 characters', met: formData.password.length >= 8 },
+	// 	{ text: 'Contains uppercase letter', met: /[A-Z]/.test(formData.password) },
+	// 	{ text: 'Contains lowercase letter', met: /[a-z]/.test(formData.password) },
+	// 	{ text: 'Contains number', met: /[0-9]/.test(formData.password) },
+	// ];
 	const navigate = useNavigate();
 
 	const { signup, error, isLoading } = useAuthStore();
@@ -271,7 +280,9 @@ const SignUpPage = () => {
 								</button>
 							</div>
 						</div>
-						<PasswordStrengthMeter password={formData.password} />
+						{formData.password &&
+							<PasswordStrengthMeter password={formData.password} />
+						}
 
 						<div className="space-y-2">
 							<Label>Account Type</Label>
@@ -354,6 +365,10 @@ const SignUpPage = () => {
 						<Button
 							type="submit"
 							className="w-full bg-[var(--primary)] hover:bg-[#16a34a]/90"
+							disabled={
+								!formData.password ||
+								formData.password !== formData.confirmPassword
+							}
 						>
 							Create Account
 						</Button>
