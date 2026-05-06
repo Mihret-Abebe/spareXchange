@@ -5,6 +5,7 @@ import { Button } from '../components/ui/button';
 import { MessageCircle, Mail, Recycle } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion';
 import { Card, CardContent } from '../components/ui/card';
+import { Link } from 'react-router-dom';
 
 // import { Card, CardContent } from '../components/ui/card';
 // import { Link } from 'react-router';
@@ -147,10 +148,10 @@ const FaqPage = () => {
 						</p>
 						<div className="flex flex-wrap justify-center gap-4">
 							<Button className='bg-[var(--primary)] hover:bg-[#16a34a]/90'>
-								<a href='/contact' className='flex text-white'>
+								<Link to="/contact" className='flex text-white'>
 									<Mail className="w-4 h-4 mr-2" />
 									Contact Support
-								</a>
+								</Link>
 							</Button>
 							<Button variant="outline" asChild>
 								<a href="mailto:support@sparexchange.com" className='hover:bg-[#16a34a]/70 hover:text-[var(--background)]'>
@@ -181,23 +182,23 @@ const FaqPage = () => {
 						<div>
 							<h4 className="mb-4 text-[var(--foreground)]">Product</h4>
 							<ul className="space-y-2 text-sm text-[var(--muted-foreground)]">
-								<li><a href="/marketplace" className="hover:text-primary">Marketplace</a></li>
-								<li><a href="/leaderboard" className="hover:text-primary">Leaderboard</a></li>
-								<li><a href="/dashboard" className="hover:text-primary">Dashboard</a></li>
+								<li><Link to="/marketplace" className="hover:text-primary">Marketplace</Link></li>
+								<li><Link to="/leaderboard" className="hover:text-primary">Leaderboard</Link></li>
+								<li><Link to="/dashboard" className="hover:text-primary">Dashboard</Link></li>
 							</ul>
 						</div>
 						<div>
 							<h4 className="mb-4 text-[var(--foreground)]">Support</h4>
 							<ul className="space-y-2 text-sm text-[var(--muted-foreground)]">
-								<li><a href="/faq" className="hover:text-primary">FAQ</a></li>
-								<li><a href="/contact" className="hover:text-primary">Contact Us</a></li>
+								<li><Link to="/faq" className="hover:text-primary">FAQ</Link></li>
+								<li><Link to="/contact" className="hover:text-primary">Contact Us</Link></li>
 							</ul>
 						</div>
 						<div>
 							<h4 className="mb-4 text-[var(--foreground)]">Legal</h4>
 							<ul className="space-y-2 text-sm text-[var(--muted-foreground)]">
-								<li><a href="/terms" className="hover:text-primary">Terms of Service</a></li>
-								<li><a href="/privacy" className="hover:text-primary">Privacy Policy</a></li>
+								<li><Link to="/terms" className="hover:text-primary">Terms of Service</Link></li>
+								<li><Link to="/privacy" className="hover:text-primary">Privacy Policy</Link></li>
 							</ul>
 						</div>
 					</div>

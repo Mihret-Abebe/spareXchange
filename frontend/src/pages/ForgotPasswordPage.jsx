@@ -6,7 +6,7 @@ import { Label } from "../components/ui/label";
 import { Button } from "../components/ui/button";
 import { Mail } from "lucide-react";
 import { Recycle, Loader, ArrowLeft } from "lucide-react";
-// import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const ForgotPasswordPage = () => {
 	const [email, setEmail] = useState("");
@@ -91,13 +91,13 @@ const ForgotPasswordPage = () => {
 								</form>
 								{/* Back to Login */}
 								<div className="text-center">
-									<a
-										href="/login"
+									<Link
+										to="/login"
 										className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
 									>
 										<ArrowLeft className="w-4 h-4" />
 										Back to Login
-									</a>
+									</Link>
 								</div>
 
 							</>
@@ -142,13 +142,13 @@ const ForgotPasswordPage = () => {
 										</Button>
 									</div>
 
-									<a
-										href="/login"
+									<Link
+										to="/login"
 										className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
 									>
 										<ArrowLeft className="w-4 h-4" />
 										Back to Login
-									</a>
+									</Link>
 								</div>
 							</>
 						)}</div>

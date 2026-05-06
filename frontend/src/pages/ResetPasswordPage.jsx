@@ -1,7 +1,7 @@
 import { useState } from "react";
 // import { motion } from "framer-motion";
 import { useAuthStore } from "../store/authStore";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button"
 import { Label } from "../components/ui/label"
@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
 const ResetPasswordPage = () => {
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-	const [isSuccess, setIsSuccess] = useState(false);
+	const [isSuccess, setIsSuccess] = useState(true);
 	const [formData, setFormData] = useState({
 		password: '',
 		confirmPassword: '',
@@ -215,11 +215,11 @@ const ResetPasswordPage = () => {
 										</p>
 									</div>
 
-									<a href="/login">
-										<Button className="w-full bg-[var(--primary)] hover:bg-[#16a34a]/90">
+									<Link to="/login">
+										<Button className="w-full bg-[var(--primary)] hover:bg-[#16a34a]/90 mt-4">
 											Continue to Login
 										</Button>
-									</a>
+									</Link>
 								</>
 							</div>
 						</>)

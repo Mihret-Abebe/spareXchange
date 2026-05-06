@@ -149,7 +149,7 @@ const LoginPage = () => {
 							</Link>
 						</div>
 
-						<Button type="submit" className="w-full bg-[var(--primary-color)] hover:bg-[#16a34a]/80 z-10">
+						<Button type="submit" className="w-full bg-[var(--primary)] hover:bg-[#16a34a]/80 z-10">
 							{isLoading ? (
 								<Loader className='w-6 h-6 animate-spin mx-auto' />
 							) : (
