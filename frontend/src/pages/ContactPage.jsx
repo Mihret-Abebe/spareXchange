@@ -77,7 +77,7 @@ const ContactPage = () => {
 									</div>
 									<div>
 										<div className="text-sm text-green-100">Call Us</div>
-										<div className="text-white">+1 (555) 123-4567</div>
+										<div className="text-white">+(251) 935-033-357</div>
 									</div>
 								</div>
 							</CardContent>
@@ -92,7 +92,7 @@ const ContactPage = () => {
 									<div>
 										<div className="text-sm text-green-100">Visit Us</div>
 										<div className="text-white">
-											123 Auto Parts Blvd, LA, CA 90001
+											Adama Nazreth, Bole
 										</div>
 									</div>
 								</div>
@@ -114,7 +114,7 @@ const ContactPage = () => {
 					<div className="text-center lg:text-left">
 						<h2 className="text-3xl mb-2">Contact Us</h2>
 						<p className="text-muted-foreground">
-							Fill out the form and we'll be in touch soon
+							{`Fill out the form and we'll be in touch soon`}
 						</p>
 					</div>
 					{/* Form */}
@@ -124,7 +124,7 @@ const ContactPage = () => {
 							<Input
 								id="name"
 								type="text"
-								placeholder="John Doe"
+								placeholder="Abebe Kebede"
 								value={formData.name}
 								onChange={(e) => updateFormData("name", e.target.value)}
 								required
@@ -137,7 +137,7 @@ const ContactPage = () => {
 							<Input
 								id="email"
 								type="email"
-								placeholder="you@example.com"
+								placeholder="abebe@example.com"
 								value={formData.email}
 								onChange={(e) => updateFormData("email", e.target.value)}
 								required
@@ -173,7 +173,7 @@ const ContactPage = () => {
 
 						<Button
 							type="submit"
-							className="w-full bg-[var(--primary)] hover:bg-[#16a34a]/90"
+							className="w-full bg-primary hover:bg-primary/90"
 						>
 							<Send className="w-4 h-4 mr-2" />
 							Send Message
@@ -183,12 +183,6 @@ const ContactPage = () => {
 				</div>
 			</div>
 
-			{/* Back to Home Link */}
-			_<p className="text-center text-sm text-muted-foreground">
-				<a href="/" className="text-primary hover:underline">
-					Back to Home
-				</a>
-			</p>
 		</div>
 
 	);
