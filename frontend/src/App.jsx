@@ -15,7 +15,11 @@ import ProfilePage from "./pages/ProfilePage";
 import AboutPage from "./pages/AboutPage";
 import FaqPage from "./pages/FaqPage";
 import ContactPage from "./pages/ContactPage";
+<<<<<<< HEAD
 // import { Leaderboard } from "./pages/LeaderBoardPage";
+=======
+import LeaderboardPage from "./pages/LeaderboardPage";
+>>>>>>> 4fcb7cbee4ce92a040fef97f0ed0af6f88c82a6b
 
 import LoadingSpinner from "./components/LoadingSpinner";
 
@@ -109,6 +113,14 @@ function App() {
 					element={
 						<ProtectedRoute>
 							<DashboardPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/leaderboard'
+					element={
+						<ProtectedRoute>
+							<LeaderboardPage />
 						</ProtectedRoute>
 					}
 				/>

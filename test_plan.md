@@ -277,6 +277,118 @@ This document outlines the comprehensive test plan for the SpareXChange applicat
 - Links in emails work correctly
 - Unsubscribe options are available
 
+### 8. Premium Marketplace Features (Modernization)
+
+#### 8.1 Proximity-Based Discovery
+**Test ID**: T015
+**Objective**: Verify listings can be filtered by geo-proximity (2dsphere)
+**Preconditions**: Listing exists with `locationCoords`
+**Steps**:
+1. Query `/api/listings` with `latitude`, `longitude`, and `radius`
+2. Verify listings within range are returned
+3. Verify listings out of range are excluded
+**Status**: **Verified** (via `module2_exhaustive.test.js`)
+
+#### 8.2 Community Fitment Verification
+**Test ID**: T016
+**Objective**: Verify crowdsourced voting on vehicle compatibility
+**Preconditions**: Listing has `compatibleVehicles` entries
+**Steps**:
+1. PUT vote as "up" to `/api/listings/:id/compatibility/:vehicleId/vote`
+2. Verify increment in `upvotes`
+3. Change vote to "down" and verify logic handles the switch correctly
+**Status**: **Verified** (via `module2_exhaustive.test.js`)
+
+#### 8.3 Market Intelligence (High Demand Analytics)
+**Test ID**: T017
+**Objective**: Verify system tracks low-result searches to inform sellers
+**Preconditions**: Users perform searches that yield zero or few results
+**Steps**:
+1. Perform unique searches like "ObscurePartABC"
+2. Query `/api/listings/analytics/high-demand`
+3. Verify the search term appears in the "High Demand" leaderboard
+**Status**: **Verified** (via `module2_exhaustive.test.js`)
+
+### 9. Modernized Exchange Lifecycle (Transactional Integrity)
+
+#### 9.1 Atomic Dual-Confirmation
+**Test ID**: T018
+**Objective**: Verify deal completion only occurs when both parties confirm
+**Preconditions**: Exchange is in `accepted` status
+**Steps**:
+1. Seller marks as complete (`completed_by_seller`)
+2. Verify status is not yet `fully_completed`
+3. Buyer marks as complete
+**Results**: **Verified** (via `module3_exhaustive.test.js`)
+
+#### 9.2 QR-Based Handshake Verification
+**Test ID**: T019
+**Objective**: Verify cryptographic 6-digit handshake completes deal instantly
+**Preconditions**: Exchange in `accepted` state
+**Steps**:
+1. Seller generates handshake token
+2. Buyer verifies token via PUT request
+3. Verify status moves to `fully_completed` and eco-points are awarded
+**Results**: **Verified** (via `module3_exhaustive.test.js`)
+
+#### 9.3 Safe Zone & Negotiation Lock
+**Test ID**: T020
+**Objective**: Verify meeting details can be locked at unchangeable Safe Zones
+**Preconditions**: Exchange is `accepted`
+**Steps**:
+1. Fetch `/api/exchanges/info/safe-zones`
+2. Update meeting location to a Safe Zone and set `isLocked: true`
+3. Attempt to change location after lock
+**Results**: **Verified** (via `module3_exhaustive.test.js`)
+
+#### 9.4 Conflict Resolution (Admin Arbitration)
+**Test ID**: T021
+**Objective**: Verify Admin can force resolution of disputed exchanges
+**Preconditions**: Exchange is in `disputed` status
+**Steps**:
+1. Admin resolves with outcome `mutual`
+2. Verify exchange status becomes `cancelled`
+**Results**: **Verified** (via `module3_exhaustive.test.js`)
+
+### 10. Sustainability & Incentives (Module 4)
+
+#### 10.1 Precision Eco-Point Calculation
+**Test ID**: T022
+**Objective**: Verify points are calculated correctly based on item type and weight/value
+**Preconditions**: User is logged in
+**Steps**:
+1. Submit `vehicle-parts` with 10kg weight (expected points: 250)
+2. Submit `electronics` with $1500 value (expected points: 300)
+**Results**: **Verified** (via `module4_exhaustive.test.js`)
+
+#### 10.2 Multi-Channel Verification Handshakes
+**Test ID**: T023
+**Objective**: Verify both Admin approval and Recycler token verification award points atomically
+**Preconditions**: Submission in `pending` status
+**Steps**:
+1. Admin approves via `/api/recycling-submissions/:id/approve`
+2. Recycler verifies via 6-digit token
+3. Verify `EcoPointTransaction` ledger and user profile `ecoPoints`
+**Results**: **Verified** (via `module4_exhaustive.test.js`)
+
+#### 10.3 Geo-Proximity Discoverability
+**Test ID**: T024
+**Objective**: Verify nearby recycling points are findable within target radius
+**Preconditions**: Submissions exist in approved status at specific coordinates
+**Steps**:
+1. Query `/api/recycling-submissions/discovery` with lat/lng
+2. Verify nearest submission is returned
+**Results**: **Verified** (via `module4_exhaustive.test.js`)
+
+#### 10.4 Achievement & Gamification Trigger
+**Test ID**: T025
+**Objective**: Verify first recycle awards "Eco Warrior" achievement
+**Preconditions**: New user with 0 recycles
+**Steps**:
+1. Complete first recycle verification
+2. Check user profile `achievements` array
+**Results**: **Verified** (via `module4_exhaustive.test.js`)
+
 ## Test Data Requirements
 
 ### User Test Data

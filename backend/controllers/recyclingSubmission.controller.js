@@ -35,7 +35,7 @@ const calculateEcoPoints = (itemType, estimatedWeight, estimatedValue) => {
 // Create a new recycling submission
 export const createRecyclingSubmission = async (req, res) => {
 	try {
-		const { itemType, itemDescription, estimatedWeight, estimatedValue, location, verificationImages, notes } = req.body;
+		const { itemType, itemDescription, estimatedWeight, estimatedValue, location, latitude, longitude, verificationImages, notes } = req.body;
 
 		// Validate required fields
 		if (!itemType || !itemDescription || !location) {
@@ -55,6 +55,10 @@ export const createRecyclingSubmission = async (req, res) => {
 			estimatedValue,
 			ecoPointsEarned,
 			location,
+			locationCoords: {
+				type: "Point",
+				coordinates: [Number(longitude) || 0, Number(latitude) || 0]
+			},
 			verificationImages: verificationImages || [],
 			notes,
 			verificationToken,
@@ -148,41 +152,39 @@ export const getRecyclingSubmission = async (req, res) => {
 
 // Approve a recycling submission (for admin)
 export const approveRecyclingSubmission = async (req, res) => {
+	const session = await mongoose.startSession();
 	try {
 		const { id } = req.params;
 
 		const submission = await RecyclingSubmission.findById(id);
+		if (!submission) return res.status(404).json({ success: false, message: "Submission not found" });
+		if (submission.status !== "pending") return res.status(400).json({ success: false, message: "Submission is not pending" });
 
-		if (!submission) {
-			return res.status(404).json({ success: false, message: "Submission not found" });
-		}
+		await session.withTransaction(async () => {
+			// Update status and mark as verified
+			submission.status = "approved";
+			submission.verifiedBy = req.userId;
+			submission.verifiedAt = new Date();
+			await submission.save({ session });
 
-		if (submission.status !== "pending") {
-			return res.status(400).json({ success: false, message: "Submission is not pending" });
-		}
+			// Update user's eco points
+			const user = await User.findById(submission.userId).session(session);
+			if (user) {
+				user.ecoPoints = (user.ecoPoints || 0) + submission.ecoPointsEarned;
+				await user.save({ session });
 
-		// Update status and mark as verified
-		submission.status = "approved";
-		submission.verifiedBy = req.userId;
-		submission.verifiedAt = new Date();
-		await submission.save();
-
-		// Update user's eco points
-		const user = await User.findById(submission.userId);
-		if (user) {
-			user.ecoPoints += submission.ecoPointsEarned;
-			await user.save();
-
-			// Add to Ledger
-			const transaction = new (mongoose.model("EcoPointTransaction"))({
-				userId: user._id,
-				points: submission.ecoPointsEarned,
-				reason: "recycling",
-				description: `Recycled ${submission.itemType}: ${submission.itemDescription}`,
-				referenceId: submission._id
-			});
-			await transaction.save();
-		}
+				// Add to Ledger
+				const EcoTx = mongoose.model("EcoPointTransaction");
+				const transaction = new EcoTx({
+					userId: user._id,
+					points: submission.ecoPointsEarned,
+					reason: "recycling",
+					description: `Recycled ${submission.itemType}: ${submission.itemDescription}`,
+					referenceId: submission._id
+				});
+				await transaction.save({ session });
+			}
+		});
 
 		res.status(200).json({
 			success: true,
@@ -192,6 +194,8 @@ export const approveRecyclingSubmission = async (req, res) => {
 	} catch (error) {
 		console.error("Error in approveRecyclingSubmission:", error);
 		res.status(500).json({ success: false, message: "Server error" });
+	} finally {
+		await session.endSession();
 	}
 };
 
@@ -260,40 +264,41 @@ export const completeRecyclingSubmission = async (req, res) => {
 
 // Verify recycling by token (Recycler Role)
 export const verifyRecyclingByToken = async (req, res) => {
+	const session = await mongoose.startSession();
 	try {
 		const { token } = req.body;
 
 		// Find the pending submission with this token
 		const submission = await RecyclingSubmission.findOne({ verificationToken: token, status: "pending" });
+		if (!submission) return res.status(404).json({ success: false, message: "Invalid or expired verification token" });
 
-		if (!submission) {
-			return res.status(404).json({ success: false, message: "Invalid or expired verification token" });
-		}
+		await session.withTransaction(async () => {
+			submission.status = "approved";
+			submission.isVerifiedByRecycler = true;
+			submission.verifiedBy = req.userId; 
+			submission.verifiedAt = new Date();
+			await submission.save({ session });
 
-		submission.status = "approved";
-		submission.isVerifiedByRecycler = true;
-		submission.verifiedBy = req.userId; // ID of the recycler verifying the action
-		submission.verifiedAt = new Date();
-		await submission.save();
+			// Update user's eco points and ledger
+			const user = await User.findById(submission.userId).session(session);
+			if (user) {
+				user.ecoPoints = (user.ecoPoints || 0) + submission.ecoPointsEarned;
+				if (!user.achievements.includes("Eco Warrior (First Recycle)")) {
+					user.achievements.push("Eco Warrior (First Recycle)");
+				}
+				await user.save({ session });
 
-		// Update user's eco points and ledger
-		const user = await User.findById(submission.userId);
-		if (user) {
-			user.ecoPoints += submission.ecoPointsEarned;
-			if (!user.achievements.includes("Eco Warrior (First Recycle)")) {
-				user.achievements.push("Eco Warrior (First Recycle)");
+				const EcoTx = mongoose.model("EcoPointTransaction");
+				const transaction = new EcoTx({
+					userId: user._id,
+					points: submission.ecoPointsEarned,
+					reason: "recycling",
+					description: `Recycled ${submission.itemType} (Verified by Recycler)`,
+					referenceId: submission._id
+				});
+				await transaction.save({ session });
 			}
-			await user.save();
-
-			const transaction = new (mongoose.model("EcoPointTransaction"))({
-				userId: user._id,
-				points: submission.ecoPointsEarned,
-				reason: "recycling",
-				description: `Recycled ${submission.itemType} (Verified by Recycler)`,
-				referenceId: submission._id
-			});
-			await transaction.save();
-		}
+		});
 
 		res.status(200).json({
 			success: true,
@@ -302,6 +307,46 @@ export const verifyRecyclingByToken = async (req, res) => {
 		});
 	} catch (error) {
 		console.error("Error in verifyRecyclingByToken:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	} finally {
+		await session.endSession();
+	}
+};
+
+// ──────────────────────────────────────────────────────────────────────────
+// 10. Nearby Recycler Discovery (Map-based infrastructure)
+// ──────────────────────────────────────────────────────────────────────────
+export const getNearbyRecyclers = async (req, res) => {
+	try {
+		const { latitude, longitude, radius = 50 } = req.query;
+
+		if (!latitude || !longitude) {
+			return res.status(400).json({ success: false, message: "Latitude and longitude are required for discovery" });
+		}
+
+		// Find approved submissions nearby as a proxy for "Recycling stations"
+		const nearbySubmissions = await RecyclingSubmission.find({
+			locationCoords: {
+				$near: {
+					$geometry: {
+						type: "Point",
+						coordinates: [Number(longitude), Number(latitude)],
+					},
+					$maxDistance: Number(radius) * 1000, // Distance in meters
+				},
+			},
+			status: { $in: ["approved", "completed"] },
+		})
+		.limit(30)
+		.populate("userId", "name profilePicture");
+
+		res.status(200).json({
+			success: true,
+			count: nearbySubmissions.length,
+			data: nearbySubmissions
+		});
+	} catch (error) {
+		console.error("Error in getNearbyRecyclers:", error);
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };

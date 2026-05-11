@@ -31,6 +31,7 @@ const userSchema = new mongoose.Schema(
 		ecoPoints: {
 			type: Number,
 			default: 0,
+			index: true,
 		},
 		userType: {
 			type: String,
@@ -59,6 +60,8 @@ const userSchema = new mongoose.Schema(
 		},
 		interests: { type: [String], default: [] },
 		achievements: { type: [String], default: [] },
+		expertise: { type: String, default: "" },
+		trustScore: { type: Number, default: 80 }, // Starting trust score
 		locationCoords: {
 			type: {
 				type: String,
@@ -80,6 +83,26 @@ const userSchema = new mongoose.Schema(
 		mfaSecret: { type: String },
 		isMfaEnabled: { type: Boolean, default: false },
 		mfaBackupCodes: [{ type: String }],
+		// Push notification device tokens
+		deviceTokens: [{
+			token: String,
+			deviceType: { type: String, enum: ['android', 'ios', 'web'] },
+			deviceName: String,
+			isActive: { type: Boolean, default: true },
+			createdAt: { type: Date, default: Date.now },
+			lastUsed: Date
+		}],
+		// Notification preferences
+		notificationPreferences: {
+			emailNotifications: { type: Boolean, default: true },
+			pushNotifications: { type: Boolean, default: true },
+			smsNotifications: { type: Boolean, default: false },
+			listingAlerts: { type: Boolean, default: true },
+			exchangeUpdates: { type: Boolean, default: true },
+			messageNotifications: { type: Boolean, default: true },
+			systemAnnouncements: { type: Boolean, default: true },
+			marketingEmails: { type: Boolean, default: false }
+		},
 		permissions: [{ type: String }],
 		isBanned: {
 			type: Boolean,
@@ -100,8 +123,21 @@ const userSchema = new mongoose.Schema(
 			default: "local"
 		}
 	},
-	{ timestamps: true }
+	{ 
+		timestamps: true,
+		toJSON: { virtuals: true },
+		toObject: { virtuals: true }
+	}
 );
+
+userSchema.virtual("ecoTier").get(function () {
+	const points = this.ecoPoints || 0;
+	if (points <= 100) return "Seed";
+	if (points <= 500) return "Sprout";
+	if (points <= 1500) return "Sapling";
+	if (points <= 5000) return "Oak";
+	return "Gaia";
+});
 
 userSchema.index({ locationCoords: "2dsphere" });
 

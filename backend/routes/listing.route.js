@@ -10,7 +10,9 @@ import {
 	getRecommendations,
 	bulkCreateListings,
 	renewListing,
-	reportListing
+	reportListing,
+	voteCompatibility,
+	getHighDemandAnalytics
 } from "../controllers/listing.controller.js";
 import { verifyToken } from "../middleware/verifyToken.js";
 
@@ -19,6 +21,8 @@ const router = express.Router();
 // Public routes
 router.get("/", getListings);
 router.get("/recommendations", verifyToken, getRecommendations);
+router.get("/analytics/high-demand", verifyToken, getHighDemandAnalytics);
+router.put("/:id/compatibility/:vehicleId/vote", verifyToken, voteCompatibility);
 router.get("/:id", getListing);
 
 import { authorize } from "../middleware/authorize.js";

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ShoppingCart, User, Package, Leaf, Home, Info, HelpCircle, Phone, LogOut, LogIn, Sun, Moon, ChevronDown } from "lucide-react";
+import { Menu, X, ShoppingCart, User, Package, Leaf, Home, Info, HelpCircle, Phone, LogOut, LogIn, Sun, Moon, ChevronDown, Trophy } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import { useTheme } from "../contexts/ThemeContext";
 
@@ -44,6 +44,7 @@ const Navbar = () => {
 		{ name: "Home", path: "/", icon: Home },
 		{ name: "Marketplace", path: "/marketplace", icon: Package },
 		{ name: "About", path: "/about", icon: Info },
+		{ name: "Leaderboard", path: "/leaderboard", icon: Trophy },
 		{ name: "FAQ", path: "/faq", icon: HelpCircle },
 		{ name: "Contact", path: "/contact", icon: Phone },
 	];
