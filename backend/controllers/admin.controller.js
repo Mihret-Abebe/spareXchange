@@ -2,6 +2,7 @@ import { User } from "../models/user.model.js";
 import { Listing } from "../models/listing.model.js";
 import { Exchange } from "../models/exchange.model.js";
 import { emitToUser } from "../utils/socket.js";
+import { processSavedSearchAlerts } from "../services/savedSearchAlerts.service.js";
 
 // Get all users (Admin only)
 export const getAllUsers = async (req, res) => {
@@ -118,6 +119,26 @@ export const getPlatformStats = async (req, res) => {
 		});
 	} catch (error) {
 		console.error("Error in getPlatformStats:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+// Run saved-search alert processing on demand (Admin)
+export const runSavedSearchAlertsJob = async (req, res) => {
+	try {
+		const { limitSearches, limitListingsPerSearch } = req.body || {};
+		const result = await processSavedSearchAlerts({
+			limitSearches: Number.isFinite(Number(limitSearches)) ? Number(limitSearches) : 200,
+			limitListingsPerSearch: Number.isFinite(Number(limitListingsPerSearch)) ? Number(limitListingsPerSearch) : 5,
+		});
+
+		res.status(200).json({
+			success: true,
+			message: "Saved-search alerts job executed.",
+			result,
+		});
+	} catch (error) {
+		console.error("Error in runSavedSearchAlertsJob:", error);
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };

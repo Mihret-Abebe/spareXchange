@@ -7,13 +7,6 @@ Department of Computer Science and Engineering
 Presented in Fulfillment of the Requirement for a Bachelor's Degree in Computer Science and Engineering 
 
 
-
-
-
-
-
-
-
 January 2026
  Adama, Ethiopia
 DECLARATION
@@ -27,16 +20,10 @@ We are students of Adama Science and Technology University in the School of Elec
 5.Olyad Negero			UGR/22725/13			__________________
 
 
-
-
-
-
-
 Date of Submission: Jan 1, 2026,
 This project has been submitted for examination with our approval as a university advisor.
 Advisor Name 						Signature
 Melkamu Abetu					______________________
-
 
 
 TABLE OF CONTENTS
@@ -1097,7 +1084,3 @@ References
 
 [29]Figma. (2023). Figma Design & Prototyping Documentation. Used for low-fidelity wireframing and interactive prototyping.
 [30]Myers, G. J., Sandler, C., & Badgett, T. (2011). The Art of Software Testing (3rd ed.). Wiley. Referenced for test case design, pass/fail criteria, and defect management.
-
-
-
-

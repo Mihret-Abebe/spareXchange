@@ -26,6 +26,7 @@ describe("Exchange & Transaction Module (Module 3 — Enhanced)", () => {
 		tokenC  = rC.body.accessToken;
 		userAId = rA.body.user?._id || rA.body._id;
 		userBId = rB.body.user?._id || rB.body._id;
+		await User.findByIdAndUpdate(userAId, { permissions: ["admin"] });
 
 		// User A posts a listing
 		const lA = await request(app)

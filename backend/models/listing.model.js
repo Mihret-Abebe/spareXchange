@@ -51,6 +51,12 @@ const listingSchema = new mongoose.Schema(
 			model: { type: String, required: true },
 			yearStart: { type: Number },
 			yearEnd: { type: Number },
+			upvotes: { type: Number, default: 0 },
+			downvotes: { type: Number, default: 0 },
+			voters: [{
+				user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+				voteType: { type: String, enum: ["up", "down"] }
+			}]
 		}],
 		location: {
 			type: String,

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { User } from "../models/user.model.js";
+import { SavedSearch } from "../models/savedSearch.model.js";
 
 // Get all verified technicians
 export const getTechnicians = async (req, res) => {
@@ -152,6 +153,93 @@ export const updateProfile = async (req, res) => {
 		res.status(200).json({ success: true, message: "Profile updated successfully", user });
 	} catch (error) {
 		console.error("Error in updateProfile:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+// Get Eco-Leaderboard
+export const getLeaderboard = async (req, res) => {
+	try {
+		const leaderboard = await User.find({ isBanned: false })
+			.sort({ ecoPoints: -1 })
+			.limit(20)
+			.select("name profilePicture ecoPoints achievements ecoTier");
+
+		res.status(200).json({
+			success: true,
+			count: leaderboard.length,
+			leaderboard
+		});
+	} catch (error) {
+		console.error("Error in getLeaderboard:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+// ────────────────────────────────────────────────────────────────────────
+// Saved Searches (Module 6 - modern matching)
+// ────────────────────────────────────────────────────────────────────────
+
+export const listSavedSearches = async (req, res) => {
+	try {
+		const searches = await SavedSearch.find({ userId: req.userId }).sort({ updatedAt: -1 });
+		res.status(200).json({ success: true, count: searches.length, searches });
+	} catch (error) {
+		console.error("Error in listSavedSearches:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+export const createSavedSearch = async (req, res) => {
+	try {
+		const { name, query, filters, geo, notify } = req.body || {};
+
+		const saved = await SavedSearch.create({
+			userId: req.userId,
+			name: typeof name === "string" ? name.trim() : "",
+			query: typeof query === "string" ? query.trim() : "",
+			filters: filters || {},
+			geo: geo || undefined,
+			notify: notify !== false,
+		});
+
+		res.status(201).json({ success: true, savedSearch: saved });
+	} catch (error) {
+		console.error("Error in createSavedSearch:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+export const updateSavedSearch = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const { name, query, filters, geo, notify } = req.body || {};
+
+		const saved = await SavedSearch.findOne({ _id: id, userId: req.userId });
+		if (!saved) return res.status(404).json({ success: false, message: "Saved search not found" });
+
+		if (typeof name === "string") saved.name = name.trim();
+		if (typeof query === "string") saved.query = query.trim();
+		if (filters && typeof filters === "object") saved.filters = { ...saved.filters, ...filters };
+		if (geo && typeof geo === "object") saved.geo = { ...saved.geo, ...geo };
+		if (typeof notify === "boolean") saved.notify = notify;
+
+		await saved.save();
+		res.status(200).json({ success: true, savedSearch: saved });
+	} catch (error) {
+		console.error("Error in updateSavedSearch:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+export const deleteSavedSearch = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const deleted = await SavedSearch.findOneAndDelete({ _id: id, userId: req.userId });
+		if (!deleted) return res.status(404).json({ success: false, message: "Saved search not found" });
+		res.status(200).json({ success: true, message: "Saved search deleted" });
+	} catch (error) {
+		console.error("Error in deleteSavedSearch:", error);
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };

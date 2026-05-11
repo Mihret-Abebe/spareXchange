@@ -15,6 +15,7 @@ import ProfilePage from "./pages/ProfilePage";
 import AboutPage from "./pages/AboutPage";
 import FaqPage from "./pages/FaqPage";
 import ContactPage from "./pages/ContactPage";
+import LeaderboardPage from "./pages/LeaderboardPage";
 
 import LoadingSpinner from "./components/LoadingSpinner";
 
@@ -107,6 +108,14 @@ function App() {
 					element={
 						<ProtectedRoute>
 							<DashboardPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/leaderboard'
+					element={
+						<ProtectedRoute>
+							<LeaderboardPage />
 						</ProtectedRoute>
 					}
 				/>

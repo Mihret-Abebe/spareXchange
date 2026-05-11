@@ -68,8 +68,21 @@ const recyclingSubmissionSchema = new mongoose.Schema(
 			type: Boolean,
 			default: false,
 		},
+		locationCoords: {
+			type: {
+				type: String,
+				enum: ["Point"],
+				default: "Point",
+			},
+			coordinates: {
+				type: [Number], // [longitude, latitude]
+				default: [0, 0],
+			},
+		},
 	},
 	{ timestamps: true }
 );
+
+recyclingSubmissionSchema.index({ locationCoords: "2dsphere" });
 
 export const RecyclingSubmission = mongoose.model("RecyclingSubmission", recyclingSubmissionSchema);

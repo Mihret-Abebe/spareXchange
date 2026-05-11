@@ -15,6 +15,7 @@ const technicianRequestSchema = new mongoose.Schema(
 				"installation", 
 				"maintenance",
 				"diagnosis",
+				"Engine Repair",
 				"other"
 			],
 		},
@@ -37,9 +38,32 @@ const technicianRequestSchema = new mongoose.Schema(
 		},
 		status: {
 			type: String,
-			enum: ["pending", "in-progress", "completed", "cancelled"],
+			enum: ["pending", "quoted", "accepted", "in-progress", "arrived", "started", "completed", "cancelled"],
 			default: "pending",
 		},
+		locationCoords: {
+			type: {
+				type: String,
+				enum: ["Point"],
+				default: "Point",
+			},
+			coordinates: {
+				type: [Number],
+				default: [0, 0],
+			},
+		},
+		budgetMin: {
+			type: Number,
+		},
+		budgetMax: {
+			type: Number,
+		},
+		quotes: [{
+			technicianId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+			estimatedCost: Number,
+			additionalNotes: String,
+			createdAt: { type: Date, default: Date.now }
+		}],
 		assignedTechnician: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User", // technician user
@@ -47,11 +71,16 @@ const technicianRequestSchema = new mongoose.Schema(
 		estimatedCost: {
 			type: Number,
 		},
+		verificationToken: {
+			type: String,
+		},
 		images: [{
 			type: String, // URLs to images
 		}],
 	},
 	{ timestamps: true }
 );
+
+technicianRequestSchema.index({ locationCoords: "2dsphere" });
 
 export const TechnicianRequest = mongoose.model("TechnicianRequest", technicianRequestSchema);
