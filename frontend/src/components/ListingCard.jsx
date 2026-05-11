@@ -9,13 +9,13 @@ const ListingCard = ({ listing, index }) => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
-      whileHover={{ 
+      whileHover={{
         y: -5,
         boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
         borderColor: '#10b981'
       }}
       whileTap={{ scale: 0.98 }}
-      transition={{ type: "spring", stiffness: 300 }}
+    // transition={{ type: "spring", stiffness: 300 }}
     >
       <div className='absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-600 opacity-0 group-hover:opacity-5 transition-opacity duration-300 rounded-2xl'></div>
       <div className="flex items-start mb-3 relative z-10">
@@ -30,12 +30,12 @@ const ListingCard = ({ listing, index }) => {
           </div>
         </div>
       </div>
-      
+
       <div className="flex justify-between items-center mb-3 relative z-10">
         <span className="text-green-400 font-bold text-lg group-hover:text-green-300 transition-colors duration-300">${listing.price}</span>
         <span className="text-gray-400 text-sm group-hover:text-gray-300 transition-colors duration-300">{listing.condition}</span>
       </div>
-      
+
       <div className="flex justify-between items-center text-gray-400 text-sm relative z-10">
         <div className="flex items-center">
           <User size={14} className="mr-1 group-hover:text-green-400 transition-colors duration-300" />

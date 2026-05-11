@@ -22,13 +22,13 @@ const CategoryCard = ({ category, index }) => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
-      whileHover={{ 
+      whileHover={{
         y: -10,
         boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
         borderColor: '#10b981'
       }}
       whileTap={{ scale: 0.98 }}
-      transition={{ type: "spring", stiffness: 300 }}
+    // transition={{ duration: 0.5, delay: index * 0.1, type: "spring", stiffness: 300 }}
     >
       <div className='absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-600 opacity-0 group-hover:opacity-5 transition-opacity duration-300 rounded-2xl'></div>
       <div className="flex flex-col items-center text-center relative z-10">

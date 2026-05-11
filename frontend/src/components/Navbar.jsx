@@ -55,12 +55,12 @@ const Navbar = () => {
 	};
 
 	return (
-		<nav className='bg-background border-b border-border sticky top-0 z-50 transition-all duration-300'>
+		<nav className={`${darkMode ? "bg-primary text-white" : "bg-white"} border-b border-border sticky top-0 z-50 `}>
 			<div className=' mx-auto px-4'>
 				<div className='flex items-center justify-between h-16  flex-wrap'>
 					{/* Logo */}
 					<Link to='/' className='flex items-center'>
-						<span className='text-xl md:text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'>
+						<span className={`text-xl md:text-2xl font-bold ${darkMode ? "bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text " : "bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text"} `}>
 							SpareXChange
 						</span>
 					</Link>
@@ -71,11 +71,10 @@ const Navbar = () => {
 							<Link
 								key={link.path}
 								to={link.path}
-								className={`flex items-center px-1.5 py-2 rounded-md text-xs md:text-sm font-medium transition duration-300 ${
-									isActive(link.path)
-										? "text-green-400 bg-accent"
-										: "text-muted-foreground hover:text-foreground hover:bg-accent"
-								}`}
+								className={`flex items-center px-1.5 py-2 rounded-md text-xs md:text-sm font-medium transition duration-300 ${isActive(link.path)
+									? "text-green-400 "
+									: "text-muted-foreground hover:text-foreground hover:bg-accent"
+									}`}
 							>
 								<link.icon size={14} className='mr-1.5' />
 								<span className='hidden md:inline'>{link.name}</span>
@@ -88,7 +87,7 @@ const Navbar = () => {
 						<button className='p-2 rounded-full hover:bg-accent transition duration-300'>
 							<ShoppingCart size={20} className='text-muted-foreground' />
 						</button>
-						<button 
+						<button
 							onClick={toggleDarkMode}
 							className='p-2 rounded-full hover:bg-accent transition duration-300'
 							aria-label='Toggle dark mode'
@@ -111,7 +110,7 @@ const Navbar = () => {
 								<Link to='/login' className='flex items-center px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition duration-300'>
 									<LogIn size={16} className='mr-2' /> <span className='hidden lg:inline'>Login</span>
 								</Link>
-								<Link to='/signup' className='flex items-center px-3 py-2 rounded-md text-sm font-medium bg-green-500 text-white hover:bg-green-600 transition duration-300 dark:bg-green-600 dark:hover:bg-green-700'>
+								<Link to='/signup' className={`flex items-center px-3 py-2 rounded-md text-sm font-medium bg-green-500 text-white hover:bg-green-600 transition duration-300 dark:bg-white dark:text-primary dark:hover:bg-accent dark:hover:text-black`}>
 									<User size={16} className='mr-2' /> <span className='hidden md:inline'>Sign Up</span>
 								</Link>
 							</div>
@@ -123,7 +122,7 @@ const Navbar = () => {
 						<button className='p-2 rounded-full hover:bg-accent transition duration-300'>
 							<ShoppingCart size={20} className='text-muted-foreground' />
 						</button>
-						<button 
+						<button
 							onClick={toggleDarkMode}
 							className='p-2 rounded-full hover:bg-accent transition duration-300'
 							aria-label='Toggle dark mode'
@@ -144,7 +143,7 @@ const Navbar = () => {
 
 				{/* Mobile Menu */}
 				{isMobile && isMenuOpen && (
-					<div 
+					<div
 						ref={mobileMenuRef}
 						className='absolute top-16 left-0 right-0 bg-background border-b border-border shadow-xl z-50 animate-fadeInDown'
 					>
@@ -153,11 +152,10 @@ const Navbar = () => {
 								<Link
 									key={link.path}
 									to={link.path}
-									className={`flex items-center px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 transform hover:translate-x-2 ${
-										isActive(link.path)
-											? "text-green-400 bg-accent"
-											: "text-muted-foreground hover:text-foreground hover:bg-accent"
-									}`}
+									className={`flex items-center px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 transform hover:translate-x-2 ${isActive(link.path)
+										? "text-green-400 bg-accent"
+										: "text-muted-foreground hover:text-foreground hover:bg-accent"
+										}`}
 									onClick={() => setIsMenuOpen(false)}
 								>
 									<link.icon size={20} className='mr-3' />
@@ -169,7 +167,7 @@ const Navbar = () => {
 									<button className='p-3 rounded-full bg-accent hover:bg-accent/80 transition duration-300'>
 										<ShoppingCart size={20} className='text-muted-foreground' />
 									</button>
-									<button 
+									<button
 										onClick={toggleDarkMode}
 										className='p-3 rounded-full bg-accent hover:bg-accent/80 transition duration-300'
 										aria-label='Toggle dark mode'
@@ -177,7 +175,7 @@ const Navbar = () => {
 										{darkMode ? <Sun size={20} className='text-yellow-400' /> : <Moon size={20} className='text-muted-foreground' />}
 									</button>
 								</div>
-																		
+
 								{isAuthenticated ? (
 									<div className='mt-3 px-3 space-y-3'>
 										{user?.ecoPoints !== undefined && (
@@ -190,8 +188,8 @@ const Navbar = () => {
 											</div>
 										)}
 										<div className='flex space-x-3'>
-											<Link 
-												to='/profile' 
+											<Link
+												to='/profile'
 												className='flex-1 flex items-center justify-center px-4 py-2.5 rounded-lg bg-accent text-muted-foreground hover:bg-accent/80 transition duration-300'
 												onClick={() => setIsMenuOpen(false)}
 											>
@@ -260,14 +258,14 @@ const UserMenu = ({ user, logout, isLoading, navigate, mobile = false }) => {
 	if (mobile) {
 		return (
 			<>
-				<button 
+				<button
 					onClick={() => setIsOpen(!isOpen)}
 					className='p-1 rounded-full hover:bg-accent transition-all duration-300 transform hover:scale-105 group'
 				>
 					{user?.profilePicture ? (
-						<img 
-							src={user.profilePicture} 
-							alt={user?.name || user?.email} 
+						<img
+							src={user.profilePicture}
+							alt={user?.name || user?.email}
 							className='w-8 h-8 rounded-full object-cover border-2 border-green-400'
 						/>
 					) : (
@@ -277,16 +275,16 @@ const UserMenu = ({ user, logout, isLoading, navigate, mobile = false }) => {
 					)}
 				</button>
 				{isOpen && (
-					<div 
+					<div
 						ref={menuRef}
 						className='absolute right-0 top-12 w-56 bg-background/90 backdrop-blur-lg rounded-xl shadow-2xl border border-border z-[100] animate-bounceIn'
 					>
 						<div className='p-3 border-b border-border bg-gradient-to-r from-gray-800 to-gray-900 rounded-t-xl dark:from-gray-800 dark:to-gray-900'>
 							<div className='flex items-center space-x-2'>
 								{user?.profilePicture ? (
-									<img 
-										src={user.profilePicture} 
-										alt={user?.name || user?.email} 
+									<img
+										src={user.profilePicture}
+										alt={user?.name || user?.email}
 										className='w-10 h-10 rounded-full object-cover border-2 border-green-400'
 									/>
 								) : (
@@ -305,8 +303,8 @@ const UserMenu = ({ user, logout, isLoading, navigate, mobile = false }) => {
 								</div>
 							</div>
 						</div>
-						<Link 
-							to='/profile' 
+						<Link
+							to='/profile'
 							className='block px-4 py-2.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200 transform hover:translate-x-1 rounded-lg mx-2'
 							onClick={() => setIsOpen(false)}
 						>
@@ -333,14 +331,14 @@ const UserMenu = ({ user, logout, isLoading, navigate, mobile = false }) => {
 
 	return (
 		<div className='relative' ref={menuRef}>
-			<button 
+			<button
 				onClick={() => setIsOpen(!isOpen)}
 				className='flex items-center p-1 rounded-full hover:bg-accent transition-all duration-300 transform hover:scale-105 group'
 			>
 				{user?.profilePicture ? (
-					<img 
-						src={user.profilePicture} 
-						alt={user?.name || user?.email} 
+					<img
+						src={user.profilePicture}
+						alt={user?.name || user?.email}
 						className='w-8 h-8 rounded-full object-cover border-2 border-green-400'
 					/>
 				) : (
@@ -355,9 +353,9 @@ const UserMenu = ({ user, logout, isLoading, navigate, mobile = false }) => {
 					<div className='p-4 border-b border-border bg-gradient-to-r from-gray-800 to-gray-900 rounded-t-xl dark:from-gray-800 dark:to-gray-900'>
 						<div className='flex items-center space-x-3'>
 							{user?.profilePicture ? (
-								<img 
-									src={user.profilePicture} 
-									alt={user?.name || user?.email} 
+								<img
+									src={user.profilePicture}
+									alt={user?.name || user?.email}
 									className='w-12 h-12 rounded-full object-cover border-2 border-green-400'
 								/>
 							) : (
@@ -376,8 +374,8 @@ const UserMenu = ({ user, logout, isLoading, navigate, mobile = false }) => {
 							</div>
 						</div>
 					</div>
-					<Link 
-						to='/profile' 
+					<Link
+						to='/profile'
 						className='block px-4 py-3 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200 transform hover:translate-x-1 rounded-lg mx-2'
 						onClick={() => setIsOpen(false)}
 					>
