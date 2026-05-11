@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Recycle, Shuffle, Users, Wrench, Leaf, Truck, Car, Cpu, Smartphone, Gamepad2, Camera, Watch, Headphones, Laptop, ArrowRight, Star } from "lucide-react";
+import { Recycle, Shuffle, Users, Wrench, Leaf, Truck, Car, Cpu, Smartphone, Gamepad2, Camera, Watch, Headphones, Laptop, ArrowRight, Star, Phone } from "lucide-react";
 import ListingCard from "../components/ListingCard";
 import CategoryCard from "../components/CategoryCard";
 // import InteractiveMap from "../components/InteractiveMap";
@@ -73,15 +73,19 @@ const LandingPage = () => {
       rating: 5,
     },
   ];
+  const HOW_IT_WORKS = [
+    { level: "1", title: "Create Account", description: "Sign up as a user, business, or recycler in just minutes." },
+    { level: 2, title: "Browse or List", description: "Search for parts you need or list your inventory for sale." },
+    { level: 3, title: "Connect & Transact", description: "Communicate with sellers/buyers and securely complete purchases or exchanges through our platform." },
+    { level: 4, title: "Trade or Recycle", description: "Trade parts directly with peers or recycle unused components to earn Eco Points." },
+    { level: 5, title: "Complete Transaction", description: "Secure checkout, fast shipping, and buyer protection." }
+  ];
 
 
   return (
-    <div className={`min-h-screen overflow-hidden ${darkMode ? 'bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white' : 'bg-gradient-to-br from-gray-100 via-green-50 to-emerald-50 text-gray-900'}`}>
+    <div className={`min-h-screen overflow-hidden ${darkMode ? 'bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white' : 'bg-white text-gray-900'}`}>
       {/* <SocialProofNotification /> */}
       {/* Floating Shapes */}
-
-
-
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-green-600 to-green-900 text-white">
@@ -95,7 +99,7 @@ const LandingPage = () => {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="max-w-3xl">
             <h1 className="text-5xl md:text-6xl mb-6 leading-tight text-white">
-              Your Sustainable Marketplace for Auto Parts
+              {`Your Sustainable Marketplace for Spare Parts`}
             </h1>
             <p className="text-xl text-green-50 mb-8 leading-relaxed">
               Connect with thousands of sellers, find quality parts, and contribute to a greener future.
@@ -109,7 +113,7 @@ const LandingPage = () => {
                 </Button>
               </Link>
               <Link to="/marketplace">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 h-14 px-8">
+                <Button size="lg" variant="outline" className="border-white bg-primary text-white hover:bg-white/10 h-14 px-8">
                   Browse Parts
                 </Button>
               </Link>
@@ -125,7 +129,7 @@ const LandingPage = () => {
             {STATS.map((stat, index) => (
               <div key={index} className="text-center">
                 <div className="text-4xl text-primary mb-2">{stat.value}</div>
-                <div className="text-muted-foreground">{stat.label}</div>
+                <div className="text-black">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -138,7 +142,7 @@ const LandingPage = () => {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl mb-4 text-foreground">Why Choose SpareXchange?</h2>
+            <h2 className="text-4xl mb-4 text-primary">Why Choose SpareXchange?</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               We make finding and selling auto parts simple, secure, and sustainable.
             </p>
@@ -146,15 +150,25 @@ const LandingPage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {FEATURES.map((feature, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6 text-center">
-                  <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
-                    <feature.icon className="w-8 h-8 text-primary" />
-                  </div>
-                  <h3 className="text-xl mb-3 text-foreground">{feature.title}</h3>
-                  <p className="text-muted-foreground">{feature.description}</p>
-                </CardContent>
-              </Card>
+              <motion.div key={index}
+                className="relative"
+                whileHover={{
+                  y: -5,
+                  boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                  borderColor: '#10b981'
+                }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Card className={`h-full hover:shadow-lg transition-shadow ${darkMode ? "bg-white text-black" : "bg-primary text-white"}`}>
+                  <CardContent className="p-6 text-center">
+                    <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
+                      <feature.icon className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="text-xl mb-3 text-foreground">{feature.title}</h3>
+                    <p className="text-muted-foreground">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -163,84 +177,57 @@ const LandingPage = () => {
       <section className="py-20 bg-[var(--secondary)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl mb-4 text-foreground">How It Works</h2>
+            <h2 className="text-4xl mb-4 text-primary">How It Works</h2>
             <p className="text-xl text-muted-foreground">Get started in five simple steps</p>
           </div>
-
+          {/*change this elements into component later*/}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-20 h-20 bg-[var(--primary)] rounded-full flex items-center justify-center text-primary-foreground text-3xl mx-auto mb-4">
-                1
-              </div>
-              <h3 className="text-xl mb-3 text-foreground">Create Account</h3>
-              <p className="text-muted-foreground">
-                Sign up as a user, business, or recycler in just minutes.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-20 h-20 bg-[var(--primary)] rounded-full flex items-center justify-center text-primary-foreground text-3xl mx-auto mb-4">
-                2
-              </div>
-              <h3 className="text-xl mb-3 text-foreground">Browse or List</h3>
-              <p className="text-muted-foreground">
-                Search for parts you need or list your inventory for sale.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-20 h-20 bg-[var(--primary)] rounded-full flex items-center justify-center text-primary-foreground text-3xl mx-auto mb-4">
-                3
-              </div>
-              <h3 className="text-xl mb-3 text-foreground">Connect & Transact</h3>
-              <p className="text-muted-foreground">
-                Communicate with sellers/buyers and securely complete purchases or exchanges through our platform.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-20 h-20 bg-[var(--primary)] rounded-full flex items-center justify-center text-primary-foreground text-3xl mx-auto mb-4">
-                4
-              </div>
-              <h3 className="text-xl mb-3 text-foreground">Trade or Recycle</h3>
-              <p className="text-muted-foreground">
-                Trade parts directly with peers or recycle unused components to earn Eco Points.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-20 h-20 bg-[var(--primary)] rounded-full flex items-center justify-center text-primary-foreground text-3xl mx-auto mb-4">
-                3
-              </div>
-              <h3 className="text-xl mb-3 text-foreground">Complete Transaction</h3>
-              <p className="text-muted-foreground">
-                Secure checkout, fast shipping, and buyer protection.
-              </p>
-            </div>
-
+            {HOW_IT_WORKS.map((step, index) => {
+              return (
+                <motion.div key={index} className="text-center border border-primary rounded-lg p-2 shadow-lg"
+                  whileHover={{
+                    y: -5,
+                    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                    borderColor: '#10b981'
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div className={`w-20 h-20 ${darkMode ? "bg-white text-black" : "bg-primary"} rounded-full flex items-center justify-center text-primary-foreground text-3xl mx-auto mb-4`}>
+                    {step.level}
+                  </div>
+                  <h3 className="text-xl mb-3 text-primary">{step.title}</h3>
+                  <p className="text-muted-foreground">
+                    {step.description}
+                  </p>
+                </motion.div>
+              )
+            })}
           </div>
         </div>
       </section>
       {/* this is left from version 1 */}
       {/* Categories Showcase */}
       <section className='container mx-auto px-4 sm:px-6 py-12 sm:py-16 relative z-10'>
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          whileInView={{ scale: 1, opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+        <div
+          // initial={{ scale: 0.8, opacity: 0 }}
+          // whileInView={{ scale: 1, opacity: 1 }}
+          // viewport={{ once: true }}
+          // transition={{ duration: 0.6 }}
           className='relative mb-12 sm:mb-16'
         >
           <div className='absolute -inset-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full blur-xl opacity-20'></div>
           <motion.h2
-            className={`text-3xl sm:text-4xl font-bold text-center relative bg-gradient-to-r ${darkMode ? 'from-green-400 to-emerald-500' : 'from-green-600 to-emerald-700'} text-transparent bg-clip-text`}
-            initial={{ y: 20 }}
-            whileInView={{ y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.3 }}
+            className={`text-3xl sm:text-4xl text-center relative bg-gradient-to-r ${darkMode ? 'from-green-400 to-emerald-500' : 'from-green-600 to-emerald-700'} text-transparent bg-clip-text pb-2 `}
+          // initial={{ y: 20 }}
+          // whileInView={{ y: 0 }}
+          // viewport={{ once: true }}
+          // transition={{ duration: 0.3 }}
           >
             Popular Categories
           </motion.h2>
-        </motion.div>
+        </div>
         <div className='grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6'>
+          {/*change this info by data from backend*/}
           {[
             { name: "Automotive", count: "2.5K" },
             { name: "Electronics", count: "1.8K" },
@@ -259,15 +246,15 @@ const LandingPage = () => {
       {/* Recent Listings Preview */}
       <section className='container mx-auto px-4 sm:px-6 py-12 sm:py-16 relative z-10'>
         <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          whileInView={{ scale: 1, opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          // initial={{ scale: 0.8, opacity: 0 }}
+          // whileInView={{ scale: 1, opacity: 1 }}
+          // viewport={{ once: true }}
+          // transition={{ duration: 0.6 }}
           className='relative mb-12 sm:mb-16 text-center'
         >
           <div className='absolute -inset-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full blur-xl opacity-20 mx-auto left-1/2 transform -translate-x-1/2'></div>
           <motion.h2
-            className={`text-3xl sm:text-4xl font-bold relative bg-gradient-to-r ${darkMode ? 'from-green-400 to-emerald-500' : 'from-green-600 to-emerald-700'} text-transparent bg-clip-text`}
+            className={`text-3xl sm:text-4xl pb-2 relative bg-gradient-to-r ${darkMode ? 'from-green-400 to-emerald-500' : 'from-green-600 to-emerald-700'} text-transparent bg-clip-text`}
             initial={{ y: 20 }}
             whileInView={{ y: 0 }}
             viewport={{ once: true }}
@@ -276,21 +263,22 @@ const LandingPage = () => {
             Recent Listings
           </motion.h2>
           <motion.p
-            className={`${darkMode ? 'text-gray-400' : 'text-gray-600'} mt-4 max-w-2xl mx-auto`}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            className={`dark:text-white text-black mt-4 max-w-2xl mx-auto`}
+          // initial={{ opacity: 0 }}
+          // whileInView={{ opacity: 1 }}
+          // viewport={{ once: true }}
+          // transition={{ duration: 0.6, delay: 0.2 }}
           >
-            Check out the latest spare parts added to our marketplace
+            {`Check out the latest spare parts added to our marketplace`}
           </motion.p>
         </motion.div>
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6'>
+          {/*change this info with data from the backend*/}
           {[
-            { title: "iPhone 12 Pro Max Battery", price: "25", condition: "New", seller: "TechSolutions", location: "San Francisco, CA", timeAgo: "2 hours ago" },
-            { title: "BMW X5 Brake Pads", price: "85", condition: "Refurbished", seller: "AutoPartsHub", location: "Los Angeles, CA", timeAgo: "5 hours ago" },
-            { title: "PlayStation 5 Controller", price: "45", condition: "Like New", seller: "GameSwap", location: "New York, NY", timeAgo: "1 day ago" },
-            { title: "Dell XPS 13 Screen", price: "120", condition: "Used", seller: "LaptopRepair", location: "Chicago, IL", timeAgo: "1 day ago" }
+            { icon: <Phone />, title: "iPhone 12 Pro Max Battery", price: "25", condition: "New", seller: "TechSolutions", location: "San Francisco, CA", timeAgo: "2 hours ago" },
+            { icon: <Car />, title: "BMW X5 Brake Pads", price: "85", condition: "Refurbished", seller: "AutoPartsHub", location: "Los Angeles, CA", timeAgo: "5 hours ago" },
+            { icon: <Gamepad2 />, title: "PlayStation 5 Controller", price: "45", condition: "Like New", seller: "GameSwap", location: "New York, NY", timeAgo: "1 day ago" },
+            { icon: <Laptop />, title: "Dell XPS 13 Screen", price: "120", condition: "Used", seller: "LaptopRepair", location: "Chicago, IL", timeAgo: "1 day ago" }
           ].map((listing, index) => (
             <ListingCard key={index} listing={listing} index={index} />
           ))}
@@ -323,8 +311,8 @@ const LandingPage = () => {
                   strokeWidth='2'
                   strokeLinecap='round'
                   strokeLinejoin='round'
-                  whileHover={{ x: 5 }}
-                  transition={{ type: "spring", stiffness: 300 }}
+                // whileHover={{ x: 5 }}
+                // transition={{ type: "spring", stiffness: 300 }}
                 >
                   <path d='M5 12h14' />
                   <path d='M12 5l7 7-7 7' />
@@ -374,23 +362,23 @@ const LandingPage = () => {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl mb-4 text-foreground">What Our Users Say</h2>
+            <h2 className="text-4xl mb-4 text-primary">What Our Users Say</h2>
             <p className="text-xl text-muted-foreground">Join thousands of satisfied customers</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {TESTIMONIALS.map((testimonial, index) => (
               <Card key={index}>
-                <CardContent className="p-6">
+                <CardContent className="p-6 text-foreground">
                   <div className="flex items-center gap-1 mb-4">
                     {[...Array(testimonial.rating)].map((_, i) => (
                       <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <p className="text-muted-foreground mb-4 italic">"{testimonial.content}"</p>
+                  <p className=" mb-4 italic">"{testimonial.content}"</p>
                   <div>
-                    <div className="text-foreground">{testimonial.name}</div>
-                    <div className="text-sm text-muted-foreground">{testimonial.role}</div>
+                    <div className="">{testimonial.name}</div>
+                    <div className="text-sm ">{testimonial.role}</div>
                   </div>
                 </CardContent>
               </Card>
@@ -413,7 +401,7 @@ const LandingPage = () => {
               </Button>
             </Link>
             <Link to="/leaderboard">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 h-14 px-8">
+              <Button size="lg" variant="outline" className=" bg-primary border-white text-white hover:bg-white/10 h-14 px-8">
                 View Top Sellers
               </Button>
             </Link>
@@ -422,7 +410,7 @@ const LandingPage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-card py-12">
+      <footer className="border-t border-border bg-accent py-12 text-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
