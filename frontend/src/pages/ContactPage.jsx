@@ -101,7 +101,8 @@ const ContactPage = () => {
 					</div>
 				</div>
 			</div>
-			<div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background">
+
+			<div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background dark:bg-gradient-to-r from-gray-900 via-green-900 to-emerald-900 dark:text-black">
 				<div className="w-full max-w-md space-y-8">
 					{/* Mobile Logo */}
 					<div className="lg:hidden flex items-center gap-3 justify-center">
@@ -128,7 +129,7 @@ const ContactPage = () => {
 								value={formData.name}
 								onChange={(e) => updateFormData("name", e.target.value)}
 								required
-								className="bg-input-background border border-border"
+								className=" bg-gray-200 dark:bg-accent border border-border"
 							/>
 						</div>
 
@@ -141,7 +142,7 @@ const ContactPage = () => {
 								value={formData.email}
 								onChange={(e) => updateFormData("email", e.target.value)}
 								required
-								className="bg-input-background border border-border"
+								className="bg-gray-200 dark:bg-accent border border-border"
 							/>
 						</div>
 
@@ -154,7 +155,7 @@ const ContactPage = () => {
 								value={formData.subject}
 								onChange={(e) => updateFormData("subject", e.target.value)}
 								required
-								className="bg-input-background border border-border"
+								className="bg-gray-200 dark:bg-accent border border-border"
 							/>
 						</div>
 
@@ -167,7 +168,7 @@ const ContactPage = () => {
 								onChange={(e) => updateFormData("message", e.target.value)}
 								required
 								rows={6}
-								className="bg-input-background border border-border resize-none"
+								className=" bg-gray-200 dark:bg-accent border border-border resize-none"
 							/>
 						</div>
 

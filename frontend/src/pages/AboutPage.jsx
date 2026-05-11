@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 const AboutPage = () => {
 	const { darkMode } = useTheme();
 	return (
-		<div className='min-h-screen  text-white py-12'>
+		<div className='min-h-screen  text-white py-12 dark:bg-gradient-to-r from-gray-900 via-green-900 to-emerald-900'>
 			<div className='container mx-auto px-4'>
 				<motion.div
 					initial={{ opacity: 0, y: -20 }}

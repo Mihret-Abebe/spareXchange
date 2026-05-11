@@ -6,6 +6,7 @@ import { MessageCircle, Mail, Recycle } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion';
 import { Card, CardContent } from '../components/ui/card';
 import { Link } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
 
 // import { Card, CardContent } from '../components/ui/card';
 // import { Link } from 'react-router';
@@ -17,6 +18,7 @@ const FaqPage = () => {
 	// const toggleAccordion = (index) => {
 	// 	setOpenIndex(openIndex === index ? null : index);
 	// };
+	const { darkMode } = useTheme();
 
 	const FAQ_CATEGORIES = [
 		{
@@ -102,12 +104,12 @@ const FaqPage = () => {
 	];
 
 	return (
-		<div className='min-h-screen bg-white text-white py-12'>
+		<div className='min-h-screen text-white py-12 bg-primary/20 dark:bg-gradient-to-r from-gray-900 via-green-900 to-emerald-900 dark:text-black'>
 			{/* Hero Section */}
 			<div className="bg-gradient-to-br from-green-600 to-green-900 text-white py-16 my-4">
 				<div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
 					<h1 className="text-5xl mb-4 text-white">Frequently Asked Questions</h1>
-					<p className="text-xl text-green-50">
+					<p className="text-xl text-foreground">
 						Find answers to common questions about SpareXchange
 					</p>
 				</div>
@@ -115,21 +117,21 @@ const FaqPage = () => {
 			{/* FAQ Content */}
 			<div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
 
-				<div className="space-y-8 text-black">
+				<div className={`space-y-8 text-black `}>
 					{FAQ_CATEGORIES.map((category, categoryIndex) => (
 						<div key={categoryIndex}>
-							<h2 className="text-2xl mb-4 text-foreground">{category.category}</h2>
-							<Accordion type="single" collapsible className="space-y-2">
+							<h2 className="text-2xl mb-4 text-primary dark:text-background">{category.category}</h2>
+							<Accordion type="single" collapsible className="space-y-2 ">
 								{category.questions.map((item, index) => (
 									<AccordionItem
 										key={index}
 										value={`${categoryIndex}-${index}`}
-										className="border border-border rounded-lg px-6 bg-card"
+										className="border border-border rounded-lg px-6 bg-card dark:bg-accent "
 									>
 										<AccordionTrigger className="hover:no-underline text-left">
 											{item.question}
 										</AccordionTrigger>
-										<AccordionContent className="text-muted-foreground">
+										<AccordionContent className="text-foreground">
 											{item.answer}
 										</AccordionContent>
 									</AccordionItem>
@@ -139,22 +141,22 @@ const FaqPage = () => {
 					))}
 				</div>
 				{/* Contact Support Section */}
-				<Card className="mt-16 text-black">
+				<Card className={`mt-16 dark:bg-accent `}>
 					<CardContent className="text-center">
-						<MessageCircle className="w-12 h-12 text-[var(--primary)] mx-auto mb-4" />
-						<h3 className="text-2xl mb-2 text-foreground">Still Have Questions?</h3>
-						<p className="text-muted-foreground mb-6">
+						<MessageCircle className="w-12 h-12 mt-2 text-primary mx-auto mb-4" />
+						<h3 className="text-2xl mb-2 text-primary">Still Have Questions?</h3>
+						<p className="text-foreground mb-6">
 							Can't find what you're looking for? Our support team is here to help.
 						</p>
 						<div className="flex flex-wrap justify-center gap-4">
-							<Button className='bg-[var(--primary)] hover:bg-[#16a34a]/90'>
+							<Button className='bg-primary hover:bg-[#16a34a]/90'>
 								<Link to="/contact" className='flex text-white'>
 									<Mail className="w-4 h-4 mr-2" />
 									Contact Support
 								</Link>
 							</Button>
 							<Button variant="outline" asChild>
-								<a href="mailto:support@sparexchange.com" className='hover:bg-[#16a34a]/70 hover:text-[var(--background)]'>
+								<a href="mailto:support@sparexchange.com" className='hover:bg-primary/70 hover:text-background border border-primary'>
 									Email Us
 								</a>
 							</Button>
@@ -165,7 +167,7 @@ const FaqPage = () => {
 			</div>
 
 			{/* Footer */}
-			<footer className="border-t border-border bg-card py-12 mt-16 ">
+			<footer className="border-t border-border bg-card py-12 mt-16 dark:bg-accent ">
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 					<div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
 						<div>
