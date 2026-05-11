@@ -15,12 +15,14 @@ import ProfilePage from "./pages/ProfilePage";
 import AboutPage from "./pages/AboutPage";
 import FaqPage from "./pages/FaqPage";
 import ContactPage from "./pages/ContactPage";
+// import { Leaderboard } from "./pages/LeaderBoardPage";
 
 import LoadingSpinner from "./components/LoadingSpinner";
 
 import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authStore";
 import { useEffect } from "react";
+import { Leaderboard } from "./pages/LeaderBoardPage";
 
 // protect routes that require authentication
 const ProtectedRoute = ({ children }) => {
@@ -147,6 +149,12 @@ function App() {
 				<Route path='/about' element={<><AboutPage /></>} />
 				<Route path='/faq' element={<><FaqPage /></>} />
 				<Route path='/contact' element={<><ContactPage /></>} />
+				<Route path="/leaderboard"
+					element={
+						<>
+							<Leaderboard />
+						</>
+					} />
 				<Route
 					path='/admin/disputes'
 					element={
