@@ -5,12 +5,11 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Recycle, Eye, EyeOff } from "lucide-react";
-
-// import { Loader, Lock, Mail, User } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
 import { useAuthStore } from "../store/authStore";
+import toast from "react-hot-toast";
 
 const SignUpPage = () => {
 	const [showPassword, setShowPassword] = useState(false);
@@ -20,7 +19,7 @@ const SignUpPage = () => {
 		email: "",
 		password: "",
 		confirmPassword: "",
-		accountType: "user" | "recycler" | "business",
+		accountType: "user",
 		agreeToTerms: false,
 	});
 
@@ -34,13 +33,30 @@ const SignUpPage = () => {
 	// ];
 	const navigate = useNavigate();
 
-	const { signup, error, isLoading } = useAuthStore();
+	const { signup, error } = useAuthStore();
+
+	useEffect(() => {
+		if (error) {
+			toast.error(error);
+		}
+	}, [error]);
 
 	const handleSignUp = async (e) => {
 		e.preventDefault();
 
+		if (formData.password !== formData.confirmPassword) {
+			toast.error("Passwords do not match");
+			return;
+		}
+
+		if (!formData.agreeToTerms) {
+			toast.error("Please agree to the Terms of Service and Privacy Policy");
+			return;
+		}
+
 		try {
-			await signup(formData.email, formData.password, formData.fullName);
+			await signup(formData.email, formData.password, formData.fullName, formData.accountType);
+			toast.success("Account created successfully! Please verify your email.");
 			navigate("/verify-email");
 		} catch (error) {
 			console.log(error);

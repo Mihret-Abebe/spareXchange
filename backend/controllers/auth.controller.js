@@ -16,7 +16,7 @@ import {
 import { User } from "../models/user.model.js";
 
 export const signup = async (req, res) => {
-	const { email, password, name } = req.body;
+	const { email, password, name, userType } = req.body;
 
 	try {
 		if (!email || !password || !name) {
@@ -26,9 +26,9 @@ export const signup = async (req, res) => {
 		// Strong Password Validation
 		const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 		if (!passwordRegex.test(password)) {
-			return res.status(400).json({ 
-				success: false, 
-				message: "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character." 
+			return res.status(400).json({
+				success: false,
+				message: "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character."
 			});
 		}
 
@@ -43,10 +43,18 @@ export const signup = async (req, res) => {
 		// Secure Random Verification Token (6 digits)
 		const verificationToken = crypto.randomInt(100000, 999999).toString();
 
+		const userTypeMapping = {
+			user: "individual",
+			business: "repair-shop",
+			recycler: "recycler",
+		};
+		const normalizedUserType = userTypeMapping[userType] || userType || "individual";
+
 		const user = new User({
 			email,
 			password: hashedPassword,
 			name,
+			userType: normalizedUserType,
 			verificationToken,
 			verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
 			permissions: ["create_listings", "propose_exchanges"] // Default base permissions
@@ -293,6 +301,28 @@ export const requestRoleVerification = async (req, res) => {
 	}
 };
 
+export const resendVerificationEmail = async (req, res) => {
+	try {
+		const user = await User.findById(req.userId);
+		if (!user) return res.status(404).json({ success: false, message: "User not found" });
+		if (user.isVerified) {
+			return res.status(400).json({ success: false, message: "Email already verified" });
+		}
+
+		const verificationToken = crypto.randomInt(100000, 999999).toString();
+		user.verificationToken = verificationToken;
+		user.verificationTokenExpiresAt = Date.now() + 24 * 60 * 60 * 1000;
+		await user.save();
+
+		await sendVerificationEmail(user.email, verificationToken);
+
+		res.status(200).json({ success: true, message: "Verification email resent successfully" });
+	} catch (error) {
+		console.error("Error resending verification email:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
 export const refreshToken = async (req, res) => {
 	const cookieRefreshToken = req.cookies.refreshToken;
 
@@ -310,7 +340,7 @@ export const refreshToken = async (req, res) => {
 
 		// Generate new pair
 		const { accessToken, refreshToken: newRefreshToken } = generateTokenAndSetCookie(res, user._id);
-		
+
 		user.refreshToken = newRefreshToken;
 		await user.save();
 
@@ -448,7 +478,7 @@ export const googleLogin = async (req, res) => {
 				name,
 				profilePicture: picture,
 				isVerified: true, // Social accounts are pre-verified
-				password: await bcryptjs.hash(randomPassword, 10), 
+				password: await bcryptjs.hash(randomPassword, 10),
 				permissions: ["create_listings", "propose_exchanges"],
 				authProvider: "google",
 				googleId: googleId
@@ -474,10 +504,10 @@ export const googleLogin = async (req, res) => {
 			success: true,
 			message: isNewUser ? "Signed up successfully via Google" : "Logged in successfully via Google",
 			accessToken,
-			user: { 
-				...user._doc, 
-				password: undefined, 
-				refreshToken: undefined 
+			user: {
+				...user._doc,
+				password: undefined,
+				refreshToken: undefined
 			}
 		});
 	} catch (error) {

@@ -1,10 +1,11 @@
 import { Navigate, Route, Routes } from "react-router-dom";
-import FloatingShape from "./components/FloatingShape";
 import Navbar from "./components/Navbar";
 
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import EmailVerificationPage from "./pages/EmailVerificationPage";
+import MFASetupPage from "./pages/MFASetupPage";
+import MFAVerificationPage from "./pages/MFAVerificationPage";
 import DashboardPage from "./pages/DashboardPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
@@ -12,21 +13,17 @@ import LandingPage from "./pages/LandingPage";
 import MarketplacePage from "./pages/MarketplacePage";
 import ListingDetailPage from "./pages/ListingDetailPage";
 import ProfilePage from "./pages/ProfilePage";
+import EditProfilePage from "./pages/EditProfilePage";
 import AboutPage from "./pages/AboutPage";
 import FaqPage from "./pages/FaqPage";
 import ContactPage from "./pages/ContactPage";
-<<<<<<< HEAD
-// import { Leaderboard } from "./pages/LeaderBoardPage";
-=======
-import LeaderboardPage from "./pages/LeaderboardPage";
->>>>>>> 4fcb7cbee4ce92a040fef97f0ed0af6f88c82a6b
+import Leaderboard from "./pages/LeaderboardPage";
 
 import LoadingSpinner from "./components/LoadingSpinner";
 
 import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authStore";
 import { useEffect } from "react";
-import { Leaderboard } from "./pages/LeaderBoardPage";
 
 // protect routes that require authentication
 const ProtectedRoute = ({ children }) => {
@@ -76,6 +73,7 @@ function App() {
 	return (
 		<div className='min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300 dark:bg-gradient-to-r from-gray-900 via-green-900 to-emerald-900'>
 			<Navbar />
+			<Toaster />
 			<Routes>
 				<Route path='/' element={<LandingPage />} />
 				<Route
@@ -109,6 +107,14 @@ function App() {
 					}
 				/>
 				<Route
+					path='/edit-profile'
+					element={
+						<ProtectedRoute>
+							<EditProfilePage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
 					path='/dashboard'
 					element={
 						<ProtectedRoute>
@@ -120,7 +126,7 @@ function App() {
 					path='/leaderboard'
 					element={
 						<ProtectedRoute>
-							<LeaderboardPage />
+							<Leaderboard />
 						</ProtectedRoute>
 					}
 				/>
@@ -142,6 +148,15 @@ function App() {
 				/>
 				<Route path='/verify-email' element={<EmailVerificationPage />} />
 				<Route
+					path='/mfa/setup'
+					element={
+						<ProtectedRoute>
+							<MFASetupPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route path='/mfa/verify' element={<MFAVerificationPage />} />
+				<Route
 					path='/forgot-password'
 					element={
 						<RedirectAuthenticatedUser>
@@ -161,12 +176,6 @@ function App() {
 				<Route path='/about' element={<><AboutPage /></>} />
 				<Route path='/faq' element={<><FaqPage /></>} />
 				<Route path='/contact' element={<><ContactPage /></>} />
-				<Route path="/leaderboard"
-					element={
-						<>
-							<Leaderboard />
-						</>
-					} />
 				<Route
 					path='/admin/disputes'
 					element={

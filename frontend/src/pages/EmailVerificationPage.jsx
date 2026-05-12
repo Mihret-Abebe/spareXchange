@@ -13,16 +13,21 @@ const EmailVerificationPage = () => {
 	const inputRefs = useRef([]);
 	const navigate = useNavigate();
 
-	const { error, isLoading, verifyEmail } = useAuthStore();
-	// ===============================================================================
-	//change this later on to get email from store or context instead of hardcoding it
-	const handleResend = () => {
+	const { error, isLoading, verifyEmail, resendVerificationEmail } = useAuthStore();
+
+	const handleResend = async () => {
 		setIsResending(true);
-		setTimeout(() => {
-			setIsResending(false);
+		try {
+			await resendVerificationEmail();
 			setResent(true);
+			toast.success("Verification email sent successfully!");
 			setTimeout(() => setResent(false), 3000);
-		}, 1000);
+		} catch (error) {
+			console.error("Error resending email:", error);
+			toast.error(error.response?.data?.message || "Failed to resend verification email");
+		} finally {
+			setIsResending(false);
+		}
 	};
 	const handleChange = (index, value) => {
 		const newCode = [...code];
@@ -61,8 +66,8 @@ const EmailVerificationPage = () => {
 		const verificationCode = code.join("");
 		try {
 			await verifyEmail(verificationCode);
+			toast.success("Email verified successfully!");
 			navigate("/dashboard");
-			toast.success("Email verified successfully");
 		} catch (error) {
 			console.log(error);
 		}

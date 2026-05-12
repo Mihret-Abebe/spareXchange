@@ -1,14 +1,29 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { User, Mail, MapPin, Phone, Edit3, Star, Package, CreditCard, Settings, LogOut, CheckCircle, AlertCircle, Clock, ShieldCheck, Award } from "lucide-react";
+import { User, Mail, MapPin, Edit3, Star, Package, CreditCard, Settings, LogOut, CheckCircle, AlertCircle, Clock, ShieldCheck, Award, Shield } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 
 const ProfilePage = () => {
 	const navigate = useNavigate();
-	const { user, logout, requestVerification, redeemPoints, isLoading } = useAuthStore();
+	const { user, logout, requestVerificationWithFiles, redeemPoints } = useAuthStore();
 	const [activeTab, setActiveTab] = useState("profile");
 	const [isRedeeming, setIsRedeeming] = useState(false);
+	const [accountType, setAccountType] = useState("individual");
+	const [verificationFiles, setVerificationFiles] = useState([]);
+	const [isSubmittingVerification, setIsSubmittingVerification] = useState(false);
+	// const [notificationSettings, setNotificationSettings] = useState({
+	// 	messages_buyers: true,
+	// 	messages_sellers: true,
+	// 	new_listings: true,
+	// 	eco_points: true,
+	// 	announcements: true,
+	// });
+	const [privacySettings, setPrivacySettings] = useState({
+		show_profile: true,
+		allow_messaging: true,
+		display_points: false,
+	});
 
 	if (!user) return null;
 
@@ -40,9 +55,74 @@ const ProfilePage = () => {
 		},
 	];
 
-	const handleLogout = () => {
-		// Logout functionality would go here
+	const handleLogout = async () => {
+		await logout();
 		navigate("/login");
+	};
+
+	const handleEditProfile = () => {
+		navigate("/edit-profile");
+	};
+
+	const handleAddListing = () => {
+		navigate("/create-listing");
+	};
+
+	const handleEditListing = (listingId) => {
+		navigate(`/edit-listing/${listingId}`);
+	};
+
+	const handleDeleteListing = async (listingId) => {
+		if (window.confirm("Are you sure you want to delete this listing?")) {
+			// Call API to delete listing
+			console.log("Deleting listing:", listingId);
+		}
+	};
+
+	// const handleNotificationChange = (key) => {
+	// 	setNotificationSettings({
+	// 		...notificationSettings,
+	// 		[key]: !notificationSettings[key],
+	// 	});
+	// };
+
+	const handlePrivacyChange = (key) => {
+		setPrivacySettings({
+			...privacySettings,
+			[key]: !privacySettings[key],
+		});
+	};
+
+	const handleFileChange = (e) => {
+		const files = Array.from(e.target.files);
+		if (files.length > 5) {
+			alert("Maximum 5 documents allowed");
+			return;
+		}
+		setVerificationFiles(files);
+	};
+
+	const removeFile = (index) => {
+		setVerificationFiles(prev => prev.filter((_, i) => i !== index));
+	};
+
+	const handleSubmitVerification = async () => {
+		if (verificationFiles.length === 0) {
+			alert("Please upload at least one verification document");
+			return;
+		}
+
+		setIsSubmittingVerification(true);
+		try {
+			await requestVerificationWithFiles(accountType, verificationFiles);
+			alert("Verification request submitted successfully! An admin will review your documents.");
+			setVerificationFiles([]);
+		} catch (error) {
+			console.error("Error submitting verification:", error);
+			alert(error.response?.data?.message || "Failed to submit verification request");
+		} finally {
+			setIsSubmittingVerification(false);
+		}
 	};
 
 	const tabs = [
@@ -50,6 +130,7 @@ const ProfilePage = () => {
 		{ id: "listings", name: "My Listings", icon: Package },
 		{ id: "payments", name: "Payments", icon: CreditCard },
 		{ id: "settings", name: "Settings", icon: Settings },
+		{ id: "security", name: "Security", icon: Shield },
 	];
 
 	return (
@@ -122,7 +203,7 @@ const ProfilePage = () => {
 								</div>
 							</div>
 							<div className='mt-4 md:mt-0'>
-								<button className='flex items-center px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition duration-300'>
+								<button onClick={handleEditProfile} className='flex items-center px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition duration-300'>
 									<Edit3 size={16} className='mr-2' />
 									Edit Profile
 								</button>
@@ -136,11 +217,10 @@ const ProfilePage = () => {
 							<button
 								key={tab.id}
 								onClick={() => setActiveTab(tab.id)}
-								className={`flex items-center px-4 py-2 rounded-t-lg transition duration-300 ${
-									activeTab === tab.id
-										? "bg-gray-800 text-green-400 border-b-2 border-green-400"
-										: "text-gray-400 hover:text-white"
-								}`}
+								className={`flex items-center px-4 py-2 rounded-t-lg transition duration-300 ${activeTab === tab.id
+									? "bg-gray-800 text-green-400 border-b-2 border-green-400"
+									: "text-gray-400 hover:text-white"
+									}`}
 							>
 								<tab.icon size={16} className='mr-2' />
 								{tab.name}
@@ -197,21 +277,60 @@ const ProfilePage = () => {
 											<div className='space-y-4'>
 												<div>
 													<label className='block text-xs text-gray-400 mb-1'>Account Type</label>
-													<select 
+													<select
+														value={accountType}
+														onChange={(e) => setAccountType(e.target.value)}
 														className='w-full bg-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500'
-														onChange={(e) => {/* State for verification request would go here */}}
 													>
 														<option value='individual'>Individual Seller</option>
 														<option value='technician'>Technician</option>
 														<option value='repair-shop'>Repair Shop</option>
+														<option value='garage'>Garage</option>
 														<option value='recycler'>Recycler</option>
 													</select>
 												</div>
-												<button 
-													onClick={() => requestVerification(user.userType, "Automotive", ["https://example.com/doc1.pdf"])}
-													className='w-full py-2 bg-green-600 rounded font-bold hover:bg-green-700 transition duration-300'
+												
+												<div>
+													<label className='block text-xs text-gray-400 mb-1'>
+														Verification Documents (Required)
+													</label>
+													<input
+														type="file"
+														multiple
+														accept="image/*,.pdf"
+														onChange={handleFileChange}
+														className='w-full bg-gray-600 rounded px-3 py-2 text-sm file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-green-600 file:text-white file:text-sm file:font-semibold hover:file:bg-green-700'
+													/>
+													<p className='text-xs text-gray-500 mt-1'>
+														Upload up to 5 documents (images or PDF)
+													</p>
+													
+													{verificationFiles.length > 0 && (
+														<div className='mt-2 space-y-2'>
+															<p className='text-xs text-gray-400'>Selected files:</p>
+															{verificationFiles.map((file, index) => (
+																<div key={index} className='flex items-center justify-between bg-gray-600 rounded px-3 py-2'>
+																	<span className='text-xs text-gray-300 truncate flex-1'>
+																		{file.name} ({(file.size / 1024).toFixed(1)} KB)
+																	</span>
+																	<button
+																		onClick={() => removeFile(index)}
+																		className='text-red-400 hover:text-red-300 ml-2'
+																	>
+																		✕
+																	</button>
+																</div>
+															))}
+														</div>
+													)}
+												</div>
+
+												<button
+													onClick={handleSubmitVerification}
+													disabled={isSubmittingVerification || verificationFiles.length === 0}
+													className='w-full py-2 bg-green-600 rounded font-bold hover:bg-green-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed'
 												>
-													Submit Verification Request
+													{isSubmittingVerification ? 'Submitting...' : 'Submit Verification Request'}
 												</button>
 											</div>
 										</div>
@@ -228,14 +347,14 @@ const ProfilePage = () => {
 											<span className='text-2xl font-bold text-green-400'>{user.ecoPoints}</span>
 										</div>
 										<div className='w-full bg-gray-600 rounded-full h-2'>
-											<div 
-												className='bg-green-500 h-2 rounded-full' 
+											<div
+												className='bg-green-500 h-2 rounded-full'
 												style={{ width: `${Math.min(100, (user.ecoPoints / 2000) * 100)}%` }}
 											></div>
 										</div>
 										<div className='text-sm text-gray-400 mt-2 flex justify-between'>
 											<span>{2000 - user.ecoPoints} points to next level</span>
-											<button 
+											<button
 												onClick={() => {
 													if (user.roleStatus !== "verified") {
 														alert("Only verified users can redeem points.");
@@ -250,7 +369,7 @@ const ProfilePage = () => {
 										</div>
 									</div>
 									{isRedeeming && (
-										<motion.div 
+										<motion.div
 											initial={{ height: 0, opacity: 0 }}
 											animate={{ height: "auto", opacity: 1 }}
 											className='bg-gray-900 p-4 rounded-lg mb-4 border border-green-500'
@@ -258,13 +377,13 @@ const ProfilePage = () => {
 											<h4 className='font-bold mb-2'>Redeem 500 Points?</h4>
 											<p className='text-xs text-gray-400 mb-3'>Redeem points for specialized technician tools or discounts.</p>
 											<div className='flex gap-2'>
-												<button 
+												<button
 													onClick={() => redeemPoints(500, "Point Redemption Test")}
 													className='px-3 py-1 bg-green-600 rounded text-sm hover:bg-green-700'
 												>
 													Confirm (500 Pts)
 												</button>
-												<button 
+												<button
 													onClick={() => setIsRedeeming(false)}
 													className='px-3 py-1 bg-gray-700 rounded text-sm hover:bg-gray-600'
 												>
@@ -295,7 +414,7 @@ const ProfilePage = () => {
 						>
 							<div className='flex justify-between items-center mb-6'>
 								<h2 className='text-2xl font-bold'>My Listings</h2>
-								<button className='px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg hover:from-green-600 hover:to-emerald-700 transition duration-300'>
+								<button onClick={handleAddListing} className='px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg hover:from-green-600 hover:to-emerald-700 transition duration-300'>
 									+ Add New Listing
 								</button>
 							</div>
@@ -319,21 +438,20 @@ const ProfilePage = () => {
 												</td>
 												<td className='p-4'>${listing.price}</td>
 												<td className='p-4'>
-													<span className={`px-2 py-1 rounded-full text-xs font-bold ${
-														listing.status === "Active" 
-															? "bg-green-900 text-green-300" 
-															: "bg-gray-700 text-gray-300"
-													}`}>
+													<span className={`px-2 py-1 rounded-full text-xs font-bold ${listing.status === "Active"
+														? "bg-green-900 text-green-300"
+														: "bg-gray-700 text-gray-300"
+														}`}>
 														{listing.status}
 													</span>
 												</td>
 												<td className='p-4'>{listing.views}</td>
 												<td className='p-4'>{listing.interested}</td>
 												<td className='p-4'>
-													<button className='text-green-400 hover:text-green-300 mr-3'>
+													<button onClick={() => handleEditListing(listing.id)} className='text-green-400 hover:text-green-300 mr-3'>
 														Edit
 													</button>
-													<button className='text-red-400 hover:text-red-300'>
+													<button onClick={() => handleDeleteListing(listing.id)} className='text-red-400 hover:text-red-300'>
 														Delete
 													</button>
 												</td>
@@ -356,8 +474,8 @@ const ProfilePage = () => {
 								<CreditCard size={48} className='mx-auto text-gray-500 mb-4' />
 								<h3 className='text-xl font-bold mb-2'>No payment history yet</h3>
 								<p className='text-gray-400 mb-4'>Your transactions will appear here once you start buying or selling</p>
-								<Link 
-									to='/marketplace' 
+								<Link
+									to='/marketplace'
 									className='px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg hover:from-green-600 hover:to-emerald-700 transition duration-300'
 								>
 									Start Shopping
@@ -398,19 +516,58 @@ const ProfilePage = () => {
 									<h3 className='text-lg font-bold mb-4'>Privacy Settings</h3>
 									<div className='space-y-3'>
 										{[
-											"Show my profile to other users",
-											"Allow messaging from anyone",
-											"Display my Eco Points publicly"
-										].map((item, index) => (
-											<div key={index} className='flex items-center justify-between p-3 bg-gray-700 rounded-lg'>
-												<span>{item}</span>
+											{ label: "Show my profile to other users", key: "show_profile" },
+											{ label: "Allow messaging from anyone", key: "allow_messaging" },
+											{ label: "Display my Eco Points publicly", key: "display_points" },
+										].map((item) => (
+											<div key={item.key} className='flex items-center justify-between p-3 bg-gray-700 rounded-lg'>
+												<span>{item.label}</span>
 												<label className='switch'>
-													<input type='checkbox' defaultChecked={index !== 2} />
+													<input
+														type='checkbox'
+														checked={privacySettings[item.key]}
+														onChange={() => handlePrivacyChange(item.key)}
+													/>
 													<span className='slider round'></span>
 												</label>
 											</div>
 										))}
 									</div>
+								</div>
+							</div>
+						</motion.div>
+					)}
+
+					{activeTab === "security" && (
+						<motion.div
+							initial={{ opacity: 0 }}
+							animate={{ opacity: 1 }}
+							className='bg-gray-800 rounded-xl p-6 border border-gray-700'
+						>
+							<h2 className='text-2xl font-bold mb-6'>Security Settings</h2>
+							<div className='space-y-6'>
+								<div className='p-4 bg-gray-700 rounded-lg'>
+									<h3 className='text-lg font-bold mb-2'>Two-Factor Authentication</h3>
+									<p className='text-gray-300 mb-4'>
+										{user.isMfaEnabled
+											? "Two-factor authentication is enabled on your account"
+											: "Add an extra layer of security to your account"}
+									</p>
+									<button
+										onClick={() => {
+											if (user.isMfaEnabled) {
+												alert("MFA is already enabled. Please contact support to disable it.");
+											} else {
+												window.location.href = "/mfa/setup";
+											}
+										}}
+										className={`px-4 py-2 rounded font-bold transition duration-300 ${user.isMfaEnabled
+											? "bg-gray-600 text-gray-400 cursor-not-allowed"
+											: "bg-green-600 hover:bg-green-700 text-white"
+											}`}
+									>
+										{user.isMfaEnabled ? "Enabled" : "Enable MFA"}
+									</button>
 								</div>
 							</div>
 						</motion.div>

@@ -1,5 +1,4 @@
-// import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuthStore } from "../store/authStore";
 import Input from "../components/Input";
 import { Label } from "../components/ui/label";
@@ -7,17 +6,31 @@ import { Button } from "../components/ui/button";
 import { Mail } from "lucide-react";
 import { Recycle, Loader, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const ForgotPasswordPage = () => {
 	const [email, setEmail] = useState("");
 	const [isSubmitted, setIsSubmitted] = useState(false);
 
-	const { isLoading, forgotPassword } = useAuthStore();
+	const { isLoading, forgotPassword, error, message } = useAuthStore();
+
+	useEffect(() => {
+		if (error) {
+			toast.error(error);
+		}
+		if (message && !isSubmitted) {
+			toast.success(message);
+		}
+	}, [error, message, isSubmitted]);
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		await forgotPassword(email);
-		setIsSubmitted(true);
+		try {
+			await forgotPassword(email);
+			setIsSubmitted(true);
+		} catch (error) {
+			console.error("Error sending reset email:", error);
+		}
 	};
 
 	return (

@@ -1,39 +1,46 @@
-import { useState } from "react";
-// import { motion } from "framer-motion";
-// import { Mail, Lock, Loader } from "lucide-react";
-// import { Link } from 'react-router';
+import { useEffect, useState } from "react";
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Checkbox } from '../components/ui/checkbox';
 import { Recycle, Eye, EyeOff, Loader } from 'lucide-react';
 import { Link, useNavigate } from "react-router-dom";
-// import Input from "../components/ui/input";
 import { useAuthStore } from "../store/authStore";
+import toast from "react-hot-toast";
 const LoginPage = () => {
 
 	const [showPassword, setShowPassword] = useState(false);
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [rememberMe, setRememberMe] = useState(false);
-	const [errorOccurred, setErrorOccurred] = useState(false);
 	const navigate = useNavigate();
 
 
-	const { login, isLoading, error } = useAuthStore();
-	useState(() => {
-		setErrorOccurred(false);
-	}, []);
-	// login function handler.
+	const { login, isLoading, error, mfaRequired, isAuthenticated } = useAuthStore();
+
+	useEffect(() => {
+		if (error) {
+			toast.error(error);
+		}
+	}, [error]);
+
+	useEffect(() => {
+		if (mfaRequired) {
+			navigate("/mfa/verify");
+		} else if (isAuthenticated) {
+			navigate("/dashboard");
+		}
+	}, [mfaRequired, isAuthenticated, navigate]);
+
 	const handleLogin = async (e) => {
 		e.preventDefault();
 		try {
-			setErrorOccurred(false);
 			await login(email, password);
-			navigate("/dashboard");
+			if (!mfaRequired) {
+				toast.success("Logged in successfully!");
+			}
 		} catch (error) {
 			console.log(error);
-			setErrorOccurred(true);
 		}
 	};
 
@@ -81,9 +88,7 @@ const LoginPage = () => {
 							Sign in to your account to continue
 						</p>
 					</header>
-					<div className={`${errorOccurred ? 'p-2 rounded-md grid items-center justify-center bg-red-300' : 'hidden'} `}>
-						{errorOccurred && <p className="text-red-500 text-md">{error}</p>}
-					</div>
+
 					{/* Form */}
 					<form onSubmit={handleLogin} className="space-y-6">
 						<div className="space-y-2">

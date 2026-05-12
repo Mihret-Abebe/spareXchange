@@ -32,7 +32,7 @@ const ResetPasswordPage = () => {
 	// ];
 
 
-	const { resetPassword, error, isLoading, message } = useAuthStore();
+	const { resetPassword } = useAuthStore();
 
 	const { token } = useParams();
 	const navigate = useNavigate();
@@ -41,20 +41,19 @@ const ResetPasswordPage = () => {
 		e.preventDefault();
 
 		if (formData.password !== formData.confirmPassword) {
-			alert("Passwords do not match");
+			toast.error("Passwords do not match");
 			return;
 		}
 		try {
 			await resetPassword(token, formData.password);
-			// reset successful!
-			// toast.success("Password reset successfully, redirecting to login page...");
-			setIsSuccess(true)
+			toast.success("Password reset successfully! Redirecting to login...");
+			setIsSuccess(true);
 			setTimeout(() => {
 				navigate("/login");
 			}, 2000);
 		} catch (error) {
 			console.error(error);
-			toast.error(error.message || "Error resetting password");
+			toast.error(error.response?.data?.message || "Error resetting password");
 		}
 	};
 
