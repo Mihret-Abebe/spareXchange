@@ -11,6 +11,7 @@ import {
 	getUserExchanges,
 	getSafeZones,
 	generateHandshakeToken,
+	regenerateHandshakeToken,
 	verifyHandshake,
 	uploadHandoverPhoto,
 } from "../controllers/exchange.controller.js";
@@ -35,6 +36,7 @@ router.put("/:id/dispute/resolve", verifyToken, authorize(["admin"]), resolveDis
 // Modernization Routes
 router.get("/info/safe-zones", verifyToken, getSafeZones);
 router.put("/:id/handshake/generate", verifyToken, generateHandshakeToken);
+router.put("/:id/handshake/regenerate", verifyToken, regenerateHandshakeToken);
 router.put("/:id/handshake/verify", verifyToken, verifyHandshake);
 router.put("/:id/handover-photo", verifyToken, uploadHandoverPhoto);
 

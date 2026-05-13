@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Star, MapPin, Heart, Share2, Truck, Shield, RotateCcw, AlertTriangle, ShoppingCart, Mail, User } from "lucide-react";
+import { Star, MapPin, Truck, Shield, RotateCcw, AlertTriangle, ShoppingCart, Mail, User, Handshake } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { useDisputeStore } from "../store/disputeStore";
+import ProposeExchangeModal from "../components/ProposeExchangeModal";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const ListingDetailPage = () => {
@@ -14,6 +15,7 @@ const ListingDetailPage = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [quantity, setQuantity] = useState(1);
 	const [selectedImage, setSelectedImage] = useState(0);
+	const [showExchangeModal, setShowExchangeModal] = useState(false);
 
 	useEffect(() => {
 		const fetchListing = async () => {
@@ -62,6 +64,18 @@ const ListingDetailPage = () => {
 
 	const handleBuyNow = () => {
 		console.log(`Buying ${quantity} of ${listing.title} now`);
+	};
+
+	const handleProposeExchange = () => {
+		if (!user) {
+			alert("Please login to propose an exchange.");
+			return;
+		}
+		if (listing.seller?._id === user._id) {
+			alert("You cannot propose an exchange on your own listing.");
+			return;
+		}
+		setShowExchangeModal(true);
 	};
 
 	if (isLoading) return <div className='min-h-screen bg-background flex items-center justify-center'><LoadingSpinner /></div>;
@@ -197,7 +211,7 @@ const ListingDetailPage = () => {
 									</button>
 								</div>
 							</div>
-							<div className='flex flex-wrap gap-3'>
+							<div className="flex flex-wrap gap-3">
 								<button
 									onClick={handleAddToCart}
 									className='flex-1 min-w-[150px] px-6 py-3 bg-gray-800 text-white font-bold rounded-lg hover:bg-gray-700 transition duration-300 flex items-center justify-center'
@@ -210,6 +224,13 @@ const ListingDetailPage = () => {
 									className='flex-1 min-w-[150px] px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg hover:from-green-600 hover:to-emerald-700 transition duration-300'
 								>
 									Buy Now
+								</button>
+								<button
+									onClick={handleProposeExchange}
+									className='flex-1 min-w-[150px] px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-600 text-white font-bold rounded-lg hover:from-blue-600 hover:to-cyan-700 transition duration-300 flex items-center justify-center'
+								>
+									<Handshake className='h-5 w-5 mr-2' />
+									Propose Exchange
 								</button>
 							</div>
 						</div>
@@ -275,6 +296,13 @@ const ListingDetailPage = () => {
 						</div>
 					</div>
 				</motion.div>
+
+				{/* Propose Exchange Modal */}
+				<ProposeExchangeModal
+					isOpen={showExchangeModal}
+					onClose={() => setShowExchangeModal(false)}
+					listingId={id}
+				/>
 			</div>
 		</div>
 	);

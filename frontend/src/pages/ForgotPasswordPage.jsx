@@ -59,7 +59,7 @@ const ForgotPasswordPage = () => {
 				</div>
 			</div>
 			{/* Right side - Form */}
-			<div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background">
+			<div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background text-black dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 dark:text-white">
 				<div className="w-full max-w-md space-y-8">
 					{/* Mobile Logo */}
 					<div className="lg:hidden flex items-center gap-3 justify-center">
@@ -91,7 +91,7 @@ const ForgotPasswordPage = () => {
 											value={email}
 											onChange={(e) => setEmail(e.target.value)}
 											required
-											className="bg-[var(--input-background)] border border-border"
+											className="bg-input-background border border-border text-black"
 										/>
 									</div>
 									<Button type="submit" className="w-full bg-primary hover:bg-primary/90">

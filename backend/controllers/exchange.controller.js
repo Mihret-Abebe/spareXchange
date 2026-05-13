@@ -630,7 +630,8 @@ export const generateHandshakeToken = async (req, res) => {
 		
 		exchange.handshakeToken = token;
 		exchange.handshakeExpiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 mins
-		addHistory(exchange, "handshake_token_generated", userId, "Token ready for scanning");
+		exchange.handshakeRegenerated = (exchange.handshakeRegenerated || 0) + 1;
+		addHistory(exchange, "handshake_token_generated", userId, `Token ready for scanning (Regeneration #${exchange.handshakeRegenerated})`);
 		await exchange.save();
 
 		// Inform buyer via socket
@@ -642,10 +643,79 @@ export const generateHandshakeToken = async (req, res) => {
 			success: true,
 			message: "Handshake token generated",
 			token, // Frontend uses this to render QR
-			expiresAt: exchange.handshakeExpiresAt
+			expiresAt: exchange.handshakeExpiresAt,
+			regenerationCount: exchange.handshakeRegenerated
 		});
 	} catch (error) {
 		console.error("Error in generateHandshakeToken:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+// ──────────────────────────────────────────────────────────────────────────
+// 10b. Modernization: QR Handshake - Regenerate Token (Seller)
+//      Allows seller to generate new token if previous one was lost/expired
+//      Rate limited to prevent abuse (max 5 regenerations per exchange)
+// ──────────────────────────────────────────────────────────────────────────
+export const regenerateHandshakeToken = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const userId = req.userId;
+
+		const exchange = await Exchange.findById(id);
+		if (!exchange) return res.status(404).json({ success: false, message: "Exchange not found" });
+
+		if (exchange.sellerId.toString() !== userId) {
+			return res.status(403).json({ success: false, message: "Only the seller can regenerate handshake token" });
+		}
+
+		if (exchange.status !== "accepted" && !exchange.status.startsWith("completed_by")) {
+			return res.status(400).json({ success: false, message: "Exchange is not in a valid state for handshake" });
+		}
+
+		// Rate limiting: max 5 regenerations per exchange
+		const regenerationCount = exchange.handshakeRegenerated || 0;
+		if (regenerationCount >= 5) {
+			return res.status(429).json({ 
+				success: false, 
+				message: "Maximum token regenerations (5) reached for this exchange. Please contact support if needed."
+			});
+		}
+
+		// Security: Invalidate previous token
+		const previousToken = exchange.handshakeToken;
+		if (previousToken) {
+			addHistory(exchange, "handshake_token_invalidated", userId, `Previous token invalidated for regeneration`);
+		}
+
+		// Generate new 6-digit cryptographically secure token
+		const crypto = await import("crypto");
+		const newToken = crypto.randomInt(100000, 999999).toString();
+		
+		exchange.handshakeToken = newToken;
+		exchange.handshakeExpiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 mins
+		exchange.handshakeRegenerated = regenerationCount + 1;
+		addHistory(exchange, "handshake_token_regenerated", userId, `New token generated (Regeneration #${exchange.handshakeRegenerated})`);
+		await exchange.save();
+
+		// Inform buyer via socket that a new token is ready
+		try {
+			emitToUser(exchange.buyerId.toString(), "exchange:handshake_regenerated", { 
+				exchangeId: exchange._id,
+				message: "Seller has generated a new verification code"
+			});
+		} catch (_) {}
+
+		res.status(200).json({
+			success: true,
+			message: "Handshake token regenerated successfully. Previous token is now invalid.",
+			token: newToken,
+			expiresAt: exchange.handshakeExpiresAt,
+			regenerationCount: exchange.handshakeRegenerated,
+			remainingAttempts: 5 - exchange.handshakeRegenerated
+		});
+	} catch (error) {
+		console.error("Error in regenerateHandshakeToken:", error);
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };

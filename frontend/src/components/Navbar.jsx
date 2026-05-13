@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ShoppingCart, User, Package, Leaf, Home, Info, HelpCircle, Phone, LogOut, LogIn, Sun, Moon, ChevronDown, Trophy, PlusCircle, List, TrendingUp, LayoutDashboard } from "lucide-react";
+import { Menu, X, ShoppingCart, User, Package, Leaf, Home, Info, HelpCircle, Phone, LogOut, LogIn, Sun, Moon, ChevronDown, Trophy, PlusCircle, List, TrendingUp, LayoutDashboard, Handshake } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import { useTheme } from "../contexts/ThemeContext";
 
@@ -55,6 +55,7 @@ const Navbar = () => {
 	const authNavLinks = [
 		{ name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
 		{ name: "Marketplace", path: "/marketplace", icon: Package },
+		{ name: "My Exchanges", path: "/my-exchanges", icon: Handshake },
 	];
 
 	// Listings dropdown items

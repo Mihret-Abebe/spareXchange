@@ -23,6 +23,8 @@ import MyListingsPage from "./pages/MyListingsPage";
 import EditListingPage from "./pages/EditListingPage";
 import BulkUploadPage from "./pages/BulkUploadPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
+import MyExchangesPage from "./pages/MyExchangesPage";
+import ExchangeDetailPage from "./pages/ExchangeDetailPage";
 
 import LoadingSpinner from "./components/LoadingSpinner";
 
@@ -172,6 +174,22 @@ function App() {
 					element={
 						<ProtectedRoute>
 							<AnalyticsPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/my-exchanges'
+					element={
+						<ProtectedRoute>
+							<MyExchangesPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/exchange/:id'
+					element={
+						<ProtectedRoute>
+							<ExchangeDetailPage />
 						</ProtectedRoute>
 					}
 				/>

@@ -97,6 +97,7 @@ const exchangeSchema = new mongoose.Schema(
 		// --- Modernization Features ---
 		handshakeToken: { type: String, default: null }, // 6-digit TOTP token
 		handshakeExpiresAt: { type: Date, default: null },
+		handshakeRegenerated: { type: Number, default: 0 }, // Track regeneration count
 		handoverPhotos: [{ type: String }], // Proof of condition at handover
 		safeZoneId: { type: String, default: null }, // Reference to a verified meeting point
 	},
