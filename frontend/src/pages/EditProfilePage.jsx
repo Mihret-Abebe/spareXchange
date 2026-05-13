@@ -3,23 +3,24 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuthStore } from "../store/authStore";
 import toast from "react-hot-toast";
-import { User, Mail, Phone, MapPin, Camera, Save, ArrowLeft, Loader } from "lucide-react";
+import { User, Mail, Phone, MapPin, Save, ArrowLeft, Loader, Upload, X } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 
 const EditProfilePage = () => {
 	const navigate = useNavigate();
-	const { user, isLoading } = useAuthStore();
+	const { user } = useAuthStore();
 	
 	const [formData, setFormData] = useState({
 		name: "",
 		email: "",
 		phone: "",
 		location: "",
-		profilePicture: "",
 	});
 
+	const [profilePictureFile, setProfilePictureFile] = useState(null);
+	const [profilePicturePreview, setProfilePicturePreview] = useState("");
 	const [isUpdating, setIsUpdating] = useState(false);
 
 	useEffect(() => {
@@ -29,14 +30,36 @@ const EditProfilePage = () => {
 				email: user.email || "",
 				phone: user.phone || "",
 				location: user.location || "",
-				profilePicture: user.profilePicture || "",
 			});
+			setProfilePicturePreview(user.profilePicture || "");
 		}
 	}, [user]);
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
 		setFormData((prev) => ({ ...prev, [name]: value }));
+	};
+
+	const handleFileChange = (e) => {
+		const file = e.target.files[0];
+		if (file) {
+			if (file.size > 5 * 1024 * 1024) {
+				toast.error("Image must be less than 5MB");
+				return;
+			}
+			setProfilePictureFile(file);
+			// Create preview
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				setProfilePicturePreview(reader.result);
+			};
+			reader.readAsDataURL(file);
+		}
+	};
+
+	const removeProfilePicture = () => {
+		setProfilePictureFile(null);
+		setProfilePicturePreview("");
 	};
 
 	const handleSubmit = async (e) => {
@@ -49,12 +72,14 @@ const EditProfilePage = () => {
 
 		setIsUpdating(true);
 		try {
-			const updateData = {
-				name: formData.name.trim(),
-				phone: formData.phone.trim(),
-				location: formData.location.trim(),
-				profilePicture: formData.profilePicture.trim(),
-			};
+			const updateData = new FormData();
+			updateData.append("name", formData.name.trim());
+			updateData.append("phone", formData.phone.trim());
+			updateData.append("location", formData.location.trim());
+			
+			if (profilePictureFile) {
+				updateData.append("profilePicture", profilePictureFile);
+			}
 
 			await useAuthStore.getState().updateProfile(updateData);
 			toast.success("Profile updated successfully!");
@@ -92,12 +117,12 @@ const EditProfilePage = () => {
 					{/* Form Card */}
 					<div className="bg-gray-800 rounded-xl p-8 border border-gray-700">
 						<form onSubmit={handleSubmit} className="space-y-6">
-							{/* Profile Picture */}
+							{/* Profile Picture Upload */}
 							<div className="flex flex-col items-center mb-8">
 								<div className="relative">
-									{formData.profilePicture ? (
+									{profilePicturePreview ? (
 										<img
-											src={formData.profilePicture}
+											src={profilePicturePreview}
 											alt="Profile"
 											className="w-32 h-32 rounded-full object-cover border-4 border-green-500"
 										/>
@@ -108,17 +133,38 @@ const EditProfilePage = () => {
 											</span>
 										</div>
 									)}
-									<button
-										type="button"
-										className="absolute bottom-0 right-0 bg-green-600 p-2 rounded-full hover:bg-green-700 transition-colors"
-										title="Update profile picture URL"
-									>
-										<Camera className="w-5 h-5" />
-									</button>
+									
+									{/* Upload Button Overlay */}
+									<label className="absolute bottom-0 right-0 bg-green-600 p-2 rounded-full hover:bg-green-700 transition-colors cursor-pointer">
+										<Upload className="w-5 h-5" />
+										<input
+											type="file"
+											accept="image/*"
+											onChange={handleFileChange}
+											className="hidden"
+										/>
+									</label>
+									
+									{/* Remove Button */}
+									{profilePicturePreview && (
+										<button
+											type="button"
+											onClick={removeProfilePicture}
+											className="absolute top-0 right-0 bg-red-600 p-1 rounded-full hover:bg-red-700 transition-colors"
+											title="Remove profile picture"
+										>
+											<X className="w-4 h-4" />
+										</button>
+									)}
 								</div>
 								<p className="text-sm text-gray-400 mt-2">
-									Profile picture URL (optional)
+									{profilePictureFile ? profilePictureFile.name : "Click to upload profile picture"}
 								</p>
+								{profilePictureFile && (
+									<p className="text-xs text-gray-500">
+										{(profilePictureFile.size / 1024).toFixed(1)} KB
+									</p>
+								)}
 							</div>
 
 							{/* Name */}
@@ -185,23 +231,6 @@ const EditProfilePage = () => {
 									value={formData.location}
 									onChange={handleChange}
 									placeholder="Addis Ababa, Ethiopia"
-									className="bg-gray-700 border-gray-600 text-white focus:border-green-500 focus:ring-green-500"
-								/>
-							</div>
-
-							{/* Profile Picture URL */}
-							<div className="space-y-2">
-								<Label htmlFor="profilePicture" className="flex items-center text-gray-300">
-									<Camera className="w-4 h-4 mr-2" />
-									Profile Picture URL
-								</Label>
-								<Input
-									id="profilePicture"
-									name="profilePicture"
-									type="url"
-									value={formData.profilePicture}
-									onChange={handleChange}
-									placeholder="https://example.com/photo.jpg"
 									className="bg-gray-700 border-gray-600 text-white focus:border-green-500 focus:ring-green-500"
 								/>
 							</div>

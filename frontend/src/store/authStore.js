@@ -229,7 +229,21 @@ export const useAuthStore = create((set) => ({
 		set({ isLoading: true, error: null });
 		try {
 			const API_URL_USERS = import.meta.env.MODE === "development" ? "http://localhost:5000/api/users" : "/api/users";
-			const response = await axios.put(`${API_URL_USERS}/profile`, profileData);
+			
+			// Check if profileData is FormData (for file uploads) or regular object
+			const isFormData = profileData instanceof FormData;
+			
+			const response = await axios.put(
+				`${API_URL_USERS}/profile`, 
+				profileData,
+				{
+					headers: isFormData ? {
+						'Content-Type': 'multipart/form-data',
+					} : {
+						'Content-Type': 'application/json',
+					}
+				}
+			);
 			set({ 
 				user: response.data.user, 
 				isLoading: false,

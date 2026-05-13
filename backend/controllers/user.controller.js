@@ -139,14 +139,22 @@ export const requestRoleVerification = async (req, res) => {
 // Update User Profile
 export const updateProfile = async (req, res) => {
 	try {
-		const { name, phone, location, profilePicture, interests } = req.body;
+		const { name, phone, location, interests } = req.body;
 		const user = await User.findById(req.userId);
 		if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
 		if (name) user.name = name.trim();
 		if (phone) user.phone = phone.trim();
 		if (location) user.location = location.trim();
-		if (profilePicture) user.profilePicture = profilePicture;
+		
+		// Handle profile picture file upload
+		if (req.file) {
+			user.profilePicture = `/uploads/profiles/${req.file.filename}`;
+		} else if (req.body.profilePicture) {
+			// Fallback to URL if provided
+			user.profilePicture = req.body.profilePicture;
+		}
+		
 		if (interests && Array.isArray(interests)) user.interests = interests;
 
 		await user.save();

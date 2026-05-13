@@ -12,7 +12,7 @@ router.get("/technicians", getTechnicians);
 router.get("/technicians/:id", getTechnicianById);
 router.post("/redeem-points", verifyToken, redeemPoints);
 router.post("/verify-role", verifyToken, upload.array("documents", 5), requestRoleVerification);
-router.put("/profile", verifyToken, updateProfile);
+router.put("/profile", verifyToken, upload.single("profilePicture"), updateProfile);
 router.get("/leaderboard", verifyToken, getLeaderboard);
 
 // Saved searches (Module 6)

@@ -4,7 +4,15 @@ import fs from "fs";
 
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
-		const uploadPath = "uploads/verification/";
+		let uploadPath;
+		
+		// Different folders for different file types
+		if (req.path && req.path.includes("/profile")) {
+			uploadPath = "uploads/profiles/";
+		} else {
+			uploadPath = "uploads/verification/";
+		}
+		
 		if (!fs.existsSync(uploadPath)) {
 			fs.mkdirSync(uploadPath, { recursive: true });
 		}
@@ -17,11 +25,11 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-	const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
+	const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp", "image/gif"];
 	if (allowedTypes.includes(file.mimetype)) {
 		cb(null, true);
 	} else {
-		cb(new Error("Invalid file type. Only PDF, JPG, and PNG are allowed."), false);
+		cb(new Error("Invalid file type. Only PDF, JPG, PNG, WebP, and GIF are allowed."), false);
 	}
 };
 
