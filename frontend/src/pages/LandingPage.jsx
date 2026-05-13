@@ -192,7 +192,7 @@ const LandingPage = () => {
                   }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <div className={`w-20 h-20 ${darkMode ? "bg-white text-black" : "bg-primary"} rounded-full flex items-center justify-center text-primary-foreground text-3xl mx-auto mb-4`}>
+                  <div className={`w-20 h-20 dark:bg-white dark:text-black bg-primary rounded-full flex items-center justify-center text-3xl mx-auto mb-4`}>
                     {step.level}
                   </div>
                   <h3 className="text-xl mb-3 text-primary">{step.title}</h3>

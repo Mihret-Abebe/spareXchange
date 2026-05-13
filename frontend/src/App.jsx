@@ -18,6 +18,11 @@ import AboutPage from "./pages/AboutPage";
 import FaqPage from "./pages/FaqPage";
 import ContactPage from "./pages/ContactPage";
 import Leaderboard from "./pages/LeaderboardPage";
+import CreateListingPage from "./pages/CreateListingPage";
+import MyListingsPage from "./pages/MyListingsPage";
+import EditListingPage from "./pages/EditListingPage";
+import BulkUploadPage from "./pages/BulkUploadPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
 
 import LoadingSpinner from "./components/LoadingSpinner";
 
@@ -127,6 +132,46 @@ function App() {
 					element={
 						<ProtectedRoute>
 							<Leaderboard />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/create-listing'
+					element={
+						<ProtectedRoute>
+							<CreateListingPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/my-listings'
+					element={
+						<ProtectedRoute>
+							<MyListingsPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/edit-listing/:id'
+					element={
+						<ProtectedRoute>
+							<EditListingPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/bulk-upload'
+					element={
+						<ProtectedRoute>
+							<BulkUploadPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/analytics'
+					element={
+						<ProtectedRoute>
+							<AnalyticsPage />
 						</ProtectedRoute>
 					}
 				/>

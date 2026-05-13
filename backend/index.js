@@ -66,7 +66,10 @@ const recyclingLimiter = rateLimit({
 });
 app.use("/api/recycling-submissions", recyclingLimiter);
 
-app.use("/uploads", express.static(path.join(path.resolve(), "uploads")));
+// Serve uploaded files statically - MUST be before routes
+const uploadsPath = path.join(__dirname, "backend", "uploads");
+app.use("/uploads", express.static(uploadsPath));
+console.log("✓ Uploads directory served at:", uploadsPath);
 
 // HTTP Request Logging (after routes, before error handler)
 app.use(httpLogger);

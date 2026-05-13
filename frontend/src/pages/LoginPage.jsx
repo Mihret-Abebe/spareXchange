@@ -62,16 +62,16 @@ const LoginPage = () => {
 						<h1 className="text-4xl text-white">SpareXchange</h1>
 					</div>
 					<h2 className="text-5xl mb-6 leading-tight text-white">
-						Your Marketplace for<br />Auto Parts
+						Your Marketplace for<br />Spare Parts
 					</h2>
 					<p className="text-xl text-green-50 max-w-md">
-						Connect with sellers, find the parts you need, and keep your vehicles running smoothly.
+						Connect with sellers, find the parts you need, and keep your properties running smoothly.
 					</p>
 				</div>
 			</section>
 
 			{/* Right side - Form */}
-			<section className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background">
+			<section className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 dark:text-white">
 				<div className="w-full max-w-md space-y-8">
 					{/* Mobile Logo */}
 					<div className="lg:hidden flex items-center gap-3 justify-center">
@@ -154,7 +154,7 @@ const LoginPage = () => {
 							</Link>
 						</div>
 
-						<Button type="submit" className="w-full bg-[var(--primary)] hover:bg-[#16a34a]/80 z-10">
+						<Button type="submit" className="w-full bg-primary hover:bg-primary/80 z-10">
 							{isLoading ? (
 								<Loader className='w-6 h-6 animate-spin mx-auto' />
 							) : (

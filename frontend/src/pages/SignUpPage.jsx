@@ -93,7 +93,7 @@ const SignUpPage = () => {
 
 					<p className="text-xl text-green-50 max-w-md mb-8">
 						"Whether you're an individual, repair shop, garage,
-						or recycling center - find and exchange auto parts
+						or recycling center - find and exchange spare parts
 						with ease."
 					</p>
 
@@ -182,7 +182,7 @@ const SignUpPage = () => {
 
 			{/* Right side - Form */}
 
-			<section className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background">
+			<section className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 dark:text-white">
 				<div className="w-full max-w-md space-y-6">
 					{/* Mobile Logo */}
 					<article className="lg:hidden flex items-center gap-3 justify-center">
@@ -309,8 +309,8 @@ const SignUpPage = () => {
 										updateFormData("accountType", "user")
 									}
 									className={`p-4 border rounded-lg transition-all ${formData.accountType === "user"
-										? "border-[var(--primary)] bg-[var(--secondary)] text-[var(--secondary-foreground)]"
-										: "border-[var(--border)] hover:[var(--border-primary)]/50"
+										? "border-primary bg-secondary text-black dark:text-black dark:bg-secondary]"
+										: "border-border hover:border-primary/50"
 										}`}
 								>
 									<div className="text-sm">User</div>
@@ -321,8 +321,8 @@ const SignUpPage = () => {
 										updateFormData("accountType", "business")
 									}
 									className={`p-4 border rounded-lg transition-all ${formData.accountType === "business"
-										? "border-[var(--primary)] bg-[var(--secondary)] text-[var(--secondary-foreground)]"
-										: "border-[var(--border)] hover:[var(--border-primary)]/50"
+										? "border-primary bg-secondary text-black dark:text-black dark:bg-secondary]"
+										: "border-border hover:border-primary/50"
 										}`}
 								>
 									<div className="text-sm">Business</div>
@@ -335,8 +335,8 @@ const SignUpPage = () => {
 									}
 									}
 									className={`p-4 border rounded-lg transition-all ${formData.accountType === "recycler"
-										? "border-[var(--primary)] bg-[var(--secondary)] text-[var(--secondary-foreground)]"
-										: "border-[var(--border)] hover:[var(--border-primary)]/50"
+										? "border-primary bg-secondary text-black dark:text-black dark:bg-secondary]"
+										: "border-border hover:border-primary/50"
 										}`}
 								>
 									<div className="text-sm">Recycler</div>
@@ -380,7 +380,7 @@ const SignUpPage = () => {
 
 						<Button
 							type="submit"
-							className="w-full bg-[var(--primary)] hover:bg-[#16a34a]/90"
+							className="w-full bg-primary hover:bg-primary/90"
 							disabled={
 								!formData.password ||
 								formData.password !== formData.confirmPassword

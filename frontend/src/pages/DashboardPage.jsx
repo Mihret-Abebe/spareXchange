@@ -1,155 +1,417 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useAuthStore } from "../store/authStore";
-import { formatDate } from "../utils/date";
 import { useNavigate, Link } from "react-router-dom";
+import { formatDate } from "../utils/date";
 import TierBadge from "../components/TierBadge";
-import { Trophy } from "lucide-react";
+import { 
+	Trophy, 
+	Package, 
+	TrendingUp, 
+	PlusCircle, 
+	List, 
+	Leaf, 
+	ArrowUpRight,
+	ArrowRight,
+	ShoppingCart,
+	Eye,
+	CheckCircle
+} from "lucide-react";
+import { useListingStore } from "../store/listingStore";
 
 const DashboardPage = () => {
 	const { user, logout } = useAuthStore();
 	const navigate = useNavigate();
+	const { getHighDemandAnalytics: fetchAnalytics, getUserListings: fetchUserListings } = useListingStore();
+	const [userListings, setUserListings] = useState([]);
+	const [analytics, setAnalytics] = useState(null);
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				// Fetch user's listings
+				const userListingsData = await fetchUserListings();
+				setUserListings(userListingsData?.listings || []);
+
+				// Fetch analytics
+				const analyticsData = await fetchAnalytics();
+				setAnalytics(analyticsData);
+			} catch (error) {
+				console.error("Error fetching dashboard data:", error);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchData();
+	}, []);
 
 	const handleLogout = async () => {
 		await logout();
 		navigate("/");
 	};
+
+	// Calculate stats
+	const totalViews = userListings.reduce((sum, listing) => sum + (listing.views || 0), 0);
+	const activeListings = userListings.filter(l => l.status === 'active').length;
+	const completedExchanges = userListings.filter(l => l.status === 'sold' || l.status === 'exchanged').length;
+
+	// Calculate tier progress
+	const tierThresholds = {
+		"Seed": 100,
+		"Sprout": 500,
+		"Sapling": 1500,
+		"Oak": 5000,
+		"Gaia": 10000
+	};
+	const nextTierPoints = tierThresholds[user.ecoTier] || 10000;
+	const progressPercent = Math.min(100, ((user.ecoPoints || 0) / nextTierPoints) * 100);
+
+	const statCards = [
+		{ 
+			label: "Eco Points", 
+			value: user.ecoPoints || 0, 
+			icon: Leaf, 
+			color: "from-green-400 to-emerald-600",
+			link: "/leaderboard",
+			linkLabel: "View Leaderboard"
+		},
+		{ 
+			label: "Active Listings", 
+			value: activeListings, 
+			icon: Package, 
+			color: "from-blue-400 to-cyan-600",
+			link: "/my-listings",
+			linkLabel: "Manage Listings"
+		},
+		{ 
+			label: "Total Views", 
+			value: totalViews, 
+			icon: Eye, 
+			color: "from-purple-400 to-pink-600",
+			link: "/analytics",
+			linkLabel: "View Analytics"
+		},
+		{ 
+			label: "Completed", 
+			value: completedExchanges, 
+			icon: CheckCircle, 
+			color: "from-orange-400 to-red-600",
+			link: "/my-listings",
+			linkLabel: "View History"
+		},
+	];
+
+	const quickActions = [
+		{ name: "Create Listing", path: "/create-listing", icon: PlusCircle, color: "bg-green-600 hover:bg-green-700" },
+		{ name: "Browse Marketplace", path: "/marketplace", icon: ShoppingCart, color: "bg-blue-600 hover:bg-blue-700" },
+		{ name: "My Listings", path: "/my-listings", icon: List, color: "bg-purple-600 hover:bg-purple-700" },
+		{ name: "Analytics", path: "/analytics", icon: TrendingUp, color: "bg-orange-600 hover:bg-orange-700" },
+	];
+
 	return (
 		<motion.div
-			initial={{ opacity: 0, scale: 0.9 }}
-			animate={{ opacity: 1, scale: 1 }}
-			exit={{ opacity: 0, scale: 0.9 }}
+			initial={{ opacity: 0 }}
+			animate={{ opacity: 1 }}
 			transition={{ duration: 0.5 }}
-			className='max-w-md w-full mx-auto mt-10 p-8 bg-gray-900 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl shadow-2xl border border-gray-800'
+			className='min-h-screen bg-gradient-to-b from-gray-900 via-green-900 to-emerald-900 py-8 px-4'
 		>
-			<h2 className='text-3xl font-bold mb-6 text-center bg-gradient-to-r from-green-400 to-emerald-600 text-transparent bg-clip-text'>
-				Dashboard
-			</h2>
-
-			<div className='space-y-6'>
+			<div className='max-w-7xl mx-auto'>
+				{/* Header */}
 				<motion.div
-					className='p-4 bg-gray-800 bg-opacity-50 rounded-lg border border-gray-700'
-					initial={{ opacity: 0, y: 20 }}
+					initial={{ opacity: 0, y: -20 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.2 }}
+					className='mb-8'
 				>
-					<h3 className='text-xl font-semibold text-green-400 mb-3'>Profile Information</h3>
-					<p className='text-gray-300'>Name: {user.name}</p>
-					<p className='text-gray-300'>Email: {user.email}</p>
+					<div className='flex flex-col md:flex-row md:items-center md:justify-between gap-4'>
+						<div>
+							<h1 className='text-4xl font-bold text-white mb-2'>
+								Welcome back, {user.name}! 👋
+							</h1>
+							<p className='text-gray-300'>
+								Here's what's happening with your marketplace activity
+							</p>
+						</div>
+						<div className='flex items-center gap-3'>
+							<TierBadge tier={user.ecoTier} />
+							<Link 
+								to='/marketplace' 
+								className='px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition duration-200 flex items-center gap-2'
+							>
+								<ShoppingCart size={20} />
+								Browse Marketplace
+							</Link>
+						</div>
+					</div>
 				</motion.div>
+
+				{/* Stats Grid */}
+				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
+					{statCards.map((stat, index) => (
+						<motion.div
+							key={stat.label}
+							initial={{ opacity: 0, y: 20 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: index * 0.1 }}
+							className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl p-6 border border-gray-700'
+						>
+							<div className='flex items-center justify-between mb-4'>
+								<div className={`p-3 rounded-lg bg-gradient-to-r ${stat.color}`}>
+									<stat.icon size={24} className='text-white' />
+								</div>
+								<ArrowUpRight size={20} className='text-gray-400' />
+							</div>
+							<h3 className='text-3xl font-bold text-white mb-1'>{stat.value}</h3>
+							<p className='text-gray-400 text-sm mb-3'>{stat.label}</p>
+							<Link 
+								to={stat.link}
+								className='text-green-400 hover:text-green-300 text-sm font-medium flex items-center gap-1'
+							>
+								{stat.linkLabel}
+								<ArrowRight size={14} />
+							</Link>
+						</motion.div>
+					))}
+				</div>
+
+				{/* Quick Actions */}
 				<motion.div
-					className='p-4 bg-gray-800 bg-opacity-50 rounded-lg border border-gray-700'
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ delay: 0.4 }}
+					className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl p-6 border border-gray-700 mb-8'
 				>
-					<h3 className='text-xl font-semibold text-green-400 mb-3'>Account Activity</h3>
-					<p className='text-gray-300'>
-						<span className='font-bold'>Joined: </span>
-						{new Date(user.createdAt).toLocaleDateString("en-US", {
-							year: "numeric",
-							month: "long",
-							day: "numeric",
-						})}
-					</p>
-					<p className='text-gray-300'>
-						<span className='font-bold'>Last Login: </span>
-
-						{formatDate(user.lastLogin)}
-					</p>
+					<h2 className='text-2xl font-bold text-white mb-4'>Quick Actions</h2>
+					<div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+						{quickActions.map((action) => (
+							<Link
+								key={action.name}
+								to={action.path}
+								className={`${action.color} text-white rounded-lg p-4 flex flex-col items-center justify-center gap-2 transition duration-200 hover:scale-105`}
+							>
+								<action.icon size={28} />
+								<span className='text-sm font-semibold'>{action.name}</span>
+							</Link>
+						))}
+					</div>
 				</motion.div>
 
-				<motion.div
-					className='p-4 bg-gray-800 bg-opacity-50 rounded-lg border border-gray-700'
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.5 }}
-				>
-					<div className='flex items-center justify-between mb-4'>
-						<h3 className='text-xl font-semibold text-green-400'>Eco Status</h3>
-						<TierBadge tier={user.ecoTier} />
-					</div>
-					
-					<div className='space-y-4'>
-						<div className='flex justify-between items-end'>
-							<span className='text-gray-400 text-sm'>Total Eco Points</span>
-							<span className='text-2xl font-bold text-white'>{user.ecoPoints || 0}</span>
+				<div className='grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8'>
+					{/* Eco Points Progress */}
+					<motion.div
+						initial={{ opacity: 0, x: -20 }}
+						animate={{ opacity: 1, x: 0 }}
+						transition={{ delay: 0.5 }}
+						className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl p-6 border border-gray-700'
+					>
+						<div className='flex items-center justify-between mb-4'>
+							<h2 className='text-2xl font-bold text-white'>Eco Status</h2>
+							<Trophy className='text-yellow-500' size={24} />
+						</div>
+						
+						<div className='flex items-center justify-between mb-4'>
+							<TierBadge tier={user.ecoTier} />
+							<span className='text-4xl font-bold text-white'>{user.ecoPoints || 0}</span>
 						</div>
 
-						{/* Progress Bar */}
-						<div className='space-y-1'>
-							<div className='h-2 w-full bg-gray-700 rounded-full overflow-hidden'>
+						<div className='space-y-2 mb-4'>
+							<div className='h-3 w-full bg-gray-700 rounded-full overflow-hidden'>
 								<motion.div 
 									initial={{ width: 0 }}
-									animate={{ 
-										width: `${Math.min(100, ((user.ecoPoints || 0) / (
-											user.ecoTier === "Seed" ? 100 :
-											user.ecoTier === "Sprout" ? 500 :
-											user.ecoTier === "Sapling" ? 1500 :
-											user.ecoTier === "Oak" ? 5000 : 10000
-										)) * 100)}%` 
-									}}
+									animate={{ width: `${progressPercent}%` }}
+									transition={{ duration: 1, delay: 0.6 }}
 									className='h-full bg-gradient-to-r from-green-400 to-emerald-600'
 								/>
 							</div>
-							<div className='flex justify-between text-[10px] uppercase tracking-tighter text-gray-500 font-bold'>
-								<span>Current: {user.ecoTier}</span>
-								<span>Next Tier: {
+							<div className='flex justify-between text-xs text-gray-400'>
+								<span>{user.ecoTier}</span>
+								<span>{user.ecoTier === "Gaia" ? "Max Tier" : `Next: ${
 									user.ecoTier === "Seed" ? "Sprout" :
 									user.ecoTier === "Sprout" ? "Sapling" :
 									user.ecoTier === "Sapling" ? "Oak" :
-									user.ecoTier === "Oak" ? "Gaia" : "Maxed Out"
-								}</span>
+									user.ecoTier === "Oak" ? "Gaia" : "Max"
+								}`}</span>
 							</div>
 						</div>
 
 						<Link 
 							to='/leaderboard' 
-							className='flex items-center justify-center gap-2 w-full py-2 bg-gray-700 bg-opacity-50 hover:bg-opacity-80 rounded-lg text-sm text-gray-300 transition duration-200'
+							className='flex items-center justify-center gap-2 w-full py-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-semibold transition duration-200'
 						>
-							<Trophy className='size-4 text-yellow-500' />
-							View Global Leaderboard
+							<Trophy size={18} className='text-yellow-500' />
+							View Leaderboard
 						</Link>
+					</motion.div>
+
+					{/* Recent Listings */}
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.6 }}
+						className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl p-6 border border-gray-700 lg:col-span-2'
+					>
+						<div className='flex items-center justify-between mb-4'>
+							<h2 className='text-2xl font-bold text-white'>Your Recent Listings</h2>
+							<Link to='/my-listings' className='text-green-400 hover:text-green-300 text-sm font-medium flex items-center gap-1'>
+								View All
+								<ArrowRight size={14} />
+							</Link>
+						</div>
+
+						{loading ? (
+							<div className='text-center py-8 text-gray-400'>Loading...</div>
+						) : userListings.length === 0 ? (
+							<div className='text-center py-8'>
+								<Package size={48} className='mx-auto text-gray-600 mb-3' />
+								<p className='text-gray-400 mb-4'>No listings yet</p>
+								<Link 
+									to='/create-listing'
+									className='px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition duration-200'
+								>
+									Create Your First Listing
+								</Link>
+							</div>
+						) : (
+							<div className='space-y-3'>
+								{userListings.slice(0, 5).map((listing) => (
+									<Link
+										key={listing._id}
+										to={`/listing/${listing._id}`}
+										className='block p-4 bg-gray-700 bg-opacity-50 hover:bg-opacity-80 rounded-lg transition duration-200'
+									>
+										<div className='flex items-start justify-between'>
+											<div className='flex-1'>
+												<h3 className='text-white font-semibold mb-1'>{listing.title}</h3>
+												<p className='text-gray-400 text-sm mb-2'>
+													{listing.category} • {listing.condition}
+												</p>
+												<div className='flex items-center gap-4 text-xs text-gray-500'>
+													<span className='flex items-center gap-1'>
+														<Eye size={12} />
+														{listing.views || 0} views
+													</span>
+													<span>Created {formatDate(listing.createdAt)}</span>
+												</div>
+											</div>
+											<div className='flex items-center gap-2'>
+												{listing.status === 'active' && (
+													<span className='px-3 py-1 bg-green-600 text-white text-xs rounded-full'>Active</span>
+												)}
+												{listing.status === 'pending' && (
+													<span className='px-3 py-1 bg-yellow-600 text-white text-xs rounded-full'>Pending</span>
+												)}
+												{(listing.status === 'sold' || listing.status === 'exchanged') && (
+													<span className='px-3 py-1 bg-blue-600 text-white text-xs rounded-full'>Completed</span>
+												)}
+											</div>
+										</div>
+									</Link>
+								))}
+							</div>
+						)}
+					</motion.div>
+				</div>
+
+				{/* High Demand Categories */}
+				{analytics && analytics.highDemandCategories && analytics.highDemandCategories.length > 0 && (
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.7 }}
+						className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl p-6 border border-gray-700 mb-8'
+					>
+						<div className='flex items-center justify-between mb-4'>
+							<h2 className='text-2xl font-bold text-white'>High Demand Categories</h2>
+							<Link to='/analytics' className='text-green-400 hover:text-green-300 text-sm font-medium flex items-center gap-1'>
+								View Analytics
+								<ArrowRight size={14} />
+							</Link>
+						</div>
+						<div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+							{analytics.highDemandCategories.slice(0, 4).map((category, index) => (
+								<motion.div
+									key={category._id}
+									initial={{ opacity: 0, scale: 0.9 }}
+									animate={{ opacity: 1, scale: 1 }}
+									transition={{ delay: 0.8 + index * 0.1 }}
+									className='bg-gray-700 bg-opacity-50 rounded-lg p-4 text-center'
+								>
+									<div className='text-3xl font-bold text-green-400 mb-1'>{category.count}</div>
+									<div className='text-white font-semibold mb-1'>{category._id}</div>
+									<div className='text-gray-400 text-xs'>Active Listings</div>
+								</motion.div>
+							))}
+						</div>
+					</motion.div>
+				)}
+
+				{/* Account Info */}
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.8 }}
+					className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl p-6 border border-gray-700 mb-8'
+				>
+					<h2 className='text-2xl font-bold text-white mb-4'>Account Information</h2>
+					<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+						<div className='p-4 bg-gray-700 bg-opacity-50 rounded-lg'>
+							<p className='text-gray-400 text-sm mb-1'>Email</p>
+							<p className='text-white font-semibold'>{user.email}</p>
+						</div>
+						<div className='p-4 bg-gray-700 bg-opacity-50 rounded-lg'>
+							<p className='text-gray-400 text-sm mb-1'>Account Type</p>
+							<p className='text-white font-semibold capitalize'>{user.userType || 'Individual'}</p>
+						</div>
+						<div className='p-4 bg-gray-700 bg-opacity-50 rounded-lg'>
+							<p className='text-gray-400 text-sm mb-1'>Member Since</p>
+							<p className='text-white font-semibold'>{new Date(user.createdAt).toLocaleDateString()}</p>
+						</div>
+						<div className='p-4 bg-gray-700 bg-opacity-50 rounded-lg'>
+							<p className='text-gray-400 text-sm mb-1'>Last Login</p>
+							<p className='text-white font-semibold'>{formatDate(user.lastLogin)}</p>
+						</div>
 					</div>
 				</motion.div>
 
+				{/* Admin Panel */}
 				{user.userType === "admin" && (
 					<motion.div
-						className='p-4 bg-gray-800 bg-opacity-50 rounded-lg border border-gray-700'
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
-						transition={{ delay: 0.5 }}
+						transition={{ delay: 0.9 }}
+						className='bg-red-900 bg-opacity-50 backdrop-filter backdrop-blur-lg rounded-xl p-6 border border-red-700 mb-8'
 					>
-						<h3 className='text-xl font-semibold text-red-400 mb-3'>Admin Control Panel</h3>
-						<div className='space-y-3'>
-							<Link to="/admin/disputes" className='block w-full text-center py-2 bg-gray-700 rounded hover:bg-gray-600 transition'>
+						<h2 className='text-2xl font-bold text-red-400 mb-4'>Admin Control Panel</h2>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+							<Link to="/admin/disputes" className='block w-full text-center py-3 bg-red-700 hover:bg-red-600 rounded-lg text-white font-semibold transition duration-200'>
 								Manage Disputes
 							</Link>
-							<Link to="/admin/users" className='block w-full text-center py-2 bg-gray-700 rounded hover:bg-gray-600 transition'>
+							<Link to="/admin/users" className='block w-full text-center py-3 bg-red-700 hover:bg-red-600 rounded-lg text-white font-semibold transition duration-200'>
 								Verify Users & Technicians
 							</Link>
 						</div>
 					</motion.div>
 				)}
-			</div>
 
-			<motion.div
-				initial={{ opacity: 0, y: 20 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ delay: 0.6 }}
-				className='mt-4'
-			>
-				<motion.button
-					whileHover={{ scale: 1.05 }}
-					whileTap={{ scale: 0.95 }}
-					onClick={handleLogout}
-					className='w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white 
-				font-bold rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-700
-				 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900'
+				{/* Logout Button */}
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 1.0 }}
 				>
-					Logout
-				</motion.button>
-			</motion.div>
+					<motion.button
+						whileHover={{ scale: 1.02 }}
+						whileTap={{ scale: 0.98 }}
+						onClick={handleLogout}
+						className='w-full py-4 px-6 bg-gradient-to-r from-red-500 to-red-600 text-white font-bold rounded-lg shadow-lg hover:from-red-600 hover:to-red-700 transition duration-200'
+					>
+						Logout
+					</motion.button>
+				</motion.div>
+			</div>
 		</motion.div>
 	);
 };
+
 export default DashboardPage;

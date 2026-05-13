@@ -50,6 +50,12 @@ export const signup = async (req, res) => {
 		};
 		const normalizedUserType = userTypeMapping[userType] || userType || "individual";
 
+		// Assign default permissions based on user type
+		const basePermissions = ["create_listings", "propose_exchanges"];
+		if (normalizedUserType === "garage" || normalizedUserType === "recycler" || normalizedUserType === "repair-shop") {
+			basePermissions.push("create_bulk_listings");
+		}
+
 		const user = new User({
 			email,
 			password: hashedPassword,
@@ -57,7 +63,7 @@ export const signup = async (req, res) => {
 			userType: normalizedUserType,
 			verificationToken,
 			verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
-			permissions: ["create_listings", "propose_exchanges"] // Default base permissions
+			permissions: basePermissions
 		});
 
 		await user.save();

@@ -76,7 +76,7 @@ const MarketplacePage = () => {
 	];
 
 	return (
-		<div className='min-h-screen bg-background text-foreground'>
+		<div className='min-h-screen bg-background text-foreground dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white'>
 			<div className='container mx-auto px-4 py-8'>
 				{/* Header */}
 				<motion.div
@@ -129,7 +129,7 @@ const MarketplacePage = () => {
 								className={`px-4 py-2 rounded-full text-sm font-medium transition duration-300 ${
 									selectedCategory === category.id
 										? "bg-primary text-primary-foreground"
-										: "bg-card text-muted-foreground hover:bg-accent"
+										: "bg-card text-muted-foreground hover:bg-accent border border-primary"
 								}`}
 								onClick={() => setSelectedCategory(category.id)}
 							>
