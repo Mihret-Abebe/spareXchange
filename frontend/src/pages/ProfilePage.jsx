@@ -183,22 +183,22 @@ const ProfilePage = () => {
 								</div>
 								<div className='flex flex-wrap justify-center md:justify-start gap-6 mb-4'>
 									<div className='text-center'>
-										<div className='text-2xl font-bold text-green-400'>{user.ecoPoints}</div>
-										<div className='text-sm text-gray-400'>Eco Points</div>
+										<div className='text-2xl font-bold text-white'>{user.ecoPoints}</div>
+										<div className='text-sm text-white'>Eco Points</div>
 									</div>
 									<div className='text-center'>
 										<div className='text-2xl font-bold'>{user.listings}</div>
-										<div className='text-sm text-gray-400'>Listings</div>
+										<div className='text-sm text-white'>Listings</div>
 									</div>
 									<div className='text-center'>
 										<div className='flex items-center justify-center'>
 											<Star size={16} className='text-yellow-400 fill-current mr-1' />
 											<span className='text-2xl font-bold'>{user.rating}</span>
 										</div>
-										<div className='text-sm text-gray-400'>{user.reviews} Reviews</div>
+										<div className='text-sm text-white'>{user.reviews} Reviews</div>
 									</div>
 								</div>
-								<div className='text-sm text-gray-400'>
+								<div className='text-sm text-white'>
 									Member since {user.memberSince}
 								</div>
 							</div>
@@ -218,8 +218,8 @@ const ProfilePage = () => {
 								key={tab.id}
 								onClick={() => setActiveTab(tab.id)}
 								className={`flex items-center px-4 py-2 rounded-t-lg transition duration-300 ${activeTab === tab.id
-									? "bg-gray-800 text-green-400 border-b-2 border-green-400"
-									: "text-gray-400 hover:text-white"
+									? "bg-primary text-white dark:bg-gray-800 border-b-2 border-green-400"
+									: "text-black hover:text-primary"
 									}`}
 							>
 								<tab.icon size={16} className='mr-2' />
@@ -228,7 +228,7 @@ const ProfilePage = () => {
 						))}
 						<button
 							onClick={handleLogout}
-							className='flex items-center px-4 py-2 rounded-t-lg text-gray-400 hover:text-red-400 transition duration-300 ml-auto'
+							className='flex items-center px-4 py-2 rounded-t-lg text-red-400 hover:text-red-600 transition duration-300 ml-auto'
 						>
 							<LogOut size={16} className='mr-2' />
 							Logout
@@ -240,7 +240,7 @@ const ProfilePage = () => {
 						<motion.div
 							initial={{ opacity: 0 }}
 							animate={{ opacity: 1 }}
-							className='bg-gray-800 rounded-xl p-6 border border-gray-700'
+							className='bg-primary dark:bg-gray-800 rounded-xl p-6 border border-gray-700'
 						>
 							<h2 className='text-2xl font-bold mb-6'>Personal Information</h2>
 							<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
@@ -266,7 +266,7 @@ const ProfilePage = () => {
 									</div>
 
 									{user.roleStatus === "none" && (
-										<div className='mt-8 p-4 bg-gray-700 bg-opacity-50 rounded-lg border border-yellow-600 border-opacity-50'>
+										<div className='mt-8 p-4 bg-gray-700 bg-opacity-70 rounded-lg border border-yellow-600 border-opacity-50'>
 											<h3 className='text-lg font-bold mb-2 flex items-center text-yellow-500'>
 												<AlertCircle size={20} className='mr-2' />
 												Get Verified
@@ -418,9 +418,9 @@ const ProfilePage = () => {
 									+ Add New Listing
 								</button>
 							</div>
-							<div className='bg-gray-800 rounded-xl border border-gray-700 overflow-hidden'>
+							<div className='bg-primary dark:bg-gray-800 rounded-xl border border-gray-700 overflow-hidden'>
 								<table className='w-full'>
-									<thead className='bg-gray-700'>
+									<thead className='bg-gray-600'>
 										<tr>
 											<th className='text-left p-4'>Item</th>
 											<th className='text-left p-4'>Price</th>
@@ -467,7 +467,7 @@ const ProfilePage = () => {
 						<motion.div
 							initial={{ opacity: 0 }}
 							animate={{ opacity: 1 }}
-							className='bg-gray-800 rounded-xl p-6 border border-gray-700'
+							className='bg-primary dark:bg-gray-800 rounded-xl p-6 border border-gray-700'
 						>
 							<h2 className='text-2xl font-bold mb-6'>Payment History</h2>
 							<div className='text-center py-12'>
@@ -476,7 +476,7 @@ const ProfilePage = () => {
 								<p className='text-gray-400 mb-4'>Your transactions will appear here once you start buying or selling</p>
 								<Link
 									to='/marketplace'
-									className='px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg hover:from-green-600 hover:to-emerald-700 transition duration-300'
+									className='px-4 py-2 bg-gray-800 dark:bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg hover:from-green-600 hover:to-emerald-700 transition duration-300'
 								>
 									Start Shopping
 								</Link>
@@ -488,7 +488,7 @@ const ProfilePage = () => {
 						<motion.div
 							initial={{ opacity: 0 }}
 							animate={{ opacity: 1 }}
-							className='bg-gray-800 rounded-xl p-6 border border-gray-700'
+							className='bg-primary dark:bg-gray-800 rounded-xl p-6 border border-gray-700'
 						>
 							<h2 className='text-2xl font-bold mb-6'>Account Settings</h2>
 							<div className='space-y-6'>
@@ -542,7 +542,7 @@ const ProfilePage = () => {
 						<motion.div
 							initial={{ opacity: 0 }}
 							animate={{ opacity: 1 }}
-							className='bg-gray-800 rounded-xl p-6 border border-gray-700'
+							className='bg-primary dark:bg-gray-800 rounded-xl p-6 border border-gray-700'
 						>
 							<h2 className='text-2xl font-bold mb-6'>Security Settings</h2>
 							<div className='space-y-6'>

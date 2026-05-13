@@ -95,7 +95,7 @@ const EditProfilePage = () => {
 	if (!user) return null;
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white py-8 px-4">
+		<div className="min-h-screen bg-background text-gray-700 dark:bg-gray-800 dark:text-background py-8 px-4">
 			<div className="max-w-2xl mx-auto">
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
@@ -106,7 +106,7 @@ const EditProfilePage = () => {
 					<div className="flex items-center mb-8">
 						<button
 							onClick={() => navigate("/profile")}
-							className="flex items-center text-gray-300 hover:text-white transition-colors mr-4"
+							className="flex items-center text-gray-300 hover:text-primary transition-colors mr-4"
 						>
 							<ArrowLeft className="w-5 h-5 mr-2" />
 							Back to Profile
@@ -115,7 +115,7 @@ const EditProfilePage = () => {
 					</div>
 
 					{/* Form Card */}
-					<div className="bg-gray-800 rounded-xl p-8 border border-gray-700">
+					<div className="bg-primary dark:bg-gray-800 rounded-xl p-8 border border-gray-700">
 						<form onSubmit={handleSubmit} className="space-y-6">
 							{/* Profile Picture Upload */}
 							<div className="flex flex-col items-center mb-8">
@@ -198,7 +198,7 @@ const EditProfilePage = () => {
 									disabled
 									className="bg-gray-700 border-gray-600 text-gray-400 cursor-not-allowed"
 								/>
-								<p className="text-xs text-gray-500">Email cannot be changed</p>
+								<p className="text-xs text-red-300 ml-2">Email cannot be changed</p>
 							</div>
 
 							{/* Phone */}
@@ -248,7 +248,7 @@ const EditProfilePage = () => {
 								</Button>
 								<Button
 									type="submit"
-									className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+									className="flex-1 bg-green-600 hover:bg-green-700 dark:bg-background dark:text-primary dark:hover:bg-accent text-white"
 									disabled={isUpdating}
 								>
 									{isUpdating ? (
