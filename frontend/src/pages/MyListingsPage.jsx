@@ -18,7 +18,9 @@ const MyListingsPage = () => {
 		try {
 			await getUserListings();
 		} catch (error) {
-			toast.error("Failed to load your listings");
+			console.error("Error fetching listings:", error);
+			const errorMessage = error.response?.data?.message || error.message || "Failed to load your listings";
+			toast.error(errorMessage);
 		}
 	};
 

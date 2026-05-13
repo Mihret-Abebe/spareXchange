@@ -134,7 +134,7 @@ const ProfilePage = () => {
 	];
 
 	return (
-		<div className='min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white'>
+		<div className='min-h-screen dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white'>
 			<div className='container mx-auto px-4 py-8'>
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
@@ -142,7 +142,7 @@ const ProfilePage = () => {
 					transition={{ duration: 0.5 }}
 				>
 					{/* Profile Header */}
-					<div className='bg-gray-800 rounded-xl p-6 mb-8 border border-gray-700'>
+					<div className='bg-primary text-white dark:bg-gray-800 rounded-xl p-6 mb-8 border border-gray-700'>
 						<div className='flex flex-col md:flex-row items-center md:items-start'>
 							<div className='w-24 h-24 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center mb-4 md:mb-0 md:mr-6'>
 								<span className='text-3xl font-bold text-white'>{user.name.charAt(0)}</span>

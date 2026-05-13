@@ -108,7 +108,7 @@ const MarketplacePage = () => {
 							<input
 								type='text'
 								placeholder='Search for spare parts...'
-								className='w-full pl-10 pr-4 py-3 bg-card rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary text-white placeholder-muted-foreground'
+								className='w-full pl-10 pr-4 py-3 bg-card rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary text-black placeholder-muted-foreground'
 								value={searchTerm}
 								onChange={(e) => setSearchTerm(e.target.value)}
 							/>

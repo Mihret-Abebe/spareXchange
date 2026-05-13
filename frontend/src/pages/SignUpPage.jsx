@@ -4,7 +4,7 @@ import { Checkbox } from "../components/ui/checkbox";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { Recycle, Eye, EyeOff } from "lucide-react";
+import { Recycle, Eye, EyeOff,Loader } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
@@ -33,7 +33,7 @@ const SignUpPage = () => {
 	// ];
 	const navigate = useNavigate();
 
-	const { signup, error } = useAuthStore();
+	const { signup, error, isLoading } = useAuthStore();
 
 	useEffect(() => {
 		if (error) {
@@ -386,7 +386,11 @@ const SignUpPage = () => {
 								formData.password !== formData.confirmPassword
 							}
 						>
-							Create Account
+							{isLoading ? (
+								<Loader className='w-6 h-6 animate-spin mx-auto' />
+							) : (
+								"Create Account"
+							)}
 						</Button>
 					</form>
 

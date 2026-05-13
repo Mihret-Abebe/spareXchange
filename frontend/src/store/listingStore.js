@@ -109,7 +109,9 @@ export const useListingStore = create((set) => ({
 			});
 			return response.data;
 		} catch (error) {
-			set({ error: error.response?.data?.message || "Error fetching your listings", isLoading: false });
+			const errorMessage = error.response?.data?.message || error.message || "Error fetching your listings";
+			console.error("getUserListings error:", error.response?.data || error.message);
+			set({ error: errorMessage, isLoading: false });
 			throw error;
 		}
 	},

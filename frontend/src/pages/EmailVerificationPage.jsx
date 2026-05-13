@@ -111,7 +111,7 @@ const EmailVerificationPage = () => {
 				</div>
 
 				{/* Right side - Content */}
-				<div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background">
+				<div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 dark:text-white">
 					<div className="w-full max-w-md space-y-8">
 						{/* Mobile Logo */}
 						<div className="lg:hidden flex items-center gap-3 justify-center">
@@ -174,7 +174,7 @@ const EmailVerificationPage = () => {
 										value={digit}
 										onChange={(e) => handleChange(index, e.target.value)}
 										onKeyDown={(e) => handleKeyDown(index, e)}
-										className='w-12 h-12 text-center text-2xl font-bold bg-gray-200 text-white border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none'
+										className='w-12 h-12 text-center text-2xl font-bold bg-gray-200 text-black border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none'
 									/>
 								))}
 							</div>
@@ -184,7 +184,7 @@ const EmailVerificationPage = () => {
 								whileTap={{ scale: 0.95 }}
 								type='submit'
 								disabled={isLoading || code.some((digit) => !digit)}
-								className='w-full bg-[var(--primary)] text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 disabled:opacity-50'
+								className='w-full bg-primary text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 disabled:opacity-50'
 							>
 								{isLoading ? "Verifying..." : "Verify Email"}
 							</motion.button>
