@@ -41,12 +41,16 @@ app.use(cookieParser()); // allows us to parse incoming cookies
 app.use(helmet());
 
 // Rate Limiting
+// Disable rate limiting in test environment for faster test execution
+const isTestEnv = process.env.NODE_ENV === "test";
+
 const authLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, // Limit each IP to 100 requests per windowMs
+	max: isTestEnv ? 10000 : 100, // Much higher limit for tests
 	message: "Too many requests from this IP, please try again after 15 minutes",
 	standardHeaders: true,
 	legacyHeaders: false,
+	skip: (req, res) => isTestEnv, // Skip rate limiting entirely in test environment
 });
 
 app.use("/api/auth", authLimiter);
