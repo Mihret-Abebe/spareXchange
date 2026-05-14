@@ -41,6 +41,13 @@ import RequestDetailPage from "./pages/RequestDetailPage";
 import TechnicianRequestsPage from "./pages/TechnicianRequestsPage";
 import TechnicianDashboard from "./pages/TechnicianDashboard";
 
+// Module 7: Communication, Trust & Dispute Resolution
+import MessagesPage from "./pages/MessagesPage";
+import ChatPage from "./pages/ChatPage";
+import NotificationsPage from "./pages/NotificationsPage";
+import ReviewPage from "./pages/ReviewPage";
+import DisputeReportPage from "./pages/DisputeReportPage";
+
 import LoadingSpinner from "./components/LoadingSpinner";
 
 import { Toaster } from "react-hot-toast";
@@ -283,6 +290,48 @@ function App() {
 					element={
 						<ProtectedRoute>
 							<TechnicianDashboard />
+						</ProtectedRoute>
+					}
+				/>
+
+				{/* Module 7: Communication, Trust & Dispute Resolution Routes */}
+				<Route
+					path='/messages'
+					element={
+						<ProtectedRoute>
+							<MessagesPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/messages/:userId'
+					element={
+						<ProtectedRoute>
+							<ChatPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/notifications'
+					element={
+						<ProtectedRoute>
+							<NotificationsPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/reviews/:userId'
+					element={
+						<ProtectedRoute>
+							<ReviewPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/disputes/report'
+					element={
+						<ProtectedRoute>
+							<DisputeReportPage />
 						</ProtectedRoute>
 					}
 				/>

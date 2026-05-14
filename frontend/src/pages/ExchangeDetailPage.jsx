@@ -686,18 +686,60 @@ const ExchangeDetailPage = () => {
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <User size={20} className="text-green-400" />
-                  <div>
+                  <div className="flex-1">
                     <p className="text-sm text-gray-400">Buyer</p>
                     <p className="font-semibold">{currentExchange.buyerId?.name || "Unknown"}</p>
+                    {currentExchange.buyerId?.trustScore && (
+                      <p className="text-xs text-yellow-400">★ {currentExchange.buyerId.trustScore.toFixed(1)} ({currentExchange.buyerId.totalReviews} reviews)</p>
+                    )}
                   </div>
+                  {isSeller && currentExchange.buyerId?._id && (
+                    <button
+                      onClick={() => navigate(`/messages/${currentExchange.buyerId._id}`)}
+                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm transition"
+                    >
+                      Message
+                    </button>
+                  )}
                 </div>
                 <div className="flex items-center gap-3">
                   <User size={20} className="text-blue-400" />
-                  <div>
+                  <div className="flex-1">
                     <p className="text-sm text-gray-400">Seller</p>
                     <p className="font-semibold">{currentExchange.sellerId?.name || "Unknown"}</p>
+                    {currentExchange.sellerId?.trustScore && (
+                      <p className="text-xs text-yellow-400">★ {currentExchange.sellerId.trustScore.toFixed(1)} ({currentExchange.sellerId.totalReviews} reviews)</p>
+                    )}
                   </div>
+                  {isBuyer && currentExchange.sellerId?._id && (
+                    <button
+                      onClick={() => navigate(`/messages/${currentExchange.sellerId._id}`)}
+                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm transition"
+                    >
+                      Message
+                    </button>
+                  )}
                 </div>
+              </div>
+
+              {/* View Reviews Button */}
+              <div className="mt-4 pt-4 border-t border-gray-700 space-y-2">
+                {currentExchange.buyerId?._id && (
+                  <button
+                    onClick={() => navigate(`/reviews/${currentExchange.buyerId._id}`)}
+                    className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition text-sm"
+                  >
+                    View Buyer's Reviews
+                  </button>
+                )}
+                {currentExchange.sellerId?._id && (
+                  <button
+                    onClick={() => navigate(`/reviews/${currentExchange.sellerId._id}`)}
+                    className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition text-sm"
+                  >
+                    View Seller's Reviews
+                  </button>
+                )}
               </div>
             </motion.div>
 
