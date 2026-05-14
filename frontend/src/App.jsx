@@ -59,6 +59,11 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AnalyticsDashboard from "./pages/AnalyticsDashboard";
 import ReportManagement from "./pages/ReportManagement";
 
+// Module 10: Community Engagement
+import ActivityFeedPage from "./pages/ActivityFeedPage";
+import UserProfilePage from "./pages/UserProfilePage";
+import AchievementsPage from "./pages/AchievementsPage";
+
 import LoadingSpinner from "./components/LoadingSpinner";
 
 import { Toaster } from "react-hot-toast";
@@ -466,6 +471,29 @@ function App() {
 						</AdminRoute>
 					}
 				/>
+
+				{/* Module 10: Community Engagement Routes */}
+				<Route
+					path='/activity-feed'
+					element={
+						<ProtectedRoute>
+							<ActivityFeedPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/profile/:userId'
+					element={<UserProfilePage />}
+				/>
+				<Route
+					path='/achievements'
+					element={
+						<ProtectedRoute>
+							<AchievementsPage />
+						</ProtectedRoute>
+					}
+				/>
+
 				{/* catch all routes */}
 				<Route path='*' element={<Navigate to='/' replace />} />
 			</Routes>

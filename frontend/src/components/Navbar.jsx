@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ShoppingCart, User, Package, Leaf, Home, Info, HelpCircle, Phone, LogOut, LogIn, Sun, Moon, ChevronDown, Trophy, PlusCircle, List, TrendingUp, LayoutDashboard, Handshake, Wrench, Search, MessageCircle, Bell, Shield, Settings, Activity, Webhook } from "lucide-react";
+import { Menu, X, ShoppingCart, User, Package, Leaf, Home, Info, HelpCircle, Phone, LogOut, LogIn, Sun, Moon, ChevronDown, Trophy, PlusCircle, List, TrendingUp, LayoutDashboard, Handshake, Wrench, Search, MessageCircle, Bell, Shield, Settings, Activity, Webhook, Users, Award } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import { useTheme } from "../contexts/ThemeContext";
 
@@ -44,6 +44,8 @@ const Navbar = () => {
 	const [isMobileListingsDropdownOpen, setIsMobileListingsDropdownOpen] = useState(false);
 	const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
 	const [isMobileServicesDropdownOpen, setIsMobileServicesDropdownOpen] = useState(false);
+	const [isCommunityDropdownOpen, setIsCommunityDropdownOpen] = useState(false);
+	const [isMobileCommunityDropdownOpen, setIsMobileCommunityDropdownOpen] = useState(false);
 
 	// Nav links for unauthenticated users
 	const publicNavLinks = [
@@ -77,6 +79,13 @@ const Navbar = () => {
 		{ name: "Find Requests", path: "/technician-requests", icon: Wrench },
 		{ name: "My Requests", path: "/technician-requests/my-requests", icon: List },
 		{ name: "Create Request", path: "/technician-requests/create", icon: PlusCircle },
+	];
+
+	// Community dropdown items
+	const communityDropdownItems = [
+		{ name: "Activity Feed", path: "/activity-feed", icon: Activity },
+		{ name: "Achievements", path: "/achievements", icon: Award },
+		{ name: "Leaderboard", path: "/leaderboard", icon: Trophy },
 	];
 
 	// Determine which links to show based on authentication
@@ -162,6 +171,35 @@ const Navbar = () => {
 												key={item.path}
 												to={item.path}
 												onClick={() => setIsServicesDropdownOpen(false)}
+												className='flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200'
+											>
+												<item.icon size={16} className='mr-2' />
+												{item.name}
+											</Link>
+										))}
+									</div>
+								)}
+							</div>
+						)}
+
+						{isAuthenticated && (
+							<div className='relative'>
+								<button
+									onClick={() => setIsCommunityDropdownOpen(!isCommunityDropdownOpen)}
+									className={`flex items-center px-1.5 py-2 rounded-md text-xs md:text-sm font-medium transition duration-300 text-muted-foreground hover:text-foreground hover:bg-accent`}
+								>
+									<Users size={14} className='mr-1.5' />
+									<span className='hidden md:inline'>Community</span>
+									<ChevronDown size={14} className={`ml-1 transition-transform ${isCommunityDropdownOpen ? 'rotate-180' : ''}`} />
+								</button>
+
+								{isCommunityDropdownOpen && (
+									<div className='absolute top-full left-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-xl border border-gray-700 py-2 z-50'>
+										{communityDropdownItems.map((item) => (
+											<Link
+												key={item.path}
+												to={item.path}
+												onClick={() => setIsCommunityDropdownOpen(false)}
 												className='flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200'
 											>
 												<item.icon size={16} className='mr-2' />

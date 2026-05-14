@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { User, Mail, MapPin, Edit3, Star, Package, CreditCard, Settings, LogOut, CheckCircle, AlertCircle, Clock, ShieldCheck, Award, Shield } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import { useCommunityStore } from "../store/communityStore";
 import PointsRedemptionModal from "../components/PointsRedemptionModal";
 
 const ProfilePage = () => {
 	const navigate = useNavigate();
 	const { user, logout, requestVerificationWithFiles } = useAuthStore();
+	const { userAchievements, getUserAchievements, triggerAchievementCheck } = useCommunityStore();
 	const [activeTab, setActiveTab] = useState("profile");
 	const [showRedemptionModal, setShowRedemptionModal] = useState(false);
 	const [accountType, setAccountType] = useState("individual");
@@ -25,6 +27,11 @@ const ProfilePage = () => {
 		allow_messaging: true,
 		display_points: false,
 	});
+
+	useEffect(() => {
+		// Load user achievements when profile page mounts
+		getUserAchievements();
+	}, []);
 
 	if (!user) return null;
 
@@ -369,6 +376,47 @@ const ProfilePage = () => {
 											</button>
 										</div>
 									</div>
+																
+									{/* Achievements Summary */}
+									{userAchievements?.stats && (
+										<div className='bg-gray-700 rounded-lg p-4 mb-4'>
+											<div className='flex justify-between items-center mb-3'>
+												<span className='text-gray-300'>Achievements Unlocked</span>
+												<span className='text-lg font-bold text-yellow-400'>
+													{userAchievements.stats.totalUnlocked}/{userAchievements.stats.totalUnlocked + userAchievements.stats.totalLocked}
+												</span>
+											</div>
+											<div className='w-full bg-gray-600 rounded-full h-2 mb-3'>
+												<div
+													className='bg-yellow-500 h-2 rounded-full'
+													style={{ width: `${userAchievements.stats.completionPercentage}%` }}
+												></div>
+											</div>
+											<div className='flex flex-wrap gap-2 mb-3'>
+												{userAchievements.unlocked?.slice(0, 4).map((achievement) => (
+													<span
+														key={achievement.id}
+														className='text-2xl'
+														title={achievement.name}
+													>
+														{achievement.icon}
+													</span>
+												))}
+												{userAchievements.unlocked?.length > 4 && (
+													<span className='text-xs text-gray-400 self-center'>
+														+{userAchievements.unlocked.length - 4} more
+													</span>
+												)}
+											</div>
+											<Link
+												to="/achievements"
+												className='text-green-400 hover:text-green-300 text-sm font-bold'
+											>
+												View All Achievements →
+											</Link>
+										</div>
+									)}
+																
 									<div className='grid grid-cols-2 gap-4'>
 										<div className='bg-gray-700 rounded-lg p-4 text-center'>
 											<div className='text-2xl font-bold text-green-400'>{user.listings}</div>

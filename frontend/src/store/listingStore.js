@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import axios from "axios";
+import { useCommunityStore } from "./communityStore";
 
 const API_URL = import.meta.env.MODE === "development" ? "http://localhost:5000/api/listings" : "/api/listings";
 
@@ -22,6 +23,10 @@ export const useListingStore = create((set) => ({
 				message: response.data.message,
 				currentListing: response.data.listing
 			});
+			
+			// Trigger achievement check after creating listing
+			useCommunityStore.getState().triggerAchievementCheck();
+			
 			return response.data;
 		} catch (error) {
 			set({ error: error.response?.data?.message || "Error creating listing", isLoading: false });
