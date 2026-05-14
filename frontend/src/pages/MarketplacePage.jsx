@@ -1,16 +1,23 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Filter, MapPin, Star, Heart, ShoppingCart, AlertTriangle } from "lucide-react";
+import { Search, MapPin, Star, Heart, AlertTriangle, BookmarkPlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { useDisputeStore } from "../store/disputeStore";
+import { useSavedSearchStore } from "../store/savedSearchStore";
+import CreateSavedSearchModal from "../components/CreateSavedSearchModal";
 import LoadingSpinner from "../components/LoadingSpinner";
+import toast from "react-hot-toast";
 
 const MarketplacePage = () => {
 	const { user } = useAuthStore();
 	const { createDispute } = useDisputeStore();
 	const [searchTerm, setSearchTerm] = useState("");
-	
+	const [selectedCategory, setSelectedCategory] = useState("all");
+	const [listings, setListings] = useState([]);
+	const [isLoading, setIsLoading] = useState(true);
+	const [showSaveSearchModal, setShowSaveSearchModal] = useState(false);
+
 	const handleReport = async (listing) => {
 		if (!user) {
 			alert("Please login to report a listing.");
@@ -33,9 +40,6 @@ const MarketplacePage = () => {
 			alert("Failed to submit report.");
 		}
 	};
-	const [selectedCategory, setSelectedCategory] = useState("all");
-	const [listings, setListings] = useState([]);
-	const [isLoading, setIsLoading] = useState(true);
 
 	const fetchListings = async () => {
 		setIsLoading(true);
@@ -63,6 +67,30 @@ const MarketplacePage = () => {
 	const handleSearch = (e) => {
 		e.preventDefault();
 		fetchListings();
+	};
+
+	const handleSaveSearch = () => {
+		setShowSaveSearchModal(true);
+	};
+
+	const handleCreateSavedSearch = async (searchData) => {
+		try {
+			// Pre-fill with current search context
+			const searchDataWithContext = {
+				...searchData,
+				query: searchData.query || searchTerm,
+				filters: {
+					...searchData.filters,
+					category: searchData.filters.category || (selectedCategory !== "all" ? selectedCategory : undefined)
+				}
+			};
+
+			await useSavedSearchStore.getState().createSavedSearch(searchDataWithContext);
+			toast.success("Search saved successfully! You'll be notified when new listings match.");
+			setShowSaveSearchModal(false);
+		} catch (error) {
+			toast.error(error.response?.data?.message || "Failed to save search");
+		}
 	};
 
 	const filteredListings = listings; // Backend already filters
@@ -120,6 +148,30 @@ const MarketplacePage = () => {
 							Search
 						</button>
 					</form>
+
+					{/* Save This Search Button */}
+					{(searchTerm || selectedCategory !== "all") && (
+						<motion.div
+							initial={{ opacity: 0, y: -10 }}
+							animate={{ opacity: 1, y: 0 }}
+							className='mb-4 p-4 bg-gray-800 border border-green-600 rounded-lg flex flex-col sm:flex-row items-center justify-between gap-4'
+						>
+							<div className='flex items-center gap-3'>
+								<BookmarkPlus size={24} className='text-green-400' />
+								<div>
+									<p className='text-white font-semibold'>Like these results?</p>
+									<p className='text-gray-400 text-sm'>Save this search to get notified when new listings match</p>
+								</div>
+							</div>
+							<button
+								onClick={handleSaveSearch}
+								className='px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors whitespace-nowrap flex items-center gap-2'
+							>
+								<BookmarkPlus size={18} />
+								Save This Search
+							</button>
+						</motion.div>
+					)}
 
 					{/* Category Filters */}
 					<div className='flex flex-wrap gap-2'>
@@ -231,6 +283,17 @@ const MarketplacePage = () => {
 					</motion.div>
 				)}
 			</div>
+
+			{/* Save Search Modal */}
+			<CreateSavedSearchModal
+				isOpen={showSaveSearchModal}
+				onClose={() => setShowSaveSearchModal(false)}
+				onSave={handleCreateSavedSearch}
+				initialData={{
+					query: searchTerm,
+					filters: selectedCategory !== "all" ? { category: selectedCategory } : {}
+				}}
+			/>
 		</div>
 	);
 };

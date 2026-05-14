@@ -15,14 +15,18 @@ import {
 	Eye,
 	CheckCircle,
 	MessageSquare,
-	Recycle
+	Recycle,
+	Search,
+	Bell
 } from "lucide-react";
 import { useListingStore } from "../store/listingStore";
+import { useSavedSearchStore } from "../store/savedSearchStore";
 
 const IndividualDashboard = () => {
 	const { user, logout } = useAuthStore();
 	const navigate = useNavigate();
 	const { getUserListings: fetchUserListings, getHighDemandAnalytics: fetchAnalytics } = useListingStore();
+	const { getSavedSearches, savedSearches } = useSavedSearchStore();
 	const [userListings, setUserListings] = useState([]);
 	const [analytics, setAnalytics] = useState(null);
 	const [loading, setLoading] = useState(true);
@@ -35,6 +39,9 @@ const IndividualDashboard = () => {
 
 				const analyticsData = await fetchAnalytics();
 				setAnalytics(analyticsData);
+
+				// Fetch saved searches count
+				await getSavedSearches();
 			} catch (error) {
 				console.error("Error fetching dashboard data:", error);
 			} finally {
@@ -67,14 +74,14 @@ const IndividualDashboard = () => {
 		{ label: "Eco Points", value: user.ecoPoints || 0, icon: Leaf, color: "from-green-400 to-emerald-600", link: "/leaderboard" },
 		{ label: "My Listings", value: userListings.length, icon: Package, color: "from-blue-400 to-cyan-600", link: "/my-listings" },
 		{ label: "Total Views", value: totalViews, icon: Eye, color: "from-purple-400 to-pink-600", link: "/analytics" },
-		{ label: "Active", value: activeListings, icon: CheckCircle, color: "from-orange-400 to-red-600", link: "/my-listings" },
+		{ label: "Saved Searches", value: savedSearches.length, icon: Search, color: "from-teal-400 to-blue-600", link: "/saved-searches" },
 	];
 
 	const quickActions = [
 		{ name: "Sell Parts", path: "/create-listing", icon: PlusCircle, color: "bg-green-600 hover:bg-green-700" },
 		{ name: "Browse Marketplace", path: "/marketplace", icon: ShoppingCart, color: "bg-blue-600 hover:bg-blue-700" },
-		{ name: "Request Repair", path: "/technician-requests", icon: MessageSquare, color: "bg-purple-600 hover:bg-purple-700" },
-		{ name: "Recycle Items", path: "/recycle/submit", icon: Recycle, color: "bg-teal-600 hover:bg-teal-700" },
+		{ name: "Saved Searches", path: "/saved-searches", icon: Search, color: "bg-teal-600 hover:bg-teal-700" },
+		{ name: "Recycle Items", path: "/recycle/submit", icon: Recycle, color: "bg-purple-600 hover:bg-purple-700" },
 	];
 
 	return (
@@ -209,6 +216,53 @@ const IndividualDashboard = () => {
 						</div>
 					</motion.div>
 				)}
+
+				{/* Saved Searches Widget */}
+				<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65 }} className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl p-6 border border-gray-700 mb-8'>
+					<div className='flex items-center justify-between mb-4'>
+						<h2 className='text-2xl font-bold text-white flex items-center gap-2'>
+							<Search className='text-green-400' size={24} />
+							Saved Searches
+						</h2>
+						<Link to='/saved-searches' className='text-green-400 hover:text-green-300 text-sm font-medium flex items-center gap-1'>Manage <ArrowRight size={14} /></Link>
+					</div>
+					{savedSearches.length === 0 ? (
+						<div className='text-center py-6'>
+							<Search size={48} className='mx-auto text-gray-600 mb-3' />
+							<p className='text-gray-400 mb-4'>No saved searches yet</p>
+							<Link to='/marketplace' className='px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition duration-200'>Browse Marketplace</Link>
+						</div>
+					) : (
+						<div className='space-y-3'>
+							{savedSearches.slice(0, 3).map((search) => (
+								<div key={search._id} className='p-4 bg-gray-700 bg-opacity-50 rounded-lg'>
+									<div className='flex items-start justify-between'>
+										<div className='flex-1'>
+											<h3 className='text-white font-semibold mb-1 flex items-center gap-2'>
+												{search.name || "Untitled Search"}
+												{search.notify && <Bell size={14} className='text-green-400' />}
+											</h3>
+											{search.query && <p className='text-gray-400 text-sm'>"{search.query}"</p>}
+											<div className='flex items-center gap-2 mt-2 text-xs text-gray-500'>
+												{search.filters?.category && (
+													<span className='px-2 py-1 bg-gray-600 rounded'>{search.filters.category}</span>
+												)}
+												{search.geo && (
+													<span className='px-2 py-1 bg-gray-600 rounded'>{search.geo.radiusKm}km radius</span>
+												)}
+											</div>
+										</div>
+									</div>
+								</div>
+							))}
+							{savedSearches.length > 3 && (
+								<Link to='/saved-searches' className='block text-center text-green-400 hover:text-green-300 text-sm font-medium py-2'>
+									View {savedSearches.length - 3} more saved search{savedSearches.length - 3 !== 1 ? 'es' : ''}
+								</Link>
+							)}
+						</div>
+					)}
+				</motion.div>
 
 				{/* Account Info */}
 				<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }} className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl p-6 border border-gray-700 mb-8'>

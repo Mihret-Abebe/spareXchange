@@ -26,6 +26,9 @@ import AnalyticsPage from "./pages/AnalyticsPage";
 import MyExchangesPage from "./pages/MyExchangesPage";
 import ExchangeDetailPage from "./pages/ExchangeDetailPage";
 
+// Module 6: Saved Search & Alerts
+import SavedSearchesPage from "./pages/SavedSearchesPage";
+
 // Module 4: Sustainability & Incentives
 import RecyclingSubmissionPage from "./pages/RecyclingSubmissionPage";
 import MySubmissionsPage from "./pages/MySubmissionsPage";
@@ -202,6 +205,16 @@ function App() {
 					element={
 						<ProtectedRoute>
 							<ExchangeDetailPage />
+						</ProtectedRoute>
+					}
+				/>
+
+				{/* Module 6: Saved Search & Alerts Routes */}
+				<Route
+					path='/saved-searches'
+					element={
+						<ProtectedRoute>
+							<SavedSearchesPage />
 						</ProtectedRoute>
 					}
 				/>
