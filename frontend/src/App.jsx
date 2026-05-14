@@ -31,6 +31,13 @@ import RecyclingSubmissionPage from "./pages/RecyclingSubmissionPage";
 import MySubmissionsPage from "./pages/MySubmissionsPage";
 import RecyclerVerificationPage from "./pages/RecyclerVerificationPage";
 
+// Module 5: Professional Services
+import CreateTechnicianRequestPage from "./pages/CreateTechnicianRequestPage";
+import MyServiceRequestsPage from "./pages/MyServiceRequestsPage";
+import RequestDetailPage from "./pages/RequestDetailPage";
+import TechnicianRequestsPage from "./pages/TechnicianRequestsPage";
+import TechnicianDashboard from "./pages/TechnicianDashboard";
+
 import LoadingSpinner from "./components/LoadingSpinner";
 
 import { Toaster } from "react-hot-toast";
@@ -221,6 +228,48 @@ function App() {
 					element={
 						<ProtectedRoute>
 							<RecyclerVerificationPage />
+						</ProtectedRoute>
+					}
+				/>
+
+				{/* Module 5: Professional Services Routes */}
+				<Route
+					path='/technician-requests'
+					element={
+						<ProtectedRoute>
+							<TechnicianRequestsPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/technician-requests/create'
+					element={
+						<ProtectedRoute>
+							<CreateTechnicianRequestPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/technician-requests/my-requests'
+					element={
+						<ProtectedRoute>
+							<MyServiceRequestsPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/technician-requests/:id'
+					element={
+						<ProtectedRoute>
+							<RequestDetailPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/technician/dashboard'
+					element={
+						<ProtectedRoute>
+							<TechnicianDashboard />
 						</ProtectedRoute>
 					}
 				/>

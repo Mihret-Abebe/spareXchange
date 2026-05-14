@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ShoppingCart, User, Package, Leaf, Home, Info, HelpCircle, Phone, LogOut, LogIn, Sun, Moon, ChevronDown, Trophy, PlusCircle, List, TrendingUp, LayoutDashboard, Handshake } from "lucide-react";
+import { Menu, X, ShoppingCart, User, Package, Leaf, Home, Info, HelpCircle, Phone, LogOut, LogIn, Sun, Moon, ChevronDown, Trophy, PlusCircle, List, TrendingUp, LayoutDashboard, Handshake, Wrench } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import { useTheme } from "../contexts/ThemeContext";
 
@@ -42,6 +42,8 @@ const Navbar = () => {
 
 	const [isListingsDropdownOpen, setIsListingsDropdownOpen] = useState(false);
 	const [isMobileListingsDropdownOpen, setIsMobileListingsDropdownOpen] = useState(false);
+	const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
+	const [isMobileServicesDropdownOpen, setIsMobileServicesDropdownOpen] = useState(false);
 
 	// Nav links for unauthenticated users
 	const publicNavLinks = [
@@ -56,6 +58,7 @@ const Navbar = () => {
 		{ name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
 		{ name: "Marketplace", path: "/marketplace", icon: Package },
 		{ name: "My Exchanges", path: "/my-exchanges", icon: Handshake },
+		{ name: "Services", path: "/technician-requests", icon: Wrench },
 	];
 
 	// Listings dropdown items
@@ -64,6 +67,13 @@ const Navbar = () => {
 		{ name: "My Listings", path: "/my-listings", icon: List },
 		{ name: "Analytics", path: "/analytics", icon: TrendingUp },
 		{ name: "Leaderboard", path: "/leaderboard", icon: Trophy },
+	];
+
+	// Services dropdown items
+	const servicesDropdownItems = [
+		{ name: "Find Requests", path: "/technician-requests", icon: Wrench },
+		{ name: "My Requests", path: "/technician-requests/my-requests", icon: List },
+		{ name: "Create Request", path: "/technician-requests/create", icon: PlusCircle },
 	];
 
 	// Determine which links to show based on authentication
@@ -120,6 +130,35 @@ const Navbar = () => {
 												key={item.path}
 												to={item.path}
 												onClick={() => setIsListingsDropdownOpen(false)}
+												className='flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200'
+											>
+												<item.icon size={16} className='mr-2' />
+												{item.name}
+											</Link>
+										))}
+									</div>
+								)}
+							</div>
+						)}
+
+						{isAuthenticated && (
+							<div className='relative'>
+								<button
+									onClick={() => setIsServicesDropdownOpen(!isServicesDropdownOpen)}
+									className={`flex items-center px-1.5 py-2 rounded-md text-xs md:text-sm font-medium transition duration-300 text-muted-foreground hover:text-foreground hover:bg-accent`}
+								>
+									<Wrench size={14} className='mr-1.5' />
+									<span className='hidden md:inline'>Services</span>
+									<ChevronDown size={14} className={`ml-1 transition-transform ${isServicesDropdownOpen ? 'rotate-180' : ''}`} />
+								</button>
+
+								{isServicesDropdownOpen && (
+									<div className='absolute top-full left-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-xl border border-gray-700 py-2 z-50'>
+										{servicesDropdownItems.map((item) => (
+											<Link
+												key={item.path}
+												to={item.path}
+												onClick={() => setIsServicesDropdownOpen(false)}
 												className='flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200'
 											>
 												<item.icon size={16} className='mr-2' />
@@ -237,6 +276,38 @@ const Navbar = () => {
 													onClick={() => {
 														setIsMenuOpen(false);
 														setIsMobileListingsDropdownOpen(false);
+													}}
+													className='flex items-center px-4 py-2 rounded-lg text-sm text-gray-300 hover:bg-accent hover:text-white transition duration-200'
+												>
+													<item.icon size={16} className='mr-2' />
+													{item.name}
+												</Link>
+											))}
+										</div>
+									)}
+								</div>
+							)}
+
+							{isAuthenticated && (
+								<div>
+									<button
+										onClick={() => setIsMobileServicesDropdownOpen(!isMobileServicesDropdownOpen)}
+										className='flex items-center w-full px-4 py-3 rounded-lg text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-300'
+									>
+										<Wrench size={20} className='mr-3' />
+										Services
+										<ChevronDown size={16} className={`ml-auto transition-transform ${isMobileServicesDropdownOpen ? 'rotate-180' : ''}`} />
+									</button>
+
+									{isMobileServicesDropdownOpen && (
+										<div className='ml-8 mt-1 space-y-1'>
+											{servicesDropdownItems.map((item) => (
+												<Link
+													key={item.path}
+													to={item.path}
+													onClick={() => {
+														setIsMenuOpen(false);
+														setIsMobileServicesDropdownOpen(false);
 													}}
 													className='flex items-center px-4 py-2 rounded-lg text-sm text-gray-300 hover:bg-accent hover:text-white transition duration-200'
 												>
