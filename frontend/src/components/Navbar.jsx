@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ShoppingCart, User, Package, Leaf, Home, Info, HelpCircle, Phone, LogOut, LogIn, Sun, Moon, ChevronDown, Trophy, PlusCircle, List, TrendingUp, LayoutDashboard, Handshake, Wrench, Search, MessageCircle, Bell } from "lucide-react";
+import { Menu, X, ShoppingCart, User, Package, Leaf, Home, Info, HelpCircle, Phone, LogOut, LogIn, Sun, Moon, ChevronDown, Trophy, PlusCircle, List, TrendingUp, LayoutDashboard, Handshake, Wrench, Search, MessageCircle, Bell, Shield } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import { useTheme } from "../contexts/ThemeContext";
 
@@ -516,6 +516,18 @@ const UserMenu = ({ user, logout, isLoading, navigate, mobile = false }) => {
 								<span className='font-medium'>Saved Searches</span>
 							</div>
 						</Link>
+						{user?.userType === "admin" && (
+							<Link
+								to='/admin'
+								className='block px-4 py-2.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200 transform hover:translate-x-1 rounded-lg mx-2'
+								onClick={() => setIsOpen(false)}
+							>
+								<div className='flex items-center'>
+									<Shield size={14} className='mr-2 text-red-400' />
+									<span className='font-medium'>Admin Panel</span>
+								</div>
+							</Link>
+						)}
 						<button
 							disabled={isLoading}
 							onClick={handleLogout}
@@ -617,6 +629,18 @@ const UserMenu = ({ user, logout, isLoading, navigate, mobile = false }) => {
 							<span className='font-medium'>Saved Searches</span>
 						</div>
 					</Link>
+					{user?.userType === "admin" && (
+						<Link
+							to='/admin'
+							className='block px-4 py-3 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200 transform hover:translate-x-1 rounded-lg mx-2'
+							onClick={() => setIsOpen(false)}
+						>
+							<div className='flex items-center'>
+								<Shield size={16} className='mr-2 text-red-400' />
+								<span className='font-medium'>Admin Panel</span>
+							</div>
+						</Link>
+					)}
 					<button
 						disabled={isLoading}
 						onClick={handleLogout}

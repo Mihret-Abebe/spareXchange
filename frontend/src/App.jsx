@@ -48,6 +48,11 @@ import NotificationsPage from "./pages/NotificationsPage";
 import ReviewPage from "./pages/ReviewPage";
 import DisputeReportPage from "./pages/DisputeReportPage";
 
+// Module 8: Operations & Intelligence
+import AdminDashboard from "./pages/AdminDashboard";
+import AnalyticsDashboard from "./pages/AnalyticsDashboard";
+import ReportManagement from "./pages/ReportManagement";
+
 import LoadingSpinner from "./components/LoadingSpinner";
 
 import { Toaster } from "react-hot-toast";
@@ -381,6 +386,30 @@ function App() {
 				<Route path='/about' element={<><AboutPage /></>} />
 				<Route path='/faq' element={<><FaqPage /></>} />
 				<Route path='/contact' element={<><ContactPage /></>} />
+				<Route
+					path='/admin'
+					element={
+						<AdminRoute>
+							<AdminDashboard />
+						</AdminRoute>
+					}
+				/>
+				<Route
+					path='/admin/analytics'
+					element={
+						<AdminRoute>
+							<AnalyticsDashboard />
+						</AdminRoute>
+					}
+				/>
+				<Route
+					path='/admin/reports'
+					element={
+						<AdminRoute>
+							<ReportManagement />
+						</AdminRoute>
+					}
+				/>
 				<Route
 					path='/admin/disputes'
 					element={
