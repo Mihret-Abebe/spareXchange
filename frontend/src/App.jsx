@@ -48,6 +48,12 @@ import NotificationsPage from "./pages/NotificationsPage";
 import ReviewPage from "./pages/ReviewPage";
 import DisputeReportPage from "./pages/DisputeReportPage";
 
+// Module 9: Advanced Notifications & Mobile Integration
+import NotificationPreferencesPage from "./pages/NotificationPreferencesPage";
+import NotificationHistoryPage from "./pages/NotificationHistoryPage";
+import WebhookManagementPage from "./pages/WebhookManagementPage";
+import NotificationStatsPage from "./pages/NotificationStatsPage";
+
 // Module 8: Operations & Intelligence
 import AdminDashboard from "./pages/AdminDashboard";
 import AnalyticsDashboard from "./pages/AnalyticsDashboard";
@@ -321,6 +327,40 @@ function App() {
 					element={
 						<ProtectedRoute>
 							<NotificationsPage />
+						</ProtectedRoute>
+					}
+				/>
+				
+				{/* Module 9: Advanced Notifications & Mobile Integration Routes */}
+				<Route
+					path='/notifications/preferences'
+					element={
+						<ProtectedRoute>
+							<NotificationPreferencesPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/notifications/history'
+					element={
+						<ProtectedRoute>
+							<NotificationHistoryPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/notifications/webhooks'
+					element={
+						<ProtectedRoute>
+							<WebhookManagementPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/notifications/stats'
+					element={
+						<ProtectedRoute>
+							<NotificationStatsPage />
 						</ProtectedRoute>
 					}
 				/>

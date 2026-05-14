@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useNotificationStore } from "../store/notificationStore";
 import LoadingSpinner from "../components/LoadingSpinner";
+import PushNotificationSettings from "../components/PushNotificationSettings";
 import toast from "react-hot-toast";
 import {
 	Bell,
@@ -10,7 +11,9 @@ import {
 	Trash2,
 	CheckCheck,
 	ArrowLeft,
-	Clock
+	Clock,
+	Settings,
+	History
 } from "lucide-react";
 
 const NotificationsPage = () => {
@@ -174,7 +177,7 @@ const NotificationsPage = () => {
 				</div>
 
 				{/* Notifications List */}
-				<div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+				<div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden mb-6">
 					{filteredNotifications.length === 0 ? (
 						<div className="flex flex-col items-center justify-center py-16 px-4">
 							<Bell className="w-16 h-16 text-gray-400 mb-4" />
@@ -261,6 +264,47 @@ const NotificationsPage = () => {
 							))}
 						</div>
 					)}
+				</div>
+
+				{/* Quick Access Links */}
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+					<button
+						onClick={() => navigate('/notifications/preferences')}
+						className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+					>
+						<Settings className="w-6 h-6 text-blue-500" />
+						<div className="text-left">
+							<p className="font-semibold">Notification Settings</p>
+							<p className="text-xs text-gray-600 dark:text-gray-400">Manage preferences</p>
+						</div>
+					</button>
+					
+					<button
+						onClick={() => navigate('/notifications/history')}
+						className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+					>
+						<History className="w-6 h-6 text-purple-500" />
+						<div className="text-left">
+							<p className="font-semibold">View History</p>
+							<p className="text-xs text-gray-600 dark:text-gray-400">Browse all notifications</p>
+						</div>
+					</button>
+					
+					<button
+						onClick={() => navigate('/notifications/webhooks')}
+						className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+					>
+						<Bell className="w-6 h-6 text-orange-500" />
+						<div className="text-left">
+							<p className="font-semibold">Webhooks</p>
+							<p className="text-xs text-gray-600 dark:text-gray-400">Manage integrations</p>
+						</div>
+					</button>
+				</div>
+
+				{/* Push Notification Devices */}
+				<div className="mt-6">
+					<PushNotificationSettings />
 				</div>
 			</motion.div>
 		</div>
