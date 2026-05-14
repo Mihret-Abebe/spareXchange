@@ -13,8 +13,8 @@ import {
 	RefreshCcw,
 	Save,
 	Settings,
-	Bulletin,
-	Megaphone
+	Megaphone,
+    BellIcon
 } from "lucide-react";
 
 const NotificationPreferencesPage = () => {
@@ -102,7 +102,7 @@ const NotificationPreferencesPage = () => {
 			title: "System & Marketing",
 			icon: <Settings className="w-5 h-5" />,
 			items: [
-				{ key: "systemAnnouncements", label: "System Announcements", description: "Important platform updates and announcements", icon: <Bulletin className="w-5 h-5" /> },
+				{ key: "systemAnnouncements", label: "System Announcements", description: "Important platform updates and announcements", icon: <BellIcon className="w-5 h-5" /> },
 				{ key: "marketingEmails", label: "Marketing Emails", description: "Promotional content and special offers", icon: <Megaphone className="w-5 h-5" /> }
 			]
 		}
