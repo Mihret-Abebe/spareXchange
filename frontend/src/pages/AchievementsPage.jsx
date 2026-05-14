@@ -232,7 +232,7 @@ const AchievementsPage = () => {
                               <p className="text-sm text-gray-400 mb-2">{achievement.description}</p>
                               <div className="flex items-center gap-2">
                                 <span className={`px-2 py-1 bg-gradient-to-r ${getCategoryColor(achievement.category)} rounded-full text-xs font-bold`}>
-                                  {achievement.category.replace("_", " ")}
+                                  {achievement.category ? achievement.category.replace("_", " ") : "General"}
                                 </span>
                                 <span className="flex items-center gap-1 text-green-400 text-xs">
                                   <Unlock size={12} />

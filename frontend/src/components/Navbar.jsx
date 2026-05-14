@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ShoppingCart, User, Package, Leaf, Home, Info, HelpCircle, Phone, LogOut, LogIn, Sun, Moon, ChevronDown, Trophy, PlusCircle, List, TrendingUp, LayoutDashboard, Handshake, Wrench, Search, MessageCircle, Bell, Shield, Settings, Activity, Webhook, Users, Award } from "lucide-react";
+import { Menu, X, User, Package, Leaf, Home, Info, HelpCircle, Phone, LogOut, LogIn, Sun, Moon, ChevronDown, Trophy, PlusCircle, List, TrendingUp, LayoutDashboard, Handshake, Wrench, Search, MessageCircle, Bell, Shield, Users, Award, Activity, Settings, Webhook } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import { useTheme } from "../contexts/ThemeContext";
+import { useNotificationStore } from "../store/notificationStore";
+import { useMessageStore } from "../store/messageStore";
 
 const Navbar = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -11,7 +13,13 @@ const Navbar = () => {
 	const navigate = useNavigate();
 	const { isAuthenticated, user, logout, isLoading } = useAuthStore();
 	const { darkMode, toggleDarkMode } = useTheme();
+	const { unreadCount: unreadNotifications, getUnreadCount } = useNotificationStore();
+	const { unreadCount: unreadMessages, getUnreadMessagesCount } = useMessageStore();
 	const mobileMenuRef = useRef(null);
+	const navigationDropdownRef = useRef(null);
+	const inboxDropdownRef = useRef(null);
+	const listingsDropdownRef = useRef(null);
+	const communityDropdownRef = useRef(null);
 
 	// Handle window resize to toggle mobile view
 	useEffect(() => {
@@ -40,12 +48,44 @@ const Navbar = () => {
 		};
 	}, [isMenuOpen]);
 
+	// Close dropdowns when clicking outside
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			if (navigationDropdownRef.current && !navigationDropdownRef.current.contains(event.target)) {
+				setIsNavigationDropdownOpen(false);
+			}
+			if (inboxDropdownRef.current && !inboxDropdownRef.current.contains(event.target)) {
+				setIsInboxDropdownOpen(false);
+			}
+			if (listingsDropdownRef.current && !listingsDropdownRef.current.contains(event.target)) {
+				setIsListingsDropdownOpen(false);
+			}
+			if (communityDropdownRef.current && !communityDropdownRef.current.contains(event.target)) {
+				setIsCommunityDropdownOpen(false);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, []);
+
+	// Fetch unread counts on mount
+	useEffect(() => {
+		if (isAuthenticated) {
+			getUnreadCount().catch(() => {});
+			getUnreadMessagesCount().catch(() => {});
+		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isAuthenticated]);
+
+	const [isNavigationDropdownOpen, setIsNavigationDropdownOpen] = useState(false);
+	const [isMobileNavigationDropdownOpen, setIsMobileNavigationDropdownOpen] = useState(false);
+	const [isInboxDropdownOpen, setIsInboxDropdownOpen] = useState(false);
+	const [isMobileInboxDropdownOpen, setIsMobileInboxDropdownOpen] = useState(false);
 	const [isListingsDropdownOpen, setIsListingsDropdownOpen] = useState(false);
-	const [isMobileListingsDropdownOpen, setIsMobileListingsDropdownOpen] = useState(false);
-	const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
-	const [isMobileServicesDropdownOpen, setIsMobileServicesDropdownOpen] = useState(false);
 	const [isCommunityDropdownOpen, setIsCommunityDropdownOpen] = useState(false);
-	const [isMobileCommunityDropdownOpen, setIsMobileCommunityDropdownOpen] = useState(false);
 
 	// Nav links for unauthenticated users
 	const publicNavLinks = [
@@ -55,14 +95,17 @@ const Navbar = () => {
 		{ name: "Contact", path: "/contact", icon: Phone },
 	];
 
-	// Nav links for authenticated users
-	const authNavLinks = [
+	// Navigation dropdown items
+	const navigationDropdownItems = [
 		{ name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
 		{ name: "Marketplace", path: "/marketplace", icon: Package },
 		{ name: "My Exchanges", path: "/my-exchanges", icon: Handshake },
+	];
+
+	// Inbox dropdown items
+	const inboxDropdownItems = [
 		{ name: "Messages", path: "/messages", icon: MessageCircle },
 		{ name: "Notifications", path: "/notifications", icon: Bell },
-		{ name: "Services", path: "/technician-requests", icon: Wrench },
 	];
 
 	// Listings dropdown items
@@ -72,10 +115,6 @@ const Navbar = () => {
 		{ name: "Saved Searches", path: "/saved-searches", icon: Search },
 		{ name: "Analytics", path: "/analytics", icon: TrendingUp },
 		{ name: "Leaderboard", path: "/leaderboard", icon: Trophy },
-	];
-
-	// Services dropdown items
-	const servicesDropdownItems = [
 		{ name: "Find Requests", path: "/technician-requests", icon: Wrench },
 		{ name: "My Requests", path: "/technician-requests/my-requests", icon: List },
 		{ name: "Create Request", path: "/technician-requests/create", icon: PlusCircle },
@@ -88,8 +127,8 @@ const Navbar = () => {
 		{ name: "Leaderboard", path: "/leaderboard", icon: Trophy },
 	];
 
-	// Determine which links to show based on authentication
-	const visibleNavLinks = isAuthenticated ? authNavLinks : publicNavLinks;
+	// For public users, show public nav links directly
+	const visibleNavLinks = !isAuthenticated ? publicNavLinks : [];
 
 	const isActive = (path) => {
 		if (path === "/" && location.pathname === "/") return true;
@@ -110,22 +149,81 @@ const Navbar = () => {
 
 					{/* Desktop Navigation */}
 					<div className={`${isMobile || isMenuOpen ? 'hidden' : 'flex'} items-center space-x-2 lg:space-x-4`}>
-						{visibleNavLinks.map((link) => (
-							<Link
-								key={link.path}
-								to={link.path}
-								className={`flex items-center px-1.5 py-2 rounded-md text-xs md:text-sm font-medium transition duration-300 ${isActive(link.path)
-									? "text-green-400 "
-									: "text-muted-foreground hover:text-foreground hover:bg-accent"
-									}`}
-							>
-								<link.icon size={14} className='mr-1.5' />
-								<span className='hidden md:inline'>{link.name}</span>
-							</Link>
-						))}
+						{isAuthenticated && (
+							<div className='relative' ref={navigationDropdownRef}>
+								<button
+									onClick={() => setIsNavigationDropdownOpen(!isNavigationDropdownOpen)}
+									className={`flex items-center px-1.5 py-2 rounded-md text-xs md:text-sm font-medium transition duration-300 text-muted-foreground hover:text-foreground hover:bg-accent`}
+								>
+									<LayoutDashboard size={14} className='mr-1.5' />
+									<span className='hidden md:inline'>Navigation</span>
+									<ChevronDown size={14} className={`ml-1 transition-transform ${isNavigationDropdownOpen ? 'rotate-180' : ''}`} />
+								</button>
+
+								{isNavigationDropdownOpen && (
+									<div className='absolute top-full left-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-xl border border-gray-700 py-2 z-50'>
+										{navigationDropdownItems.map((item) => (
+											<Link
+												key={item.path}
+												to={item.path}
+												onClick={() => setIsNavigationDropdownOpen(false)}
+												className='flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200'
+											>
+												<item.icon size={16} className='mr-2' />
+												{item.name}
+											</Link>
+										))}
+									</div>
+								)}
+							</div>
+						)}
 
 						{isAuthenticated && (
-							<div className='relative'>
+							<div className='relative' ref={inboxDropdownRef}>
+								<button
+									onClick={() => setIsInboxDropdownOpen(!isInboxDropdownOpen)}
+									className={`flex items-center px-1.5 py-2 rounded-md text-xs md:text-sm font-medium transition duration-300 text-muted-foreground hover:text-foreground hover:bg-accent`}
+								>
+									<Bell size={14} className='mr-1.5' />
+									<span className='hidden md:inline'>Inbox</span>
+									<ChevronDown size={14} className={`ml-1 transition-transform ${isInboxDropdownOpen ? 'rotate-180' : ''}`} />
+									{(unreadNotifications > 0 || unreadMessages > 0) && (
+										<span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+											{unreadNotifications + unreadMessages > 9 ? '9+' : unreadNotifications + unreadMessages}
+										</span>
+									)}
+								</button>
+
+								{isInboxDropdownOpen && (
+									<div className='absolute top-full left-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-xl border border-gray-700 py-2 z-50'>
+										{inboxDropdownItems.map((item) => {
+											const count = item.name === 'Messages' ? unreadMessages : item.name === 'Notifications' ? unreadNotifications : 0;
+											return (
+												<Link
+													key={item.path}
+													to={item.path}
+													onClick={() => setIsInboxDropdownOpen(false)}
+													className='flex items-center justify-between px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200'
+												>
+													<div className="flex items-center">
+														<item.icon size={16} className='mr-2' />
+														{item.name}
+													</div>
+													{count > 0 && (
+														<span className="bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+															{count > 9 ? '9+' : count}
+														</span>
+													)}
+												</Link>
+											);
+										})}
+									</div>
+								)}
+							</div>
+						)}
+
+						{isAuthenticated && (
+							<div className='relative' ref={listingsDropdownRef}>
 								<button
 									onClick={() => setIsListingsDropdownOpen(!isListingsDropdownOpen)}
 									className={`flex items-center px-1.5 py-2 rounded-md text-xs md:text-sm font-medium transition duration-300 text-muted-foreground hover:text-foreground hover:bg-accent`}
@@ -136,7 +234,7 @@ const Navbar = () => {
 								</button>
 
 								{isListingsDropdownOpen && (
-									<div className='absolute top-full left-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-xl border border-gray-700 py-2 z-50'>
+									<div className='absolute top-full left-0 mt-2 w-56 bg-gray-800 rounded-lg shadow-xl border border-gray-700 py-2 z-50'>
 										{listingsDropdownItems.map((item) => (
 											<Link
 												key={item.path}
@@ -154,36 +252,7 @@ const Navbar = () => {
 						)}
 
 						{isAuthenticated && (
-							<div className='relative'>
-								<button
-									onClick={() => setIsServicesDropdownOpen(!isServicesDropdownOpen)}
-									className={`flex items-center px-1.5 py-2 rounded-md text-xs md:text-sm font-medium transition duration-300 text-muted-foreground hover:text-foreground hover:bg-accent`}
-								>
-									<Wrench size={14} className='mr-1.5' />
-									<span className='hidden md:inline'>Services</span>
-									<ChevronDown size={14} className={`ml-1 transition-transform ${isServicesDropdownOpen ? 'rotate-180' : ''}`} />
-								</button>
-
-								{isServicesDropdownOpen && (
-									<div className='absolute top-full left-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-xl border border-gray-700 py-2 z-50'>
-										{servicesDropdownItems.map((item) => (
-											<Link
-												key={item.path}
-												to={item.path}
-												onClick={() => setIsServicesDropdownOpen(false)}
-												className='flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200'
-											>
-												<item.icon size={16} className='mr-2' />
-												{item.name}
-											</Link>
-										))}
-									</div>
-								)}
-							</div>
-						)}
-
-						{isAuthenticated && (
-							<div className='relative'>
+							<div className='relative' ref={communityDropdownRef}>
 								<button
 									onClick={() => setIsCommunityDropdownOpen(!isCommunityDropdownOpen)}
 									className={`flex items-center px-1.5 py-2 rounded-md text-xs md:text-sm font-medium transition duration-300 text-muted-foreground hover:text-foreground hover:bg-accent`}
@@ -214,11 +283,6 @@ const Navbar = () => {
 
 					{/* Search and Actions */}
 					<div className={`${isMobile ? 'hidden' : 'flex'} items-center space-x-1 lg:space-x-2 min-w-max`}>
-						{isAuthenticated && (
-							<button className='p-2 rounded-full hover:bg-accent transition duration-300'>
-								<ShoppingCart size={20} className='text-muted-foreground' />
-							</button>
-						)}
 						<button
 							onClick={toggleDarkMode}
 							className='p-2 rounded-full hover:bg-accent transition duration-300'
@@ -251,11 +315,6 @@ const Navbar = () => {
 
 					{/* Mobile menu button */}
 					<div className={`${isMobile ? 'flex' : 'hidden'} items-center space-x-2 z-50`}>
-						{isAuthenticated && (
-							<button className='p-2 rounded-full hover:bg-accent transition duration-300'>
-								<ShoppingCart size={20} className='text-muted-foreground' />
-							</button>
-						)}
 						<button
 							onClick={toggleDarkMode}
 							className='p-2 rounded-full hover:bg-accent transition duration-300'
@@ -296,27 +355,27 @@ const Navbar = () => {
 									{link.name}
 								</Link>
 							))}
-
+							
 							{isAuthenticated && (
 								<div>
 									<button
-										onClick={() => setIsMobileListingsDropdownOpen(!isMobileListingsDropdownOpen)}
+										onClick={() => setIsMobileNavigationDropdownOpen(!isMobileNavigationDropdownOpen)}
 										className='flex items-center w-full px-4 py-3 rounded-lg text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-300'
 									>
-										<Package size={20} className='mr-3' />
-										Listings
-										<ChevronDown size={16} className={`ml-auto transition-transform ${isMobileListingsDropdownOpen ? 'rotate-180' : ''}`} />
+										<LayoutDashboard size={20} className='mr-3' />
+										Navigation
+										<ChevronDown size={16} className={`ml-auto transition-transform ${isMobileNavigationDropdownOpen ? 'rotate-180' : ''}`} />
 									</button>
-
-									{isMobileListingsDropdownOpen && (
+							
+									{isMobileNavigationDropdownOpen && (
 										<div className='ml-8 mt-1 space-y-1'>
-											{listingsDropdownItems.map((item) => (
+											{navigationDropdownItems.map((item) => (
 												<Link
 													key={item.path}
 													to={item.path}
 													onClick={() => {
 														setIsMenuOpen(false);
-														setIsMobileListingsDropdownOpen(false);
+														setIsMobileNavigationDropdownOpen(false);
 													}}
 													className='flex items-center px-4 py-2 rounded-lg text-sm text-gray-300 hover:bg-accent hover:text-white transition duration-200'
 												>
@@ -328,34 +387,49 @@ const Navbar = () => {
 									)}
 								</div>
 							)}
-
+							
 							{isAuthenticated && (
 								<div>
 									<button
-										onClick={() => setIsMobileServicesDropdownOpen(!isMobileServicesDropdownOpen)}
+										onClick={() => setIsMobileInboxDropdownOpen(!isMobileInboxDropdownOpen)}
 										className='flex items-center w-full px-4 py-3 rounded-lg text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-300'
 									>
-										<Wrench size={20} className='mr-3' />
-										Services
-										<ChevronDown size={16} className={`ml-auto transition-transform ${isMobileServicesDropdownOpen ? 'rotate-180' : ''}`} />
+										<Bell size={20} className='mr-3' />
+										Inbox
+										{(unreadNotifications > 0 || unreadMessages > 0) && (
+											<span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+												{unreadNotifications + unreadMessages > 9 ? '9+' : unreadNotifications + unreadMessages}
+											</span>
+										)}
+										<ChevronDown size={16} className={`ml-2 transition-transform ${isMobileInboxDropdownOpen ? 'rotate-180' : ''}`} />
 									</button>
-
-									{isMobileServicesDropdownOpen && (
+							
+									{isMobileInboxDropdownOpen && (
 										<div className='ml-8 mt-1 space-y-1'>
-											{servicesDropdownItems.map((item) => (
-												<Link
-													key={item.path}
-													to={item.path}
-													onClick={() => {
-														setIsMenuOpen(false);
-														setIsMobileServicesDropdownOpen(false);
-													}}
-													className='flex items-center px-4 py-2 rounded-lg text-sm text-gray-300 hover:bg-accent hover:text-white transition duration-200'
-												>
-													<item.icon size={16} className='mr-2' />
-													{item.name}
-												</Link>
-											))}
+											{inboxDropdownItems.map((item) => {
+												const count = item.name === 'Messages' ? unreadMessages : item.name === 'Notifications' ? unreadNotifications : 0;
+												return (
+													<Link
+														key={item.path}
+														to={item.path}
+														onClick={() => {
+															setIsMenuOpen(false);
+															setIsMobileInboxDropdownOpen(false);
+														}}
+														className='flex items-center justify-between px-4 py-2 rounded-lg text-sm text-gray-300 hover:bg-accent hover:text-white transition duration-200'
+													>
+														<div className="flex items-center">
+															<item.icon size={16} className='mr-2' />
+															{item.name}
+														</div>
+														{count > 0 && (
+															<span className="bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+																{count > 9 ? '9+' : count}
+															</span>
+														)}
+													</Link>
+												);
+											})}
 										</div>
 									)}
 								</div>
@@ -363,12 +437,9 @@ const Navbar = () => {
 							<div className='pt-4 pb-3 border-t border-border mt-2 dark:border-gray-700'>
 								{isAuthenticated && (
 									<div className='flex items-center justify-between px-3 mb-4'>
-										<button className='p-3 rounded-full bg-accent hover:bg-accent/80 transition duration-300'>
-											<ShoppingCart size={20} className='text-muted-foreground' />
-										</button>
 										<button
 											onClick={toggleDarkMode}
-											className='p-3 rounded-full bg-accent hover:bg-accent/80 transition duration-300'
+											className='p-3 rounded-full bg-accent hover:bg-accent/80 transition duration-300 ml-auto'
 											aria-label='Toggle dark mode'
 										>
 											{darkMode ? <Sun size={20} className='text-yellow-400' /> : <Moon size={20} className='text-muted-foreground' />}

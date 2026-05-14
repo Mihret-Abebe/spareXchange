@@ -31,6 +31,7 @@ export const useAuthStore = create((set) => ({
 	message: null,
 	mfaRequired: false,
 	mfaEmail: null,
+	isVerified: false,
 
 	signup: async (email, password, name, accountType = "user") => {
 		set({ isLoading: true, error: null });

@@ -116,3 +116,19 @@ export const markAsRead = async (req, res) => {
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };
+
+export const getUnreadMessagesCount = async (req, res) => {
+	try {
+		const userId = req.userId;
+
+		const count = await Message.countDocuments({
+			receiverId: userId,
+			isRead: false
+		});
+
+		res.status(200).json({ success: true, count });
+	} catch (error) {
+		console.error("Error in getUnreadMessagesCount: ", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};

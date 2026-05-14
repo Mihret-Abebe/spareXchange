@@ -82,15 +82,15 @@ const ListingDetailPage = () => {
 	if (!listing) return <div className='min-h-screen bg-background flex items-center justify-center text-white'>Listing not found</div>;
 
 	return (
-		<div className='min-h-screen bg-background text-white'>
+		<div className='min-h-screen bg-background text-foreground dark:text-white dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 dark:text-white'>
 			<div className='container mx-auto px-4 py-8'>
 				{/* Breadcrumb */}
-				<nav className='mb-6 text-sm text-gray-400'>
+				<nav className='mb-6 text-sm text-gray-500'>
 					<Link to='/' className='hover:text-green-400'>Home</Link>
 					<span className='mx-2'>/</span>
 					<Link to='/marketplace' className='hover:text-green-400'>Marketplace</Link>
 					<span className='mx-2'>/</span>
-					<span className='text-white'>{listing.title}</span>
+					<span className='text-primary'>{listing.title}</span>
 				</nav>
 
 				<motion.div
@@ -105,7 +105,7 @@ const ListingDetailPage = () => {
 							<img
 								src={listing.images?.[selectedImage] || "/placeholder-image.jpg"}
 								alt={listing.title}
-								className='w-full h-96 object-cover rounded-xl border border-gray-700'
+								className='w-full h-96 object-cover rounded-xl border border-primary/70'
 							/>
 						</div>
 						<div className='flex gap-2 overflow-x-auto pb-2'>
@@ -124,7 +124,7 @@ const ListingDetailPage = () => {
 					</div>
 
 					{/* Product Info */}
-					<div>
+					<div className="border border-primary rounded-md p-4">
 						<div className='mb-4'>
 							<div className='flex justify-between items-start'>
 								<h1 className='text-3xl font-bold mb-2'>{listing.title}</h1>
@@ -195,17 +195,17 @@ const ListingDetailPage = () => {
 						<div className='mb-6'>
 							<div className='flex items-center mb-4'>
 								<span className='mr-3'>Quantity:</span>
-								<div className='flex items-center border border-gray-700 rounded-lg'>
+								<div className='flex items-center border border-gray-700 dark:border-white rounded-lg'>
 									<button
 										onClick={() => setQuantity(Math.max(1, quantity - 1))}
-										className='px-3 py-1 text-gray-300 hover:bg-gray-700'
+										className='px-3 py-1 text-gray-300 hover:bg-gray-700 hover:rounded-lg '
 									>
 										-
 									</button>
 									<span className='px-3 py-1'>{quantity}</span>
 									<button
 										onClick={() => setQuantity(quantity + 1)}
-										className='px-3 py-1 text-gray-300 hover:bg-gray-700'
+										className='px-3 py-1 text-gray-300 hover:bg-gray-700 hover:rounded-lg'
 									>
 										+
 									</button>

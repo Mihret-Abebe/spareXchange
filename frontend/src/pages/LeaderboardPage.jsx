@@ -4,6 +4,7 @@ import { Trophy, Award, TrendingUp, Users, Search, Loader2, Sparkles } from "luc
 import TierBadge from "../components/TierBadge";
 import { useAuthStore } from "../store/authStore";
 import toast from "react-hot-toast";
+import axios from "axios";
 
 const LeaderboardPage = () => {
 	const { user } = useAuthStore();
@@ -14,14 +15,9 @@ const LeaderboardPage = () => {
 	useEffect(() => {
 		const fetchLeaderboard = async () => {
 			try {
-				const response = await fetch("http://localhost:5000/api/users/leaderboard", {
-					headers: {
-						Authorization: `Bearer ${localStorage.getItem("token")}`, // Assuming token is in localStorage
-					},
-				});
-				const data = await response.json();
-				if (data.success) {
-					setLeaderboard(data.leaderboard);
+				const response = await axios.get("http://localhost:5000/api/users/leaderboard");
+				if (response.data.success) {
+					setLeaderboard(response.data.leaderboard);
 				} else {
 					toast.error("Failed to load leaderboard");
 				}

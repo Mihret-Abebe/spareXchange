@@ -10,6 +10,7 @@ export const useMessageStore = create((set) => ({
 	currentConversation: [],
 	loading: false,
 	error: null,
+	unreadCount: 0,
 
 	getConversations: async () => {
 		set({ loading: true, error: null });
@@ -59,10 +60,22 @@ export const useMessageStore = create((set) => ({
 			set(state => ({
 				conversations: state.conversations.map(conv => 
 					conv.user._id === senderId ? { ...conv, isRead: true } : conv
-				)
+				),
+				unreadCount: Math.max(0, state.unreadCount - 1)
 			}));
 		} catch (error) {
 			console.error("Failed to mark as read:", error);
+			throw error;
+		}
+	},
+
+	getUnreadMessagesCount: async () => {
+		try {
+			const res = await axios.get(`${API_URL}/unread-count`);
+			set({ unreadCount: res.data.count });
+			return res.data.count;
+		} catch (error) {
+			console.error("Failed to get unread messages count:", error);
 			throw error;
 		}
 	},

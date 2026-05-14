@@ -49,6 +49,10 @@
 	},
 	"jest": {
 		"testEnvironment": "node",
+		"roots": ["<rootDir>/tests/backend"],
+		"testMatch": [
+			"**/tests/backend/**/*.test.js"
+		],
 		"transform": {
 			"^.+\\.jsx?$": "babel-jest"
 		},
@@ -56,7 +60,7 @@
 			"node_modules/(?!(@scure|otplib|@otplib|@noble)/)"
 		],
 		"setupFilesAfterEnv": [
-			"./backend/tests/setup.js"
+			"<rootDir>/tests/backend/legacy/setup.js"
 		],
 		"testTimeout": 60000
 	}
