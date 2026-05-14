@@ -14,7 +14,8 @@ import {
 	ShoppingCart,
 	Eye,
 	CheckCircle,
-	MessageSquare
+	MessageSquare,
+	Recycle
 } from "lucide-react";
 import { useListingStore } from "../store/listingStore";
 
@@ -73,7 +74,7 @@ const IndividualDashboard = () => {
 		{ name: "Sell Parts", path: "/create-listing", icon: PlusCircle, color: "bg-green-600 hover:bg-green-700" },
 		{ name: "Browse Marketplace", path: "/marketplace", icon: ShoppingCart, color: "bg-blue-600 hover:bg-blue-700" },
 		{ name: "Request Repair", path: "/technician-requests", icon: MessageSquare, color: "bg-purple-600 hover:bg-purple-700" },
-		{ name: "Recycle Items", path: "/recycling", icon: Leaf, color: "bg-teal-600 hover:bg-teal-700" },
+		{ name: "Recycle Items", path: "/recycle/submit", icon: Recycle, color: "bg-teal-600 hover:bg-teal-700" },
 	];
 
 	return (
@@ -144,9 +145,13 @@ const IndividualDashboard = () => {
 								<span>{user.ecoTier === "Gaia" ? "Max Tier" : `Next: ${user.ecoTier === "Seed" ? "Sprout" : user.ecoTier === "Sprout" ? "Sapling" : user.ecoTier === "Sapling" ? "Oak" : "Gaia"}`}</span>
 							</div>
 						</div>
-						<Link to='/leaderboard' className='flex items-center justify-center gap-2 w-full py-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-semibold transition duration-200'>
+						<Link to='/leaderboard' className='flex items-center justify-center gap-2 w-full py-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-semibold transition duration-200 mb-2'>
 							<Trophy size={18} className='text-yellow-500' />
 							View Leaderboard
+						</Link>
+						<Link to='/recycle/my-submissions' className='flex items-center justify-center gap-2 w-full py-3 bg-teal-600 hover:bg-teal-700 rounded-lg text-white font-semibold transition duration-200'>
+							<Recycle size={18} />
+							My Submissions
 						</Link>
 					</motion.div>
 

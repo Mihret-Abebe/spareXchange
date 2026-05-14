@@ -3,12 +3,13 @@ import { motion } from "framer-motion";
 import { User, Mail, MapPin, Edit3, Star, Package, CreditCard, Settings, LogOut, CheckCircle, AlertCircle, Clock, ShieldCheck, Award, Shield } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import PointsRedemptionModal from "../components/PointsRedemptionModal";
 
 const ProfilePage = () => {
 	const navigate = useNavigate();
-	const { user, logout, requestVerificationWithFiles, redeemPoints } = useAuthStore();
+	const { user, logout, requestVerificationWithFiles } = useAuthStore();
 	const [activeTab, setActiveTab] = useState("profile");
-	const [isRedeeming, setIsRedeeming] = useState(false);
+	const [showRedemptionModal, setShowRedemptionModal] = useState(false);
 	const [accountType, setAccountType] = useState("individual");
 	const [verificationFiles, setVerificationFiles] = useState([]);
 	const [isSubmittingVerification, setIsSubmittingVerification] = useState(false);
@@ -359,7 +360,7 @@ const ProfilePage = () => {
 													if (user.roleStatus !== "verified") {
 														alert("Only verified users can redeem points.");
 													} else {
-														setIsRedeeming(true);
+														setShowRedemptionModal(true);
 													}
 												}}
 												className='text-green-400 hover:text-green-300 font-bold ml-4'
@@ -368,30 +369,6 @@ const ProfilePage = () => {
 											</button>
 										</div>
 									</div>
-									{isRedeeming && (
-										<motion.div
-											initial={{ height: 0, opacity: 0 }}
-											animate={{ height: "auto", opacity: 1 }}
-											className='bg-gray-900 p-4 rounded-lg mb-4 border border-green-500'
-										>
-											<h4 className='font-bold mb-2'>Redeem 500 Points?</h4>
-											<p className='text-xs text-gray-400 mb-3'>Redeem points for specialized technician tools or discounts.</p>
-											<div className='flex gap-2'>
-												<button
-													onClick={() => redeemPoints(500, "Point Redemption Test")}
-													className='px-3 py-1 bg-green-600 rounded text-sm hover:bg-green-700'
-												>
-													Confirm (500 Pts)
-												</button>
-												<button
-													onClick={() => setIsRedeeming(false)}
-													className='px-3 py-1 bg-gray-700 rounded text-sm hover:bg-gray-600'
-												>
-													Cancel
-												</button>
-											</div>
-										</motion.div>
-									)}
 									<div className='grid grid-cols-2 gap-4'>
 										<div className='bg-gray-700 rounded-lg p-4 text-center'>
 											<div className='text-2xl font-bold text-green-400'>{user.listings}</div>
@@ -573,6 +550,12 @@ const ProfilePage = () => {
 						</motion.div>
 					)}
 				</motion.div>
+
+				{/* Points Redemption Modal */}
+				<PointsRedemptionModal 
+					isOpen={showRedemptionModal} 
+					onClose={() => setShowRedemptionModal(false)} 
+				/>
 			</div>
 		</div>
 	);

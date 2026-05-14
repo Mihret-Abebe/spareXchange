@@ -26,6 +26,11 @@ import AnalyticsPage from "./pages/AnalyticsPage";
 import MyExchangesPage from "./pages/MyExchangesPage";
 import ExchangeDetailPage from "./pages/ExchangeDetailPage";
 
+// Module 4: Sustainability & Incentives
+import RecyclingSubmissionPage from "./pages/RecyclingSubmissionPage";
+import MySubmissionsPage from "./pages/MySubmissionsPage";
+import RecyclerVerificationPage from "./pages/RecyclerVerificationPage";
+
 import LoadingSpinner from "./components/LoadingSpinner";
 
 import { Toaster } from "react-hot-toast";
@@ -190,6 +195,32 @@ function App() {
 					element={
 						<ProtectedRoute>
 							<ExchangeDetailPage />
+						</ProtectedRoute>
+					}
+				/>
+
+				{/* Module 4: Sustainability & Incentives Routes */}
+				<Route
+					path='/recycle/submit'
+					element={
+						<ProtectedRoute>
+							<RecyclingSubmissionPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/recycle/my-submissions'
+					element={
+						<ProtectedRoute>
+							<MySubmissionsPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/recycle/verify'
+					element={
+						<ProtectedRoute>
+							<RecyclerVerificationPage />
 						</ProtectedRoute>
 					}
 				/>

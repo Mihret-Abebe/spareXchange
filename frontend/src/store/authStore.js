@@ -291,4 +291,71 @@ export const useAuthStore = create((set) => ({
 			throw error;
 		}
 	},
+
+	// Module 4: Recycling Submission Functions
+	createRecyclingSubmission: async (submissionData) => {
+		set({ isLoading: true, error: null });
+		try {
+			const API_URL_RECYCLING = import.meta.env.MODE === "development" 
+				? "http://localhost:5000/api/recycling-submissions" 
+				: "/api/recycling-submissions";
+			
+			const response = await axios.post(API_URL_RECYCLING, submissionData);
+			set({ isLoading: false, message: response.data.message });
+			return response.data;
+		} catch (error) {
+			set({ error: error.response?.data?.message || "Error creating recycling submission", isLoading: false });
+			throw error;
+		}
+	},
+
+	getUserRecyclingSubmissions: async () => {
+		set({ isLoading: true, error: null });
+		try {
+			const API_URL_RECYCLING = import.meta.env.MODE === "development" 
+				? "http://localhost:5000/api/recycling-submissions" 
+				: "/api/recycling-submissions";
+			
+			const response = await axios.get(`${API_URL_RECYCLING}/user`);
+			set({ isLoading: false });
+			return response.data;
+		} catch (error) {
+			set({ error: error.response?.data?.message || "Error fetching submissions", isLoading: false });
+			throw error;
+		}
+	},
+
+	verifyRecyclingByToken: async (token) => {
+		set({ isLoading: true, error: null });
+		try {
+			const API_URL_RECYCLING = import.meta.env.MODE === "development" 
+				? "http://localhost:5000/api/recycling-submissions" 
+				: "/api/recycling-submissions";
+			
+			const response = await axios.post(`${API_URL_RECYCLING}/verify-token`, { token });
+			set({ isLoading: false, message: response.data.message });
+			return response.data;
+		} catch (error) {
+			set({ error: error.response?.data?.message || "Error verifying recycling", isLoading: false });
+			throw error;
+		}
+	},
+
+	getNearbyRecyclers: async (latitude, longitude, radius = 50) => {
+		set({ isLoading: true, error: null });
+		try {
+			const API_URL_RECYCLING = import.meta.env.MODE === "development" 
+				? "http://localhost:5000/api/recycling-submissions" 
+				: "/api/recycling-submissions";
+			
+			const response = await axios.get(`${API_URL_RECYCLING}/discovery`, {
+				params: { latitude, longitude, radius }
+			});
+			set({ isLoading: false });
+			return response.data;
+		} catch (error) {
+			set({ error: error.response?.data?.message || "Error fetching nearby recyclers", isLoading: false });
+			throw error;
+		}
+	},
 }));
