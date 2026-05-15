@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, User, Package, Leaf, Home, Info, HelpCircle, Phone, LogOut, LogIn, Sun, Moon, ChevronDown, Trophy, PlusCircle, List, TrendingUp, LayoutDashboard, Handshake, Wrench, Search, MessageCircle, Bell, Shield, Users, Award, Activity, Settings, Webhook } from "lucide-react";
+import { Menu, X, User, Package, Leaf, Home, Info, HelpCircle, Phone, LogOut, LogIn, Sun, Moon, ChevronDown, Trophy, PlusCircle, List, TrendingUp, LayoutDashboard, Handshake, Wrench, Search, MessageCircle, Bell, Shield, Users, Award, Activity, Settings, Webhook, ShoppingCart } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import { useTheme } from "../contexts/ThemeContext";
 import { useNotificationStore } from "../store/notificationStore";
 import { useMessageStore } from "../store/messageStore";
+import { useCartStore } from "../store/cartStore";
 
 const Navbar = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -15,6 +16,7 @@ const Navbar = () => {
 	const { darkMode, toggleDarkMode } = useTheme();
 	const { unreadCount: unreadNotifications, getUnreadCount } = useNotificationStore();
 	const { unreadCount: unreadMessages, getUnreadMessagesCount } = useMessageStore();
+	const { cartItems, initializeCart, getCartCount } = useCartStore();
 	const mobileMenuRef = useRef(null);
 	const navigationDropdownRef = useRef(null);
 	const inboxDropdownRef = useRef(null);
@@ -71,12 +73,13 @@ const Navbar = () => {
 		};
 	}, []);
 
-	// Fetch unread counts on mount
+	// Fetch unread counts and initialize cart on mount
 	useEffect(() => {
 		if (isAuthenticated) {
 			getUnreadCount().catch(() => {});
 			getUnreadMessagesCount().catch(() => {});
 		}
+		initializeCart();
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isAuthenticated]);
 
@@ -283,6 +286,16 @@ const Navbar = () => {
 
 					{/* Search and Actions */}
 					<div className={`${isMobile ? 'hidden' : 'flex'} items-center space-x-1 lg:space-x-2 min-w-max`}>
+						{isAuthenticated && (
+							<Link to="/cart" className='relative p-2 rounded-full hover:bg-accent transition duration-300'>
+								<ShoppingCart size={20} className='text-muted-foreground' />
+								{getCartCount() > 0 && (
+									<span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+										{getCartCount() > 9 ? '9+' : getCartCount()}
+									</span>
+								)}
+							</Link>
+						)}
 						<button
 							onClick={toggleDarkMode}
 							className='p-2 rounded-full hover:bg-accent transition duration-300'

@@ -1,21 +1,37 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Star, MapPin, Truck, Shield, RotateCcw, AlertTriangle, ShoppingCart, Mail, User, Handshake } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { useDisputeStore } from "../store/disputeStore";
+import { useCartStore } from "../store/cartStore";
 import ProposeExchangeModal from "../components/ProposeExchangeModal";
 import LoadingSpinner from "../components/LoadingSpinner";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 const ListingDetailPage = () => {
 	const { id } = useParams();
+	const navigate = useNavigate();
 	const { user } = useAuthStore();
 	const { createDispute } = useDisputeStore();
+	const { addToCart } = useCartStore();
 	const [listing, setListing] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [quantity, setQuantity] = useState(1);
 	const [selectedImage, setSelectedImage] = useState(0);
 	const [showExchangeModal, setShowExchangeModal] = useState(false);
+
+	const getImageUrl = (imagePath) => {
+		if (!imagePath) return "/placeholder-image.jpg";
+		// If it's already a full URL, return as is
+		if (imagePath.startsWith("http")) return imagePath;
+		// If it's a local upload path, prepend backend URL
+		if (imagePath.startsWith("/uploads")) {
+			return `http://localhost:5000${imagePath}`;
+		}
+		return imagePath;
+	};
 
 	useEffect(() => {
 		const fetchListing = async () => {
@@ -59,11 +75,48 @@ const ListingDetailPage = () => {
 	};
 
 	const handleAddToCart = () => {
-		console.log(`Added ${quantity} of ${listing.title} to cart`);
+		if (!user) {
+			toast.error("Please login to add items to cart");
+			navigate("/login");
+			return;
+		}
+		
+		addToCart(listing, quantity);
+		toast.success(`Added ${quantity} x ${listing.title} to cart!`);
 	};
 
-	const handleBuyNow = () => {
-		console.log(`Buying ${quantity} of ${listing.title} now`);
+	const handleBuyNow = async () => {
+		if (!user) {
+			toast.error("Please login to proceed");
+			navigate("/login");
+			return;
+		}
+
+		if (listing.seller?._id === user._id) {
+			toast.error("You cannot buy your own listing");
+			return;
+		}
+
+		try {
+			// Send notification to listing owner
+			await axios.post(`http://localhost:5000/api/notifications`, {
+				userId: listing.seller._id,
+				title: "Purchase Interest",
+				message: `${user.name} is interested in buying "${listing.title}" (Qty: ${quantity}). Contact them to proceed with the exchange!`,
+				type: "exchange_proposed",
+				link: `/listing/${id}`
+			});
+
+			toast.success("Seller has been notified of your interest!");
+			
+			// Redirect to messages to contact seller
+			setTimeout(() => {
+				navigate(`/messages/${listing.seller._id}`);
+			}, 1500);
+		} catch (error) {
+			console.error("Error sending notification:", error);
+			toast.error("Failed to notify seller. Please try again.");
+		}
 	};
 
 	const handleProposeExchange = () => {
@@ -103,8 +156,12 @@ const ListingDetailPage = () => {
 					<div>
 						<div className='mb-4'>
 							<img
-								src={listing.images?.[selectedImage] || "/placeholder-image.jpg"}
+								src={getImageUrl(listing.images?.[selectedImage])}
 								alt={listing.title}
+								onError={(e) => {
+									e.target.onerror = null;
+									e.target.src = "/placeholder-image.jpg";
+								}}
 								className='w-full h-96 object-cover rounded-xl border border-primary/70'
 							/>
 						</div>
@@ -117,14 +174,22 @@ const ListingDetailPage = () => {
 										selectedImage === index ? "border-green-500" : "border-gray-700"
 									}`}
 								>
-									<img src={image} alt={`Preview ${index + 1}`} className='w-full h-full object-cover' />
+									<img 
+										src={getImageUrl(image)} 
+										alt={`Preview ${index + 1}`} 
+										onError={(e) => {
+											e.target.onerror = null;
+											e.target.src = "/placeholder-image.jpg";
+										}}
+										className='w-full h-full object-cover' 
+									/>
 								</button>
 							))}
 						</div>
 					</div>
 
 					{/* Product Info */}
-					<div className="border border-primary rounded-md p-4">
+					<div className="border border-primary rounded-md p-4 bg-primary">
 						<div className='mb-4'>
 							<div className='flex justify-between items-start'>
 								<h1 className='text-3xl font-bold mb-2'>{listing.title}</h1>

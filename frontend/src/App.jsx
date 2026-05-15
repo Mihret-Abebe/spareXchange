@@ -12,6 +12,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import LandingPage from "./pages/LandingPage";
 import MarketplacePage from "./pages/MarketplacePage";
 import ListingDetailPage from "./pages/ListingDetailPage";
+import CartPage from "./pages/CartPage";
 import ProfilePage from "./pages/ProfilePage";
 import EditProfilePage from "./pages/EditProfilePage";
 import AboutPage from "./pages/AboutPage";
@@ -138,6 +139,14 @@ function App() {
 							<>
 								<ListingDetailPage />
 							</>
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/cart'
+					element={
+						<ProtectedRoute>
+							<CartPage />
 						</ProtectedRoute>
 					}
 				/>
