@@ -35,7 +35,8 @@ const __dirname = path.resolve();
 
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
-app.use(express.json()); // allows us to parse incoming requests:req.body
+app.use(express.json({ limit: '50mb' })); // allows us to parse incoming requests:req.body (increased for image uploads)
+app.use(express.urlencoded({ limit: '50mb', extended: true })); // for parsing URL-encoded data
 app.use(cookieParser()); // allows us to parse incoming cookies
 
 // Security Middleware

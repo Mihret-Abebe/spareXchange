@@ -15,8 +15,9 @@ const Navbar = () => {
 	const { isAuthenticated, user, logout, isLoading } = useAuthStore();
 	const { darkMode, toggleDarkMode } = useTheme();
 	const { unreadCount: unreadNotifications, getUnreadCount } = useNotificationStore();
-	const { unreadCount: unreadMessages, getUnreadMessagesCount } = useMessageStore();
+	const { unreadCount: unreadMessages, getUnreadMessagesCount, getConversations } = useMessageStore();
 	const { cartItems, initializeCart, getCartCount } = useCartStore();
+	const [conversationsWithResponses, setConversationsWithResponses] = useState(0);
 	const mobileMenuRef = useRef(null);
 	const navigationDropdownRef = useRef(null);
 	const inboxDropdownRef = useRef(null);
@@ -78,8 +79,20 @@ const Navbar = () => {
 		if (isAuthenticated) {
 			getUnreadCount().catch(() => {});
 			getUnreadMessagesCount().catch(() => {});
+			// Fetch conversations to check for responses
+			const fetchConversationsWithResponses = async () => {
+				try {
+					const conversations = await getConversations();
+					// Count conversations where owner has responded (hasResponse flag is true)
+					const responseCount = conversations.filter(conv => conv.hasResponse).length;
+					setConversationsWithResponses(responseCount);
+				} catch (error) {
+					console.error("Failed to fetch conversations:", error);
+				}
+			};
+			fetchConversationsWithResponses();
 		}
-		initializeCart();
+		initializeCart(); // Initialize cart from backend
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isAuthenticated]);
 
@@ -190,17 +203,16 @@ const Navbar = () => {
 									<Bell size={14} className='mr-1.5' />
 									<span className='hidden md:inline'>Inbox</span>
 									<ChevronDown size={14} className={`ml-1 transition-transform ${isInboxDropdownOpen ? 'rotate-180' : ''}`} />
-									{(unreadNotifications > 0 || unreadMessages > 0) && (
-										<span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-											{unreadNotifications + unreadMessages > 9 ? '9+' : unreadNotifications + unreadMessages}
-										</span>
+									{(unreadNotifications > 0 || unreadMessages > 0 || conversationsWithResponses > 0) && (
+										<span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
 									)}
 								</button>
 
 								{isInboxDropdownOpen && (
 									<div className='absolute top-full left-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-xl border border-gray-700 py-2 z-50'>
 										{inboxDropdownItems.map((item) => {
-											const count = item.name === 'Messages' ? unreadMessages : item.name === 'Notifications' ? unreadNotifications : 0;
+											const hasMessageResponses = item.name === 'Messages' && conversationsWithResponses > 0;
+											const hasNewNotifications = item.name === 'Notifications' && unreadNotifications > 0;
 											return (
 												<Link
 													key={item.path}
@@ -208,15 +220,13 @@ const Navbar = () => {
 													onClick={() => setIsInboxDropdownOpen(false)}
 													className='flex items-center justify-between px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200'
 												>
-													<div className="flex items-center">
+													<div className="flex items-center gap-2">
 														<item.icon size={16} className='mr-2' />
 														{item.name}
+														{(hasMessageResponses || hasNewNotifications) && (
+															<span className="w-2 h-2 bg-red-500 rounded-full"></span>
+														)}
 													</div>
-													{count > 0 && (
-														<span className="bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-															{count > 9 ? '9+' : count}
-														</span>
-													)}
 												</Link>
 											);
 										})}
@@ -409,10 +419,8 @@ const Navbar = () => {
 									>
 										<Bell size={20} className='mr-3' />
 										Inbox
-										{(unreadNotifications > 0 || unreadMessages > 0) && (
-											<span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-												{unreadNotifications + unreadMessages > 9 ? '9+' : unreadNotifications + unreadMessages}
-											</span>
+										{(unreadNotifications > 0 || unreadMessages > 0 || conversationsWithResponses > 0) && (
+											<span className="ml-auto w-3 h-3 bg-red-500 rounded-full"></span>
 										)}
 										<ChevronDown size={16} className={`ml-2 transition-transform ${isMobileInboxDropdownOpen ? 'rotate-180' : ''}`} />
 									</button>
@@ -420,7 +428,8 @@ const Navbar = () => {
 									{isMobileInboxDropdownOpen && (
 										<div className='ml-8 mt-1 space-y-1'>
 											{inboxDropdownItems.map((item) => {
-												const count = item.name === 'Messages' ? unreadMessages : item.name === 'Notifications' ? unreadNotifications : 0;
+												const hasMessageResponses = item.name === 'Messages' && conversationsWithResponses > 0;
+												const hasNewNotifications = item.name === 'Notifications' && unreadNotifications > 0;
 												return (
 													<Link
 														key={item.path}
@@ -431,15 +440,13 @@ const Navbar = () => {
 														}}
 														className='flex items-center justify-between px-4 py-2 rounded-lg text-sm text-gray-300 hover:bg-accent hover:text-white transition duration-200'
 													>
-														<div className="flex items-center">
+														<div className="flex items-center gap-2">
 															<item.icon size={16} className='mr-2' />
 															{item.name}
+															{(hasMessageResponses || hasNewNotifications) && (
+																<span className="w-2 h-2 bg-red-500 rounded-full"></span>
+															)}
 														</div>
-														{count > 0 && (
-															<span className="bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-																{count > 9 ? '9+' : count}
-															</span>
-														)}
 													</Link>
 												);
 											})}

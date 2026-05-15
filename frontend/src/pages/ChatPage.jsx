@@ -58,8 +58,18 @@ const ChatPage = () => {
 			const messages = await getConversation(userId);
 			if (messages.length > 0) {
 				const msg = messages[0];
-				const isSender = msg.senderId._id.toString() === userId;
-				setOtherUser(isSender ? msg.receiverId : msg.senderId);
+				// Handle both populated and non-populated senderId
+				const senderId = typeof msg.senderId === 'object' ? msg.senderId._id : msg.senderId;
+				const isSender = senderId.toString() === userId;
+				
+				// Set otherUser to the full user object (populated) or just the ID
+				if (isSender) {
+					// If I'm the sender, the other user is the receiver
+					setOtherUser(typeof msg.receiverId === 'object' ? msg.receiverId : { _id: msg.receiverId, name: 'User' });
+				} else {
+					// If I'm the receiver, the other user is the sender
+					setOtherUser(typeof msg.senderId === 'object' ? msg.senderId : { _id: msg.senderId, name: 'User' });
+				}
 			}
 		} catch (error) {
 			toast.error("Failed to load conversation");
@@ -117,16 +127,16 @@ const ChatPage = () => {
 								{otherUser.profilePicture ? (
 									<img
 										src={otherUser.profilePicture}
-										alt={otherUser.name}
+										alt={otherUser.name || 'User'}
 										className="w-10 h-10 rounded-full object-cover"
 									/>
 								) : (
 									<div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold">
-										{otherUser.name.charAt(0).toUpperCase()}
+										{(otherUser.name || 'U').charAt(0).toUpperCase()}
 									</div>
 								)}
 								<div>
-									<h2 className="font-semibold text-lg">{otherUser.name}</h2>
+									<h2 className="font-semibold text-lg">{otherUser.name || 'User'}</h2>
 									<p className="text-sm text-gray-500 dark:text-gray-400">Online</p>
 								</div>
 							</>
@@ -144,7 +154,9 @@ const ChatPage = () => {
 						</div>
 					) : (
 						currentConversation.map((msg, index) => {
-							const isMyMessage = msg.senderId._id.toString() === user?._id.toString();
+							// Handle both populated and non-populated senderId
+							const senderId = msg.senderId ? (typeof msg.senderId === 'object' ? msg.senderId._id : msg.senderId) : null;
+							const isMyMessage = senderId?.toString() === user?._id.toString();
 							return (
 								<motion.div
 									key={msg._id}

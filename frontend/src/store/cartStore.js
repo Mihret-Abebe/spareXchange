@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 
-const API_URL = import.meta.env.MODE === "development" ? "http://localhost:5000/api/listings" : "/api/listings";
+const API_URL = import.meta.env.MODE === "development" ? "http://localhost:5000/api/cart" : "/api/cart";
 
 axios.defaults.withCredentials = true;
 
@@ -9,89 +9,117 @@ export const useCartStore = create((set, get) => ({
 	cartItems: [],
 	loading: false,
 	error: null,
+	totalItems: 0,
+	totalPrice: 0,
 
-	// Load cart from localStorage on initialization
-	initializeCart: () => {
+	// Fetch user's cart from backend
+	initializeCart: async () => {
+		set({ loading: true, error: null });
 		try {
-			const savedCart = localStorage.getItem("sparexchange_cart");
-			if (savedCart) {
-				set({ cartItems: JSON.parse(savedCart) });
-			}
+			const res = await axios.get(API_URL);
+			set({
+				cartItems: res.data.cart.items,
+				totalItems: res.data.cart.totalItems,
+				totalPrice: res.data.cart.totalPrice,
+				loading: false,
+			});
 		} catch (error) {
-			console.error("Failed to load cart from localStorage:", error);
+			console.error("Failed to load cart:", error);
+			set({ error: error.response?.data?.message || "Failed to fetch cart", loading: false });
 		}
 	},
 
 	// Add item to cart
-	addToCart: (listing, quantity = 1) => {
-		set(state => {
-			const existingItem = state.cartItems.find(item => item.listingId === listing._id);
-			
-			let newCartItems;
-			if (existingItem) {
-				// Update quantity if item already exists
-				newCartItems = state.cartItems.map(item =>
-					item.listingId === listing._id
-						? { ...item, quantity: item.quantity + quantity }
-						: item
-				);
-			} else {
-				// Add new item
-				newCartItems = [...state.cartItems, {
-					listingId: listing._id,
-					title: listing.title,
-					price: listing.price,
-					images: listing.images,
-					quantity: quantity,
-					seller: listing.seller,
-					ecoPoints: listing.ecoPoints
-				}];
-			}
-
-			// Save to localStorage
-			localStorage.setItem("sparexchange_cart", JSON.stringify(newCartItems));
-
-			return { cartItems: newCartItems };
-		});
+	addToCart: async (listingId, quantity = 1) => {
+		set({ loading: true, error: null });
+		try {
+			const res = await axios.post(`${API_URL}/add`, { listingId, quantity });
+			set({
+				cartItems: res.data.cart.items,
+				totalItems: res.data.cart.totalItems,
+				totalPrice: res.data.cart.totalPrice,
+				loading: false,
+			});
+			return res.data;
+		} catch (error) {
+			console.error("Failed to add to cart:", error);
+			set({ error: error.response?.data?.message || "Failed to add to cart", loading: false });
+			throw error;
+		}
 	},
 
 	// Remove item from cart
-	removeFromCart: (listingId) => {
-		set(state => {
-			const newCartItems = state.cartItems.filter(item => item.listingId !== listingId);
-			localStorage.setItem("sparexchange_cart", JSON.stringify(newCartItems));
-			return { cartItems: newCartItems };
-		});
+	removeFromCart: async (listingId) => {
+		set({ loading: true, error: null });
+		try {
+			const res = await axios.delete(`${API_URL}/${listingId}`);
+			set({
+				cartItems: res.data.cart.items,
+				totalItems: res.data.cart.totalItems,
+				totalPrice: res.data.cart.totalPrice,
+				loading: false,
+			});
+			return res.data;
+		} catch (error) {
+			console.error("Failed to remove from cart:", error);
+			set({ error: error.response?.data?.message || "Failed to remove from cart", loading: false });
+			throw error;
+		}
 	},
 
 	// Update item quantity
-	updateQuantity: (listingId, quantity) => {
+	updateQuantity: async (listingId, quantity) => {
 		if (quantity < 1) return;
 		
-		set(state => {
-			const newCartItems = state.cartItems.map(item =>
-				item.listingId === listingId ? { ...item, quantity } : item
-			);
-			localStorage.setItem("sparexchange_cart", JSON.stringify(newCartItems));
-			return { cartItems: newCartItems };
-		});
+		set({ loading: true, error: null });
+		try {
+			const res = await axios.put(`${API_URL}/${listingId}`, { quantity });
+			set({
+				cartItems: res.data.cart.items,
+				totalItems: res.data.cart.totalItems,
+				totalPrice: res.data.cart.totalPrice,
+				loading: false,
+			});
+			return res.data;
+		} catch (error) {
+			console.error("Failed to update quantity:", error);
+			set({ error: error.response?.data?.message || "Failed to update quantity", loading: false });
+			throw error;
+		}
 	},
 
 	// Clear cart
-	clearCart: () => {
-		localStorage.removeItem("sparexchange_cart");
-		set({ cartItems: [] });
+	clearCart: async () => {
+		set({ loading: true, error: null });
+		try {
+			const res = await axios.delete(`${API_URL}/clear`);
+			set({
+				cartItems: res.data.cart.items,
+				totalItems: res.data.cart.totalItems,
+				totalPrice: res.data.cart.totalPrice,
+				loading: false,
+			});
+			return res.data;
+		} catch (error) {
+			console.error("Failed to clear cart:", error);
+			set({ error: error.response?.data?.message || "Failed to clear cart", loading: false });
+			throw error;
+		}
 	},
 
-	// Get cart total
+	// Get cart total (from state)
 	getCartTotal: () => {
 		const state = get();
-		return state.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+		return state.totalPrice;
 	},
 
-	// Get cart items count
+	// Get cart items count (from state)
 	getCartCount: () => {
 		const state = get();
-		return state.cartItems.reduce((count, item) => count + item.quantity, 0);
+		return state.totalItems;
+	},
+
+	clearError: () => {
+		set({ error: null });
 	}
 }));
