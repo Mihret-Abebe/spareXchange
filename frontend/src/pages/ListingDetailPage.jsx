@@ -74,15 +74,19 @@ const ListingDetailPage = () => {
 		}
 	};
 
-	const handleAddToCart = () => {
+	const handleAddToCart = async () => {
 		if (!user) {
 			toast.error("Please login to add items to cart");
 			navigate("/login");
 			return;
 		}
 		
-		addToCart(listing, quantity);
-		toast.success(`Added ${quantity} x ${listing.title} to cart!`);
+		try {
+			await addToCart(listing._id, quantity);
+			toast.success(`Added ${quantity} x ${listing.title} to cart!`);
+		} catch (error) {
+			toast.error(error.response?.data?.message || "Failed to add to cart");
+		}
 	};
 
 	const handleBuyNow = async () => {

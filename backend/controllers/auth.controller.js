@@ -126,6 +126,12 @@ export const verifyEmail = async (req, res) => {
 		user.isVerified = true;
 		user.verificationToken = undefined;
 		user.verificationTokenExpiresAt = undefined;
+		
+		// Grant send_notifications permission to verified users
+		if (!user.permissions.includes("send_notifications")) {
+			user.permissions.push("send_notifications");
+		}
+		
 		await user.save();
 
 		try {

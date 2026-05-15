@@ -25,6 +25,7 @@ import reviewRoutes from "./routes/review.route.js";
 import adminRoutes from "./routes/admin.route.js";
 import userRoutes from "./routes/user.route.js";
 import disputeRoutes from "./routes/dispute.route.js";
+import cartRoutes from "./routes/cart.route.js";
 
 dotenv.config();
 
@@ -86,6 +87,7 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/disputes", disputeRoutes);
+app.use("/api/cart", cartRoutes);
 
 // 404 Handler - Must be after all routes
 app.use(notFoundHandler);

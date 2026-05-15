@@ -64,6 +64,11 @@ export const verifyRoleStatus = async (req, res) => {
 			if (user.userType === "technician") permsToAdd.push("receive_service_requests");
 			if (user.userType === "recycler") permsToAdd.push("receive_pickup_requests");
 			if (user.userType === "garage") permsToAdd.push("create_bulk_listings");
+			
+			// Grant send_notifications permission to all verified users
+			if (!user.permissions.includes("send_notifications")) {
+				permsToAdd.push("send_notifications");
+			}
 
 			permsToAdd.forEach(p => {
 				if (!user.permissions.includes(p)) user.permissions.push(p);
@@ -97,6 +102,12 @@ export const verifyUserEmail = async (req, res) => {
 		user.isVerified = true;
 		user.verificationToken = undefined;
 		user.verificationTokenExpiresAt = undefined;
+		
+		// Grant send_notifications permission to verified users
+		if (!user.permissions.includes("send_notifications")) {
+			user.permissions.push("send_notifications");
+		}
+		
 		await user.save();
 		
 		res.status(200).json({ 

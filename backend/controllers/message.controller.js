@@ -88,6 +88,7 @@ export const getConversationsList = async (req, res) => {
 					lastMessageAt: msg.createdAt,
 					isRead: msg.isRead,
 					sentByMe: isSender,
+					hasResponse: !isSender && !msg.isRead, // Flag indicating the other user has responded and it's unread
 				});
 			}
 		});
