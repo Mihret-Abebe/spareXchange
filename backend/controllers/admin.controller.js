@@ -86,6 +86,30 @@ export const verifyRoleStatus = async (req, res) => {
 	}
 };
 
+// Verify User Email (Admin can verify users directly)
+export const verifyUserEmail = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const user = await User.findById(id);
+		
+		if (!user) return res.status(404).json({ success: false, message: "User not found" });
+		
+		user.isVerified = true;
+		user.verificationToken = undefined;
+		user.verificationTokenExpiresAt = undefined;
+		await user.save();
+		
+		res.status(200).json({ 
+			success: true, 
+			message: "User email verified successfully",
+			user: { ...user._doc, password: undefined }
+		});
+	} catch (error) {
+		console.error("Error in verifyUserEmail:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
 // Get Pending Verifications
 export const getPendingVerifications = async (req, res) => {
 	try {

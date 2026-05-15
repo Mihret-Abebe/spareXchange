@@ -56,14 +56,21 @@ export const signup = async (req, res) => {
 			basePermissions.push("create_bulk_listings");
 		}
 
+		// Admin users are auto-verified and get full admin permissions
+		const isAdminUser = normalizedUserType === "admin";
+		const finalPermissions = isAdminUser 
+			? ["admin", "view_stats", "view_reports", "moderate_content", "run_jobs"]
+			: basePermissions;
+
 		const user = new User({
 			email,
 			password: hashedPassword,
 			name,
 			userType: normalizedUserType,
-			verificationToken,
-			verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
-			permissions: basePermissions
+			isVerified: isAdminUser, // Auto-verify admin users
+			verificationToken: isAdminUser ? undefined : verificationToken,
+			verificationTokenExpiresAt: isAdminUser ? undefined : Date.now() + 24 * 60 * 60 * 1000, // 24 hours
+			permissions: finalPermissions
 		});
 
 		await user.save();
@@ -73,16 +80,21 @@ export const signup = async (req, res) => {
 		user.refreshToken = refreshToken;
 		await user.save();
 
+		// Send verification email only for non-admin users
 		let emailSent = false;
-		try {
-			emailSent = await sendVerificationEmail(user.email, verificationToken);
-		} catch (err) {
-			console.error("Verification email failed", err);
+		if (!isAdminUser) {
+			try {
+				emailSent = await sendVerificationEmail(user.email, verificationToken);
+			} catch (err) {
+				console.error("Verification email failed", err);
+			}
 		}
 
-		const responseMessage = emailSent
-			? "User created successfully"
-			: "User created successfully (verification email failed; please re-send verification email from your profile)";
+		const responseMessage = isAdminUser
+			? "Admin account created successfully"
+			: emailSent
+				? "User created successfully"
+				: "User created successfully (verification email failed; please re-send verification email from your profile)";
 
 		res.status(201).json({
 			success: true,

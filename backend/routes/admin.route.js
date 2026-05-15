@@ -4,6 +4,7 @@ import {
 	getAllUsers, 
 	toggleUserBan, 
 	verifyRoleStatus, 
+	verifyUserEmail,
 	getPlatformStats,
 	getPendingVerifications,
 	runSavedSearchAlertsJob
@@ -36,6 +37,7 @@ router.get("/users", verifyToken, authorize(["view_users"]), getAllUsers);
 router.get("/verifications/pending", verifyToken, authorize(["verify_roles"]), getPendingVerifications);
 router.post("/users/:id/ban", verifyToken, authorize(["ban_users"]), toggleUserBan);
 router.post("/users/:id/verify", verifyToken, authorize(["verify_roles"]), verifyRoleStatus);
+router.post("/users/:id/verify-email", verifyToken, authorize(["verify_roles"]), verifyUserEmail);
 router.post("/jobs/saved-search-alerts", verifyToken, authorize(["run_jobs"]), runSavedSearchAlertsJob);
 
 // Advanced analytics routes

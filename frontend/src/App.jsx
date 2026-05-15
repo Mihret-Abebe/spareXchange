@@ -59,6 +59,7 @@ import NotificationStatsPage from "./pages/NotificationStatsPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import AnalyticsDashboard from "./pages/AnalyticsDashboard";
 import ReportManagement from "./pages/ReportManagement";
+import UserManagement from "./pages/UserManagement";
 
 // Module 10: Community Engagement
 import ActivityFeedPage from "./pages/ActivityFeedPage";
@@ -86,15 +87,28 @@ const ProtectedRoute = ({ children }) => {
 	return children;
 };
 
-// redirect authenticated users to the marketplace
+// redirect authenticated users to the marketplace (or admin panel for admins)
 const RedirectAuthenticatedUser = ({ children }) => {
 	const { isAuthenticated, user } = useAuthStore();
 
 	if (isAuthenticated && user.isVerified) {
-		return <Navigate to='/marketplace' replace />;
+		// Redirect admins to admin panel, others to marketplace
+		const redirectPath = user.userType === "admin" ? "/admin" : "/marketplace";
+		return <Navigate to={redirectPath} replace />;
 	}
 
 	return children;
+};
+
+// Dashboard redirect component - sends admins to admin panel
+const DashboardRedirect = () => {
+	const { user } = useAuthStore();
+	
+	if (user?.userType === "admin") {
+		return <Navigate to='/admin' replace />;
+	}
+	
+	return <DashboardPage />;
 };
 
 // protect routes that require admin privileges
@@ -172,7 +186,7 @@ function App() {
 					path='/dashboard'
 					element={
 						<ProtectedRoute>
-							<DashboardPage />
+							<DashboardRedirect />
 						</ProtectedRoute>
 					}
 				/>
@@ -476,7 +490,7 @@ function App() {
 					path='/admin/users'
 					element={
 						<AdminRoute>
-							<DashboardPage />
+							<UserManagement />
 						</AdminRoute>
 					}
 				/>

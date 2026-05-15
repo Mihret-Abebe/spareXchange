@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { 
@@ -19,9 +19,13 @@ import toast from "react-hot-toast";
 const AdminDashboard = () => {
   const { 
     getComprehensiveStats, 
+    getPlatformStats,
+    getPendingVerifications,
+    runSavedSearchAlertsJob,
     comprehensiveStats, 
     isLoading 
   } = useAdminStore();
+  const [isRunningJob, setIsRunningJob] = useState(false);
 
   useEffect(() => {
     fetchStats();
@@ -29,9 +33,28 @@ const AdminDashboard = () => {
 
   const fetchStats = async () => {
     try {
-      await getComprehensiveStats();
+      await Promise.all([
+        getComprehensiveStats(),
+        getPlatformStats(),
+        getPendingVerifications()
+      ]);
     } catch (error) {
       toast.error("Failed to load admin statistics");
+    }
+  };
+
+  const handleRunAlertsJob = async () => {
+    try {
+      setIsRunningJob(true);
+      const result = await runSavedSearchAlertsJob({
+        limitSearches: 200,
+        limitListingsPerSearch: 5
+      });
+      toast.success(`Alerts job completed! Processed ${result.result?.processedSearches || 0} searches`);
+    } catch (error) {
+      toast.error("Failed to run alerts job");
+    } finally {
+      setIsRunningJob(false);
     }
   };
 
@@ -74,7 +97,9 @@ const AdminDashboard = () => {
       icon: Activity, 
       link: "#",
       color: "from-purple-500 to-violet-600",
-      description: "Trigger saved search alerts"
+      description: "Trigger saved search alerts",
+      onClick: handleRunAlertsJob,
+      loading: isRunningJob
     }
   ];
 
@@ -216,7 +241,19 @@ const AdminDashboard = () => {
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
             {quickActions.map((action, index) => {
               const Icon = action.icon;
-              return (
+              return action.onClick ? (
+                <button
+                  key={index}
+                  onClick={action.onClick}
+                  disabled={action.loading}
+                  className={`bg-gradient-to-r ${action.color} p-6 rounded-xl hover:opacity-90 transition transform hover:scale-105 w-full text-left ${action.loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <Icon size={32} className='mb-3' />
+                  <h3 className='text-lg font-bold mb-1'>{action.title}</h3>
+                  <p className='text-sm opacity-90'>{action.description}</p>
+                  {action.loading && <p className='text-xs mt-2'>Running...</p>}
+                </button>
+              ) : (
                 <Link
                   key={index}
                   to={action.link}

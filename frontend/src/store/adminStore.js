@@ -18,6 +18,10 @@ export const useAdminStore = create((set) => ({
 	reports: [],
 	reportStats: null,
 	selectedReport: null,
+	users: [],
+	usersPagination: null,
+	pendingVerifications: [],
+	platformStats: null,
 	isLoading: false,
 	error: null,
 
@@ -195,6 +199,85 @@ export const useAdminStore = create((set) => ({
 			return response.data;
 		} catch (error) {
 			set({ error: error.response?.data?.message || "Error deleting report", isLoading: false });
+			throw error;
+		}
+	},
+
+	// User Management
+	getAllUsers: async (filters = {}) => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await axios.get(`${API_URL}/users`, { params: filters });
+			set({ 
+				users: response.data.users,
+				usersPagination: {
+					count: response.data.count
+				},
+				isLoading: false 
+			});
+			return response.data;
+		} catch (error) {
+			set({ error: error.response?.data?.message || "Error fetching users", isLoading: false });
+			throw error;
+		}
+	},
+
+	getPendingVerifications: async () => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await axios.get(`${API_URL}/verifications/pending`);
+			set({ pendingVerifications: response.data.users, isLoading: false });
+			return response.data;
+		} catch (error) {
+			set({ error: error.response?.data?.message || "Error fetching pending verifications", isLoading: false });
+			throw error;
+		}
+	},
+
+	verifyUser: async (userId, status, note = "") => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await axios.post(`${API_URL}/users/${userId}/verify`, { status, note });
+			set({ isLoading: false });
+			return response.data;
+		} catch (error) {
+			set({ error: error.response?.data?.message || "Error verifying user", isLoading: false });
+			throw error;
+		}
+	},
+
+	verifyUserEmail: async (userId) => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await axios.post(`${API_URL}/users/${userId}/verify-email`);
+			set({ isLoading: false });
+			return response.data;
+		} catch (error) {
+			set({ error: error.response?.data?.message || "Error verifying user email", isLoading: false });
+			throw error;
+		}
+	},
+
+	toggleUserBan: async (userId) => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await axios.post(`${API_URL}/users/${userId}/ban`);
+			set({ isLoading: false });
+			return response.data;
+		} catch (error) {
+			set({ error: error.response?.data?.message || "Error banning user", isLoading: false });
+			throw error;
+		}
+	},
+
+	getPlatformStats: async () => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await axios.get(`${API_URL}/stats`);
+			set({ platformStats: response.data.stats, isLoading: false });
+			return response.data;
+		} catch (error) {
+			set({ error: error.response?.data?.message || "Error fetching platform stats", isLoading: false });
 			throw error;
 		}
 	},

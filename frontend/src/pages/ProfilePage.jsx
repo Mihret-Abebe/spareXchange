@@ -9,7 +9,7 @@ import PointsRedemptionModal from "../components/PointsRedemptionModal";
 const ProfilePage = () => {
 	const navigate = useNavigate();
 	const { user, logout, requestVerificationWithFiles } = useAuthStore();
-	const { userAchievements, getUserAchievements, triggerAchievementCheck } = useCommunityStore();
+	const { userAchievements, getUserAchievements } = useCommunityStore();
 	const [activeTab, setActiveTab] = useState("profile");
 	const [showRedemptionModal, setShowRedemptionModal] = useState(false);
 	const [accountType, setAccountType] = useState("individual");
@@ -133,9 +133,11 @@ const ProfilePage = () => {
 		}
 	};
 
+	const isAdmin = user?.userType === "admin";
+
 	const tabs = [
 		{ id: "profile", name: "Profile", icon: User },
-		{ id: "listings", name: "My Listings", icon: Package },
+		...(isAdmin ? [] : [{ id: "listings", name: "My Listings", icon: Package }]),
 		{ id: "payments", name: "Payments", icon: CreditCard },
 		{ id: "settings", name: "Settings", icon: Settings },
 		{ id: "security", name: "Security", icon: Shield },
@@ -158,7 +160,10 @@ const ProfilePage = () => {
 							<div className='flex-1 text-center md:text-left'>
 								<h1 className='text-3xl font-bold mb-2 flex items-center'>
 									{user.name}
-									{user.roleStatus === "verified" && (
+									{isAdmin && (
+										<ShieldCheck className='ml-2 text-red-400' size={24} title='Administrator' />
+									)}
+									{!isAdmin && user.roleStatus === "verified" && (
 										<ShieldCheck className='ml-2 text-blue-400' size={24} title='Verified Professional' />
 									)}
 								</h1>
@@ -172,17 +177,21 @@ const ProfilePage = () => {
 										<span>{user.location || "Location not set"}</span>
 									</div>
 									<div className='flex items-center'>
-										{user.roleStatus === "none" && (
+										{isAdmin ? (
+											<span className='flex items-center text-red-400 text-sm bg-red-900 bg-opacity-30 px-2 py-1 rounded-full'>
+												<ShieldCheck size={14} className='mr-1' /> Administrator
+											</span>
+										) : user.roleStatus === "none" && (
 											<span className='flex items-center text-yellow-500 text-sm bg-yellow-900 bg-opacity-30 px-2 py-1 rounded-full'>
 												<AlertCircle size={14} className='mr-1' /> Unverified
 											</span>
 										)}
-										{user.roleStatus === "pending" && (
+										{!isAdmin && user.roleStatus === "pending" && (
 											<span className='flex items-center text-blue-400 text-sm bg-blue-900 bg-opacity-30 px-2 py-1 rounded-full'>
 												<Clock size={14} className='mr-1' /> Verification Pending
 											</span>
 										)}
-										{user.roleStatus === "verified" && (
+										{!isAdmin && user.roleStatus === "verified" && (
 											<span className='flex items-center text-green-400 text-sm bg-green-900 bg-opacity-30 px-2 py-1 rounded-full'>
 												<CheckCircle size={14} className='mr-1' /> Verified {user.userType}
 											</span>
@@ -190,21 +199,31 @@ const ProfilePage = () => {
 									</div>
 								</div>
 								<div className='flex flex-wrap justify-center md:justify-start gap-6 mb-4'>
-									<div className='text-center'>
-										<div className='text-2xl font-bold text-white'>{user.ecoPoints}</div>
-										<div className='text-sm text-white'>Eco Points</div>
-									</div>
-									<div className='text-center'>
-										<div className='text-2xl font-bold'>{user.listings}</div>
-										<div className='text-sm text-white'>Listings</div>
-									</div>
-									<div className='text-center'>
-										<div className='flex items-center justify-center'>
-											<Star size={16} className='text-yellow-400 fill-current mr-1' />
-											<span className='text-2xl font-bold'>{user.rating}</span>
+									{!isAdmin && (
+										<>
+											<div className='text-center'>
+												<div className='text-2xl font-bold text-white'>{user.ecoPoints}</div>
+												<div className='text-sm text-white'>Eco Points</div>
+											</div>
+											<div className='text-center'>
+												<div className='text-2xl font-bold'>{user.listings}</div>
+												<div className='text-sm text-white'>Listings</div>
+											</div>
+											<div className='text-center'>
+												<div className='flex items-center justify-center'>
+													<Star size={16} className='text-yellow-400 fill-current mr-1' />
+													<span className='text-2xl font-bold'>{user.rating}</span>
+												</div>
+												<div className='text-sm text-white'>{user.reviews} Reviews</div>
+											</div>
+										</>
+									)}
+									{isAdmin && (
+										<div className='text-center'>
+											<div className='text-2xl font-bold text-red-400'>Admin</div>
+											<div className='text-sm text-white'>Platform Administrator</div>
 										</div>
-										<div className='text-sm text-white'>{user.reviews} Reviews</div>
-									</div>
+									)}
 								</div>
 								<div className='text-sm text-white'>
 									Member since {user.memberSince}
@@ -273,7 +292,7 @@ const ProfilePage = () => {
 										</div>
 									</div>
 
-									{user.roleStatus === "none" && (
+									{!isAdmin && user.roleStatus === "none" && (
 										<div className='mt-8 p-4 bg-gray-700 bg-opacity-70 rounded-lg border border-yellow-600 border-opacity-50'>
 											<h3 className='text-lg font-bold mb-2 flex items-center text-yellow-500'>
 												<AlertCircle size={20} className='mr-2' />
@@ -345,88 +364,126 @@ const ProfilePage = () => {
 									)}
 								</div>
 								<div>
-									<h3 className='text-lg font-bold mb-4 flex items-center'>
-										<Award size={20} className='mr-2 text-yellow-400' />
-										Eco Achievements
-									</h3>
-									<div className='bg-gray-700 rounded-lg p-4 mb-4'>
-										<div className='flex justify-between items-center mb-2'>
-											<span className='text-gray-300'>Total Eco Points</span>
-											<span className='text-2xl font-bold text-green-400'>{user.ecoPoints}</span>
-										</div>
-										<div className='w-full bg-gray-600 rounded-full h-2'>
-											<div
-												className='bg-green-500 h-2 rounded-full'
-												style={{ width: `${Math.min(100, (user.ecoPoints / 2000) * 100)}%` }}
-											></div>
-										</div>
-										<div className='text-sm text-gray-400 mt-2 flex justify-between'>
-											<span>{2000 - user.ecoPoints} points to next level</span>
-											<button
-												onClick={() => {
-													if (user.roleStatus !== "verified") {
-														alert("Only verified users can redeem points.");
-													} else {
-														setShowRedemptionModal(true);
-													}
-												}}
-												className='text-green-400 hover:text-green-300 font-bold ml-4'
-											>
-												Redeem Rewards
-											</button>
-										</div>
-									</div>
-																
-									{/* Achievements Summary */}
-									{userAchievements?.stats && (
-										<div className='bg-gray-700 rounded-lg p-4 mb-4'>
-											<div className='flex justify-between items-center mb-3'>
-												<span className='text-gray-300'>Achievements Unlocked</span>
-												<span className='text-lg font-bold text-yellow-400'>
-													{userAchievements.stats.totalUnlocked}/{userAchievements.stats.totalUnlocked + userAchievements.stats.totalLocked}
-												</span>
-											</div>
-											<div className='w-full bg-gray-600 rounded-full h-2 mb-3'>
-												<div
-													className='bg-yellow-500 h-2 rounded-full'
-													style={{ width: `${userAchievements.stats.completionPercentage}%` }}
-												></div>
-											</div>
-											<div className='flex flex-wrap gap-2 mb-3'>
-												{userAchievements.unlocked?.slice(0, 4).map((achievement) => (
-													<span
-														key={achievement.id}
-														className='text-2xl'
-														title={achievement.name}
+									{!isAdmin && (
+										<>
+											<h3 className='text-lg font-bold mb-4 flex items-center'>
+												<Award size={20} className='mr-2 text-yellow-400' />
+												Eco Achievements
+											</h3>
+											<div className='bg-gray-700 rounded-lg p-4 mb-4'>
+												<div className='flex justify-between items-center mb-2'>
+													<span className='text-gray-300'>Total Eco Points</span>
+													<span className='text-2xl font-bold text-green-400'>{user.ecoPoints}</span>
+												</div>
+												<div className='w-full bg-gray-600 rounded-full h-2'>
+													<div
+														className='bg-green-500 h-2 rounded-full'
+														style={{ width: `${Math.min(100, (user.ecoPoints / 2000) * 100)}%` }}
+													></div>
+												</div>
+												<div className='text-sm text-gray-400 mt-2 flex justify-between'>
+													<span>{2000 - user.ecoPoints} points to next level</span>
+													<button
+														onClick={() => {
+															if (user.roleStatus !== "verified") {
+																alert("Only verified users can redeem points.");
+															} else {
+																setShowRedemptionModal(true);
+															}
+														}}
+														className='text-green-400 hover:text-green-300 font-bold ml-4'
 													>
-														{achievement.icon}
-													</span>
-												))}
-												{userAchievements.unlocked?.length > 4 && (
-													<span className='text-xs text-gray-400 self-center'>
-														+{userAchievements.unlocked.length - 4} more
-													</span>
-												)}
+														Redeem Rewards
+													</button>
+												</div>
 											</div>
-											<Link
-												to="/achievements"
-												className='text-green-400 hover:text-green-300 text-sm font-bold'
-											>
-												View All Achievements →
-											</Link>
+																					
+											{/* Achievements Summary */}
+											{userAchievements?.stats && (
+												<div className='bg-gray-700 rounded-lg p-4 mb-4'>
+													<div className='flex justify-between items-center mb-3'>
+														<span className='text-gray-300'>Achievements Unlocked</span>
+														<span className='text-lg font-bold text-yellow-400'>
+															{userAchievements.stats.totalUnlocked}/{userAchievements.stats.totalUnlocked + userAchievements.stats.totalLocked}
+														</span>
+													</div>
+													<div className='w-full bg-gray-600 rounded-full h-2 mb-3'>
+														<div
+															className='bg-yellow-500 h-2 rounded-full'
+															style={{ width: `${userAchievements.stats.completionPercentage}%` }}
+														></div>
+													</div>
+													<div className='flex flex-wrap gap-2 mb-3'>
+														{userAchievements.unlocked?.slice(0, 4).map((achievement) => (
+															<span
+																key={achievement.id}
+																className='text-2xl'
+																title={achievement.name}
+															>
+																{achievement.icon}
+															</span>
+														))}
+														{userAchievements.unlocked?.length > 4 && (
+															<span className='text-xs text-gray-400 self-center'>
+																+{userAchievements.unlocked.length - 4} more
+															</span>
+														)}
+													</div>
+													<Link
+														to="/achievements"
+														className='text-green-400 hover:text-green-300 text-sm font-bold'
+													>
+														View All Achievements →
+													</Link>
+												</div>
+											)}
+																					
+											<div className='grid grid-cols-2 gap-4'>
+												<div className='bg-gray-700 rounded-lg p-4 text-center'>
+													<div className='text-2xl font-bold text-green-400'>{user.listings}</div>
+													<div className='text-sm text-gray-400'>Items Listed</div>
+												</div>
+												<div className='bg-gray-700 rounded-lg p-4 text-center'>
+													<div className='text-2xl font-bold text-green-400'>12</div>
+													<div className='text-sm text-gray-400'>Items Recycled</div>
+												</div>
+											</div>
+										</>
+									)}
+									{isAdmin && (
+										<div>
+											<h3 className='text-lg font-bold mb-4 flex items-center'>
+												<ShieldCheck size={20} className='mr-2 text-red-400' />
+												Admin Privileges
+											</h3>
+											<div className='bg-gray-700 rounded-lg p-4 space-y-3'>
+												<div className='flex items-center justify-between p-3 bg-gray-800 rounded'>
+													<span className='text-gray-300'>User Management</span>
+													<Link to='/admin/users' className='text-green-400 hover:text-green-300 text-sm font-bold'>
+														Manage →
+													</Link>
+												</div>
+												<div className='flex items-center justify-between p-3 bg-gray-800 rounded'>
+													<span className='text-gray-300'>Analytics Dashboard</span>
+													<Link to='/admin/analytics' className='text-green-400 hover:text-green-300 text-sm font-bold'>
+														View →
+													</Link>
+												</div>
+												<div className='flex items-center justify-between p-3 bg-gray-800 rounded'>
+													<span className='text-gray-300'>Report Management</span>
+													<Link to='/admin/reports' className='text-green-400 hover:text-green-300 text-sm font-bold'>
+														Moderate →
+													</Link>
+												</div>
+												<div className='flex items-center justify-between p-3 bg-gray-800 rounded'>
+													<span className='text-gray-300'>Platform Settings</span>
+													<Link to='/admin' className='text-green-400 hover:text-green-300 text-sm font-bold'>
+														Configure →
+													</Link>
+												</div>
+											</div>
 										</div>
 									)}
-																
-									<div className='grid grid-cols-2 gap-4'>
-										<div className='bg-gray-700 rounded-lg p-4 text-center'>
-											<div className='text-2xl font-bold text-green-400'>{user.listings}</div>
-											<div className='text-sm text-gray-400'>Items Listed</div>
-										</div>
-										<div className='bg-gray-700 rounded-lg p-4 text-center'>
-											<div className='text-2xl font-bold text-green-400'>12</div>
-											<div className='text-sm text-gray-400'>Items Recycled</div>
-										</div>
-									</div>
 								</div>
 							</div>
 						</motion.div>

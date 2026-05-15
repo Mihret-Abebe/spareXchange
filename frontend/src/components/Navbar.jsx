@@ -100,7 +100,7 @@ const Navbar = () => {
 
 	// Navigation dropdown items
 	const navigationDropdownItems = [
-		{ name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+		{ name: user?.userType === "admin" ? "Admin Panel" : "Dashboard", path: user?.userType === "admin" ? "/admin" : "/dashboard", icon: LayoutDashboard },
 		{ name: "Marketplace", path: "/marketplace", icon: Package },
 		{ name: "My Exchanges", path: "/my-exchanges", icon: Handshake },
 	];
