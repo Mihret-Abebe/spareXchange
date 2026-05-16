@@ -2,7 +2,11 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-const storage = multer.diskStorage({
+// Memory storage for profile pictures (to upload to Cloudinary)
+const memoryStorage = multer.memoryStorage();
+
+// Disk storage for verification documents
+const diskStorage = multer.diskStorage({
 	destination: (req, file, cb) => {
 		let uploadPath;
 		
@@ -33,8 +37,16 @@ const fileFilter = (req, file, cb) => {
 	}
 };
 
+// Export different upload configurations
 export const upload = multer({
-	storage: storage,
+	storage: diskStorage,
+	limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+	fileFilter: fileFilter,
+});
+
+// For profile pictures - use memory storage for Cloudinary upload
+export const uploadProfilePicture = multer({
+	storage: memoryStorage,
 	limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
 	fileFilter: fileFilter,
 });

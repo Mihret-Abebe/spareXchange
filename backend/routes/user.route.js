@@ -4,7 +4,7 @@ import { getActivityFeed, getUserPublicActivity, getCommunityHighlights } from "
 import { getPublicUserProfile, getUserPublicListings, getUserReviewsSummary, getUserStats } from "../controllers/publicProfile.controller.js";
 import { getAchievementDefinitions, checkAndUnlockAchievements, getUserAchievements, getAchievementLeaderboard } from "../controllers/achievement.controller.js";
 import { verifyToken } from "../middleware/verifyToken.js";
-import { upload } from "../middleware/upload.middleware.js";
+import { upload, uploadProfilePicture } from "../middleware/upload.middleware.js";
 
 const router = express.Router();
 
@@ -12,7 +12,7 @@ router.get("/technicians", getTechnicians);
 router.get("/technicians/:id", getTechnicianById);
 router.post("/redeem-points", verifyToken, redeemPoints);
 router.post("/verify-role", verifyToken, upload.array("documents", 5), requestRoleVerification);
-router.put("/profile", verifyToken, upload.single("profilePicture"), updateProfile);
+router.put("/profile", verifyToken, uploadProfilePicture.single("profilePicture"), updateProfile);
 router.get("/leaderboard", verifyToken, getLeaderboard);
 
 // Saved searches (Module 6)

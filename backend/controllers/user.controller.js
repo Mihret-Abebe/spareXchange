@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { User } from "../models/user.model.js";
 import { SavedSearch } from "../models/savedSearch.model.js";
+import { uploadImage, deleteImage } from "../services/image.service.js";
 
 // Get all verified technicians
 export const getTechnicians = async (req, res) => {
@@ -139,7 +140,7 @@ export const requestRoleVerification = async (req, res) => {
 // Update User Profile
 export const updateProfile = async (req, res) => {
 	try {
-		const { name, phone, location, interests } = req.body;
+		const { name, phone, location, interests, profilePicture } = req.body;
 		const user = await User.findById(req.userId);
 		if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
@@ -147,12 +148,35 @@ export const updateProfile = async (req, res) => {
 		if (phone) user.phone = phone.trim();
 		if (location) user.location = location.trim();
 		
-		// Handle profile picture file upload
+		// Handle profile picture upload to Cloudinary
 		if (req.file) {
-			user.profilePicture = `/uploads/profiles/${req.file.filename}`;
-		} else if (req.body.profilePicture) {
-			// Fallback to URL if provided
-			user.profilePicture = req.body.profilePicture;
+			// Delete old profile picture if it exists and is from Cloudinary/local uploads
+			if (user.profilePicture && (user.profilePicture.includes("res.cloudinary.com") || user.profilePicture.startsWith("/uploads/"))) {
+				await deleteImage(user.profilePicture);
+			}
+			
+			// Convert file to base64 and upload to Cloudinary
+			const base64Data = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+			const cloudinaryUrl = await uploadImage(base64Data);
+			
+			if (cloudinaryUrl) {
+				user.profilePicture = cloudinaryUrl;
+			} else {
+				// Fallback to local storage if Cloudinary fails
+				user.profilePicture = `/uploads/profiles/${req.file.filename}`;
+			}
+		} else if (profilePicture) {
+			// Delete old profile picture if updating with new URL
+			if (user.profilePicture && (user.profilePicture.includes("res.cloudinary.com") || user.profilePicture.startsWith("/uploads/"))) {
+				await deleteImage(user.profilePicture);
+			}
+			// Handle base64 data or URL from frontend
+			if (profilePicture.startsWith("data:image")) {
+				const cloudinaryUrl = await uploadImage(profilePicture);
+				user.profilePicture = cloudinaryUrl || profilePicture;
+			} else {
+				user.profilePicture = profilePicture;
+			}
 		}
 		
 		if (interests && Array.isArray(interests)) user.interests = interests;
