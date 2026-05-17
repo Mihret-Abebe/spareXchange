@@ -1,23 +1,95 @@
 import { create } from "zustand";
 import axios from "axios";
+import { disconnectSocket } from "../utils/socket.js";
 
 const API_URL = import.meta.env.MODE === "development" ? "http://localhost:5000/api/auth" : "/api/auth";
 
 axios.defaults.withCredentials = true;
 
+let isRefreshing = false;
+let refreshQueue = [];
+let isLogoutInProgress = false;
+
+// Abort controller for canceling requests on logout
+const requestAbortController = new AbortController();
+
+const processRefreshQueue = (error, originalRequest = null) => {
+	refreshQueue.forEach(({ resolve, reject, request }) => {
+		if (error) {
+			reject(error);
+		} else {
+			resolve(axios(request));
+		}
+	});
+	refreshQueue = [];
+};
+
+const queueRefreshRequest = (originalRequest) =>
+	new Promise((resolve, reject) => {
+		refreshQueue.push({ resolve, reject, request: originalRequest });
+	});
+
 // Axios interceptor for automatic token refresh
 axios.interceptors.response.use(
 	(response) => response,
 	async (error) => {
-		if (error.response?.status === 401 && !error.config._retry) {
-			error.config._retry = true;
+		const originalRequest = error.config;
+		const authRoutePatterns = ["/api/auth/refresh-token", "/api/auth/logout", "/api/auth/login", "/api/auth/signup", "/api/auth/oauth/google"];
+
+		// Skip retry for auth routes and when logout is in progress
+		if (
+			originalRequest?.url &&
+			authRoutePatterns.some((route) => originalRequest.url.includes(route))
+		) {
+			// If refresh token endpoint fails, clear auth state
+			if (originalRequest?.url?.includes("/api/auth/refresh-token")) {
+				useAuthStore.getState().logout().catch(() => {
+					// Clear state even if logout fails
+					useAuthStore.setState({
+						user: null,
+						isAuthenticated: false,
+						isLoading: false,
+					});
+				});
+			}
+			return Promise.reject(error);
+		}
+
+		// Reject all requests if logout is in progress
+		if (isLogoutInProgress) {
+			return Promise.reject(error);
+		}
+
+		// Auto-refresh on 401 for protected routes
+		if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+			originalRequest._retry = true;
+
+			if (isRefreshing) {
+				return queueRefreshRequest(originalRequest);
+			}
+
+			isRefreshing = true;
 			try {
 				await useAuthStore.getState().refreshToken();
-				return axios(error.config);
+				processRefreshQueue(null, originalRequest);
+				return axios(originalRequest);
 			} catch (refreshError) {
+				processRefreshQueue(refreshError);
+				// If refresh failed, clear auth state
+				useAuthStore.getState().logout().catch(() => {
+					// Clear state even if logout fails
+					useAuthStore.setState({
+						user: null,
+						isAuthenticated: false,
+						isLoading: false,
+					});
+				});
 				return Promise.reject(refreshError);
+			} finally {
+				isRefreshing = false;
 			}
 		}
+
 		return Promise.reject(error);
 	}
 );
@@ -68,13 +140,41 @@ export const useAuthStore = create((set) => ({
 	},
 
 	logout: async () => {
+		// Set flag IMMEDIATELY to block any 401 retry attempts
+		isLogoutInProgress = true;
+		isRefreshing = false;
+		refreshQueue = [];
+
 		set({ isLoading: true, error: null });
 		try {
+			// Disconnect WebSocket if initialized
+			try {
+				disconnectSocket();
+			} catch (err) {
+				console.log("Socket disconnect error:", err);
+			}
+
+			// Call logout endpoint
 			await axios.post(`${API_URL}/logout`);
-			set({ user: null, isAuthenticated: false, error: null, isLoading: false });
+
+			// Clear all auth state
+			set({
+				user: null,
+				isAuthenticated: false,
+				error: null,
+				message: null,
+				isLoading: false,
+				mfaRequired: false,
+				mfaEmail: null,
+				isVerified: false,
+			});
 		} catch (error) {
+			console.error("Logout error:", error);
 			set({ error: "Error logging out", isLoading: false });
 			throw error;
+		} finally {
+			// Reset flag after logout completes
+			isLogoutInProgress = false;
 		}
 	},
 	verifyEmail: async (code) => {
@@ -230,12 +330,12 @@ export const useAuthStore = create((set) => ({
 		set({ isLoading: true, error: null });
 		try {
 			const API_URL_USERS = import.meta.env.MODE === "development" ? "http://localhost:5000/api/users" : "/api/users";
-			
+
 			// Check if profileData is FormData (for file uploads) or regular object
 			const isFormData = profileData instanceof FormData;
-			
+
 			const response = await axios.put(
-				`${API_URL_USERS}/profile`, 
+				`${API_URL_USERS}/profile`,
 				profileData,
 				{
 					headers: isFormData ? {
@@ -245,10 +345,10 @@ export const useAuthStore = create((set) => ({
 					}
 				}
 			);
-			set({ 
-				user: response.data.user, 
+			set({
+				user: response.data.user,
 				isLoading: false,
-				message: response.data.message 
+				message: response.data.message
 			});
 			return response.data;
 		} catch (error) {
@@ -263,7 +363,7 @@ export const useAuthStore = create((set) => ({
 			const API_URL_USERS = import.meta.env.MODE === "development" ? "http://localhost:5000/api/users" : "/api/users";
 			const formData = new FormData();
 			formData.append('requestedType', userType);
-			
+
 			// Append all files
 			if (files && files.length > 0) {
 				Array.from(files).forEach(file => {
@@ -276,15 +376,15 @@ export const useAuthStore = create((set) => ({
 					'Content-Type': 'multipart/form-data',
 				},
 			});
-			
-			set({ 
-				user: { 
-					...useAuthStore.getState().user, 
+
+			set({
+				user: {
+					...useAuthStore.getState().user,
 					userType: userType,
-					roleStatus: 'pending' 
-				}, 
-				isLoading: false, 
-				message: response.data.message 
+					roleStatus: 'pending'
+				},
+				isLoading: false,
+				message: response.data.message
 			});
 			return response.data;
 		} catch (error) {
@@ -297,10 +397,10 @@ export const useAuthStore = create((set) => ({
 	createRecyclingSubmission: async (submissionData) => {
 		set({ isLoading: true, error: null });
 		try {
-			const API_URL_RECYCLING = import.meta.env.MODE === "development" 
-				? "http://localhost:5000/api/recycling-submissions" 
+			const API_URL_RECYCLING = import.meta.env.MODE === "development"
+				? "http://localhost:5000/api/recycling-submissions"
 				: "/api/recycling-submissions";
-			
+
 			const response = await axios.post(API_URL_RECYCLING, submissionData);
 			set({ isLoading: false, message: response.data.message });
 			return response.data;
@@ -313,10 +413,10 @@ export const useAuthStore = create((set) => ({
 	getUserRecyclingSubmissions: async () => {
 		set({ isLoading: true, error: null });
 		try {
-			const API_URL_RECYCLING = import.meta.env.MODE === "development" 
-				? "http://localhost:5000/api/recycling-submissions" 
+			const API_URL_RECYCLING = import.meta.env.MODE === "development"
+				? "http://localhost:5000/api/recycling-submissions"
 				: "/api/recycling-submissions";
-			
+
 			const response = await axios.get(`${API_URL_RECYCLING}/user`);
 			set({ isLoading: false });
 			return response.data;
@@ -329,10 +429,10 @@ export const useAuthStore = create((set) => ({
 	verifyRecyclingByToken: async (token) => {
 		set({ isLoading: true, error: null });
 		try {
-			const API_URL_RECYCLING = import.meta.env.MODE === "development" 
-				? "http://localhost:5000/api/recycling-submissions" 
+			const API_URL_RECYCLING = import.meta.env.MODE === "development"
+				? "http://localhost:5000/api/recycling-submissions"
 				: "/api/recycling-submissions";
-			
+
 			const response = await axios.post(`${API_URL_RECYCLING}/verify-token`, { token });
 			set({ isLoading: false, message: response.data.message });
 			return response.data;
@@ -345,10 +445,10 @@ export const useAuthStore = create((set) => ({
 	getNearbyRecyclers: async (latitude, longitude, radius = 50) => {
 		set({ isLoading: true, error: null });
 		try {
-			const API_URL_RECYCLING = import.meta.env.MODE === "development" 
-				? "http://localhost:5000/api/recycling-submissions" 
+			const API_URL_RECYCLING = import.meta.env.MODE === "development"
+				? "http://localhost:5000/api/recycling-submissions"
 				: "/api/recycling-submissions";
-			
+
 			const response = await axios.get(`${API_URL_RECYCLING}/discovery`, {
 				params: { latitude, longitude, radius }
 			});

@@ -58,7 +58,7 @@ export const signup = async (req, res) => {
 
 		// Admin users are auto-verified and get full admin permissions
 		const isAdminUser = normalizedUserType === "admin";
-		const finalPermissions = isAdminUser 
+		const finalPermissions = isAdminUser
 			? ["admin", "view_stats", "view_reports", "moderate_content", "run_jobs"]
 			: basePermissions;
 
@@ -126,12 +126,12 @@ export const verifyEmail = async (req, res) => {
 		user.isVerified = true;
 		user.verificationToken = undefined;
 		user.verificationTokenExpiresAt = undefined;
-		
+
 		// Grant send_notifications permission to verified users
 		if (!user.permissions.includes("send_notifications")) {
 			user.permissions.push("send_notifications");
 		}
-		
+
 		await user.save();
 
 		try {
@@ -351,27 +351,39 @@ export const refreshToken = async (req, res) => {
 	const cookieRefreshToken = req.cookies.refreshToken;
 
 	if (!cookieRefreshToken) {
-		return res.status(401).json({ success: false, message: "Refresh token not found" });
+		return res.status(401).json({ success: false, message: "Refresh token not found - please login again" });
 	}
 
 	try {
 		const decoded = jwt.verify(cookieRefreshToken, process.env.JWT_REFRESH_SECRET || "refresh_secret_123");
 		const user = await User.findById(decoded.userId);
 
-		if (!user || user.refreshToken !== cookieRefreshToken) {
-			return res.status(403).json({ success: false, message: "Invalid refresh token" });
+		// If user doesn't exist or refresh token doesn't match (already logged out), reject
+		if (!user) {
+			res.clearCookie("token");
+			res.clearCookie("refreshToken");
+			return res.status(401).json({ success: false, message: "User not found - please login again" });
 		}
 
-		// Generate new pair
+		if (user.refreshToken !== cookieRefreshToken) {
+			// Refresh token was invalidated (e.g., user logged out)
+			res.clearCookie("token");
+			res.clearCookie("refreshToken");
+			return res.status(401).json({ success: false, message: "Session expired - please login again" });
+		}
+
+		// Generate new tokens
 		const { accessToken, refreshToken: newRefreshToken } = generateTokenAndSetCookie(res, user._id);
 
 		user.refreshToken = newRefreshToken;
 		await user.save();
 
-		res.status(200).json({ success: true, accessToken });
+		res.status(200).json({ success: true, accessToken, user: { ...user._doc, password: undefined, refreshToken: undefined } });
 	} catch (error) {
 		console.log("Error in refreshToken ", error);
-		res.status(403).json({ success: false, message: "Invalid or expired refresh token" });
+		res.clearCookie("token");
+		res.clearCookie("refreshToken");
+		res.status(401).json({ success: false, message: "Invalid or expired refresh token - please login again" });
 	}
 };
 
