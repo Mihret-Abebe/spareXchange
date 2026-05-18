@@ -186,6 +186,11 @@ const ProfilePage = () => {
 												<AlertCircle size={14} className='mr-1' /> Unverified
 											</span>
 										)}
+										{!isAdmin && user.roleStatus === "rejected" && (
+											<span className='flex items-center text-red-500 text-sm bg-red-900 bg-opacity-30 px-2 py-1 rounded-full'>
+												<AlertCircle size={14} className='mr-1' /> Verification Declined
+											</span>
+										)}
 										{!isAdmin && user.roleStatus === "pending" && (
 											<span className='flex items-center text-blue-400 text-sm bg-blue-900 bg-opacity-30 px-2 py-1 rounded-full'>
 												<Clock size={14} className='mr-1' /> Verification Pending
@@ -292,14 +297,17 @@ const ProfilePage = () => {
 										</div>
 									</div>
 
-									{!isAdmin && user.roleStatus === "none" && (
+									{!isAdmin && (user.roleStatus === "none" || user.roleStatus === "rejected") && (
 										<div className='mt-8 p-4 bg-gray-700 bg-opacity-70 rounded-lg border border-yellow-600 border-opacity-50'>
 											<h3 className='text-lg font-bold mb-2 flex items-center text-yellow-500'>
 												<AlertCircle size={20} className='mr-2' />
-												Get Verified
+												{user.roleStatus === "rejected" ? "Reapply for Verification" : "Get Verified"}
 											</h3>
 											<p className='text-sm text-gray-300 mb-4'>
-												To post spare parts or work as a technician, you must verify your identity.
+												{user.roleStatus === "rejected" 
+													? "Your previous verification request was declined. Please submit a new request with updated documents."
+													: "To post spare parts or work as a technician, you must verify your identity."
+												}
 											</p>
 											<div className='space-y-4'>
 												<div>
