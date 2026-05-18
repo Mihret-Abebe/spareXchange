@@ -1,5 +1,5 @@
 import express from "express";
-import { getTechnicians, getTechnicianById, redeemPoints, requestRoleVerification, updateProfile, getLeaderboard, listSavedSearches, createSavedSearch, updateSavedSearch, deleteSavedSearch } from "../controllers/user.controller.js";
+import { getTechnicians, getTechnicianById, redeemPoints, requestRoleVerification, updateProfile, getLeaderboard, getLeaderboardStats, listSavedSearches, createSavedSearch, updateSavedSearch, deleteSavedSearch } from "../controllers/user.controller.js";
 import { getActivityFeed, getUserPublicActivity, getCommunityHighlights } from "../controllers/activityFeed.controller.js";
 import { getPublicUserProfile, getUserPublicListings, getUserReviewsSummary, getUserStats } from "../controllers/publicProfile.controller.js";
 import { getAchievementDefinitions, checkAndUnlockAchievements, getUserAchievements, getAchievementLeaderboard } from "../controllers/achievement.controller.js";
@@ -14,6 +14,7 @@ router.post("/redeem-points", verifyToken, redeemPoints);
 router.post("/verify-role", verifyToken, upload.array("documents", 5), requestRoleVerification);
 router.put("/profile", verifyToken, uploadProfilePicture.single("profilePicture"), updateProfile);
 router.get("/leaderboard", verifyToken, getLeaderboard);
+router.get("/leaderboard/stats", verifyToken, getLeaderboardStats);
 
 // Saved searches (Module 6)
 router.get("/saved-searches", verifyToken, listSavedSearches);

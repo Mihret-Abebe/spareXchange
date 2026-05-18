@@ -208,6 +208,95 @@ export const getLeaderboard = async (req, res) => {
 	}
 };
 
+// Get Leaderboard Statistics (Total Eco Points & Monthly Growth)
+export const getLeaderboardStats = async (req, res) => {
+	try {
+		const now = new Date();
+		
+		// Current month boundaries
+		const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+		const currentMonthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+		
+		// Previous month boundaries
+		const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+		const prevMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+
+		// Total eco points awarded (sum of all users' ecoPoints)
+		const ecoPointsStats = await User.aggregate([
+			{ $match: { ecoPoints: { $gt: 0 } } },
+			{
+				$group: {
+					_id: null,
+					totalEcoPoints: { $sum: "$ecoPoints" },
+					usersWithPoints: { $sum: 1 }
+				}
+			}
+		]);
+
+		// Current month metrics
+		const currentMonthUsers = await User.countDocuments({ 
+			createdAt: { $gte: currentMonthStart, $lte: currentMonthEnd } 
+		});
+		
+		const currentMonthExchanges = await mongoose.model('Exchange').countDocuments({
+			createdAt: { $gte: currentMonthStart, $lte: currentMonthEnd }
+		});
+		
+		const currentMonthRecycling = await mongoose.model('RecyclingSubmission').countDocuments({
+			createdAt: { $gte: currentMonthStart, $lte: currentMonthEnd },
+			status: 'approved'
+		});
+
+		// Previous month metrics
+		const prevMonthUsers = await User.countDocuments({ 
+			createdAt: { $gte: prevMonthStart, $lte: prevMonthEnd } 
+		});
+		
+		const prevMonthExchanges = await mongoose.model('Exchange').countDocuments({
+			createdAt: { $gte: prevMonthStart, $lte: prevMonthEnd }
+		});
+		
+		const prevMonthRecycling = await mongoose.model('RecyclingSubmission').countDocuments({
+			createdAt: { $gte: prevMonthStart, $lte: prevMonthEnd },
+			status: 'approved'
+		});
+
+		// Calculate monthly growth percentage
+		// Weight: 40% new users, 30% eco points (from total), 30% activity (exchanges + recycling)
+		const userGrowth = prevMonthUsers > 0 
+			? ((currentMonthUsers - prevMonthUsers) / prevMonthUsers) * 100 
+			: (currentMonthUsers > 0 ? 100 : 0);
+		
+		const activityGrowth = (prevMonthExchanges + prevMonthRecycling) > 0
+			? (((currentMonthExchanges + currentMonthRecycling) - (prevMonthExchanges + prevMonthRecycling)) / 
+			   (prevMonthExchanges + prevMonthRecycling)) * 100
+			: ((currentMonthExchanges + currentMonthRecycling) > 0 ? 100 : 0);
+
+		// Overall monthly growth (weighted average)
+		const monthlyGrowth = (userGrowth * 0.4) + (activityGrowth * 0.6);
+
+		res.status(200).json({
+			success: true,
+			stats: {
+				totalEcoPointsAwarded: ecoPointsStats[0]?.totalEcoPoints || 0,
+				usersWithPoints: ecoPointsStats[0]?.usersWithPoints || 0,
+				monthlyGrowth: {
+					percentage: Math.round(monthlyGrowth * 10) / 10, // Round to 1 decimal
+					newUsersThisMonth: currentMonthUsers,
+					newUsersLastMonth: prevMonthUsers,
+					exchangesThisMonth: currentMonthExchanges,
+					exchangesLastMonth: prevMonthExchanges,
+					recyclingThisMonth: currentMonthRecycling,
+					recyclingLastMonth: prevMonthRecycling
+				}
+			}
+		});
+	} catch (error) {
+		console.error("Error in getLeaderboardStats:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
 // ────────────────────────────────────────────────────────────────────────
 // Saved Searches (Module 6 - modern matching)
 // ────────────────────────────────────────────────────────────────────────
