@@ -337,7 +337,10 @@ const ProfilePage = () => {
 														className='w-full bg-gray-600 rounded px-3 py-2 text-sm file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-green-600 file:text-white file:text-sm file:font-semibold hover:file:bg-green-700'
 													/>
 													<p className='text-xs text-gray-500 mt-1'>
-														Upload up to 5 documents (images or PDF)
+														Upload up to 5 documents (PDF, JPG, PNG, WebP, or GIF)
+													</p>
+													<p className='text-xs text-gray-500 mt-1'>
+														Accepted: ID Card, Passport, Driver's License, Recycling License, Technician License, or relevant certificates
 													</p>
 													
 													{verificationFiles.length > 0 && (

@@ -22,9 +22,10 @@ if (cloudinaryConfigured) {
 /**
  * Upload image to Cloudinary with local fallback
  * @param {String} base64Data - Base64 encoded image data or URL
+ * @param {String} resourceType - 'image' or 'raw' (for PDFs)
  * @returns {String|null} - Public URL of uploaded image
  */
-export const uploadImage = async (base64Data) => {
+export const uploadImage = async (base64Data, resourceType = 'image') => {
 	if (!base64Data) return null;
 
 	// If it's already a URL, return it
@@ -33,14 +34,23 @@ export const uploadImage = async (base64Data) => {
 	// Cloudinary upload (if configured)
 	if (cloudinaryConfigured) {
 		try {
-			const result = await cloudinary.v2.uploader.upload(base64Data, {
-				folder: "sparexchange",
-				resource_type: "image",
-				transformation: [
-					{ quality: "auto", fetch_format: "auto" }, // Optimize format and quality
-					{ width: 1200, crop: "limit" }, // Resize if too large
-				],
-			});
+			const isPDF = base64Data.includes("application/pdf");
+			const actualResourceType = isPDF ? 'raw' : resourceType;
+			
+			const uploadOptions = {
+				folder: "sparexchange/verifications",
+				resource_type: actualResourceType,
+			};
+
+			// Add image-specific transformations
+			if (actualResourceType === 'image') {
+				uploadOptions.transformation = [
+					{ quality: "auto", fetch_format: "auto" },
+					{ width: 1200, crop: "limit" },
+				];
+			}
+
+			const result = await cloudinary.v2.uploader.upload(base64Data, uploadOptions);
 			return result.secure_url;
 		} catch (error) {
 			console.error("Cloudinary upload failed, falling back to local:", error.message);
@@ -79,6 +89,75 @@ const uploadToLocal = async (base64Data) => {
 		console.error("Local image upload failed:", error);
 		return null;
 	}
+};
+
+/**
+ * Upload document (PDF or image) to Cloudinary
+ * Specifically for verification documents
+ * @param {Buffer} fileBuffer - File buffer from multer
+ * @param {String} mimetype - File MIME type
+ * @param {String} originalName - Original filename
+ * @returns {String|null} - Public URL of uploaded document
+ */
+export const uploadVerificationDocument = async (fileBuffer, mimetype, originalName) => {
+	if (!fileBuffer) return null;
+
+	try {
+		// Convert buffer to base64
+		const base64Data = `data:${mimetype};base64,${fileBuffer.toString('base64')}`;
+		
+		// Determine if it's a PDF or image
+		const isPDF = mimetype === 'application/pdf';
+		const resourceType = isPDF ? 'raw' : 'image';
+		
+		if (cloudinaryConfigured) {
+			try {
+				const uploadOptions = {
+					folder: "sparexchange/verifications",
+					resource_type: resourceType,
+					public_id: `doc_${Date.now()}_${originalName.split('.')[0]}`,
+				};
+
+				// For images, add optimization
+				if (!isPDF) {
+					uploadOptions.transformation = [
+						{ quality: "auto", fetch_format: "auto" },
+						{ width: 1200, crop: "limit" },
+					];
+				}
+
+				const result = await cloudinary.v2.uploader.upload(base64Data, uploadOptions);
+				console.log(`✓ Document uploaded to Cloudinary: ${result.secure_url}`);
+				return result.secure_url;
+			} catch (error) {
+				console.error("Cloudinary document upload failed:", error.message);
+				throw error;
+			}
+		} else {
+			// Fallback to local storage
+			console.log("⚠ Cloudinary not configured, using local storage fallback");
+			return uploadToLocal(base64Data);
+		}
+	} catch (error) {
+		console.error("Document upload failed:", error);
+		return null;
+	}
+};
+
+/**
+ * Bulk upload verification documents
+ * @param {Array} files - Array of file objects from multer
+ * @returns {Array} - Array of uploaded document URLs
+ */
+export const bulkUploadVerificationDocs = async (files) => {
+	if (!Array.isArray(files) || files.length === 0) return [];
+	
+	const uploadPromises = files.map(file => 
+		uploadVerificationDocument(file.buffer, file.mimetype, file.originalname)
+	);
+	
+	const results = await Promise.all(uploadPromises);
+	return results.filter(url => url !== null);
 };
 
 /**

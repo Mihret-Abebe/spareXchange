@@ -2,10 +2,10 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-// Memory storage for profile pictures (to upload to Cloudinary)
+// Memory storage for Cloudinary uploads (profile pictures and verification documents)
 const memoryStorage = multer.memoryStorage();
 
-// Disk storage for verification documents
+// Disk storage for general uploads (fallback only)
 const diskStorage = multer.diskStorage({
 	destination: (req, file, cb) => {
 		let uploadPath;
@@ -29,7 +29,15 @@ const diskStorage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-	const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp", "image/gif"];
+	// Allowed file types for verification documents
+	const allowedTypes = [
+		"application/pdf",
+		"image/jpeg",
+		"image/png",
+		"image/webp",
+		"image/gif"
+	];
+	
 	if (allowedTypes.includes(file.mimetype)) {
 		cb(null, true);
 	} else {
@@ -38,15 +46,24 @@ const fileFilter = (req, file, cb) => {
 };
 
 // Export different upload configurations
+
+// For verification documents - use memory storage for Cloudinary upload
 export const upload = multer({
-	storage: diskStorage,
-	limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+	storage: memoryStorage,
+	limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit for verification docs
 	fileFilter: fileFilter,
 });
 
 // For profile pictures - use memory storage for Cloudinary upload
 export const uploadProfilePicture = multer({
 	storage: memoryStorage,
+	limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+	fileFilter: fileFilter,
+});
+
+// Legacy disk storage export (for backward compatibility)
+export const uploadDisk = multer({
+	storage: diskStorage,
 	limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
 	fileFilter: fileFilter,
 });

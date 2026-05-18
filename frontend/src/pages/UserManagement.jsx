@@ -366,20 +366,76 @@ const UserManagement = () => {
                   )}
                   {selectedUser.verificationDocs && selectedUser.verificationDocs.length > 0 && (
                     <div className='bg-gray-900/50 p-4 rounded-lg'>
-                      <p className='text-sm text-gray-400 mb-2'>Verification Documents</p>
-                      <div className='space-y-2'>
-                        {selectedUser.verificationDocs.map((doc, index) => (
-                          <a
-                            key={index}
-                            href={doc}
-                            target='_blank'
-                            rel='noopener noreferrer'
-                            className='block p-3 bg-gray-800 rounded hover:bg-gray-700 transition text-green-400'
-                          >
-                            📄 Document {index + 1} - Click to view
-                          </a>
-                        ))}
+                      <p className='text-sm text-gray-400 mb-2'>Verification Documents ({selectedUser.verificationDocs.length})</p>
+                      <div className='space-y-3'>
+                        {selectedUser.verificationDocs.map((doc, index) => {
+                          const isPDF = doc.includes('.pdf') || doc.includes('raw/upload');
+                          const isCloudinary = doc.includes('res.cloudinary.com');
+                          
+                          return (
+                            <div key={index} className='bg-gray-800 rounded-lg overflow-hidden'>
+                              {/* Document Preview */}
+                              <div className='p-3 border-b border-gray-700'>
+                                <div className='flex items-center justify-between mb-2'>
+                                  <span className='text-sm font-semibold text-white'>
+                                    {isPDF ? '📄' : '🖼️'} Document {index + 1}
+                                  </span>
+                                  <span className='text-xs text-gray-400'>
+                                    {isCloudinary ? 'Cloudinary' : 'Local Storage'}
+                                  </span>
+                                </div>
+                                
+                                {/* Image Preview */}
+                                {!isPDF && isCloudinary && (
+                                  <div className='mb-2 rounded overflow-hidden'>
+                                    <img 
+                                      src={doc} 
+                                      alt={`Verification document ${index + 1}`}
+                                      className='w-full h-auto max-h-64 object-contain bg-gray-900'
+                                      onError={(e) => {
+                                        e.target.style.display = 'none';
+                                        e.target.nextSibling.style.display = 'block';
+                                      }}
+                                    />
+                                    <div className='hidden p-4 text-center text-gray-400 text-sm'>
+                                      Failed to load image preview
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                {/* PDF Preview Notice */}
+                                {isPDF && (
+                                  <div className='mb-2 p-3 bg-blue-900/30 border border-blue-700 rounded text-sm text-blue-300'>
+                                    📋 PDF Document - Click to view in new tab
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {/* Action Buttons */}
+                              <div className='p-3 flex gap-2'>
+                                <a
+                                  href={doc}
+                                  target='_blank'
+                                  rel='noopener noreferrer'
+                                  className='flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white text-sm font-semibold transition flex items-center justify-center gap-2'
+                                >
+                                  🔍 View Full Size
+                                </a>
+                                <button
+                                  onClick={() => window.open(doc, '_blank')}
+                                  className='px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white text-sm font-semibold transition'
+                                  title='Download'
+                                >
+                                  ⬇️
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
+                      <p className='text-xs text-gray-500 mt-3'>
+                        💡 Tip: Click "View Full Size" to examine documents in detail before approving/rejecting
+                      </p>
                     </div>
                   )}
                   <div className='bg-gray-900/50 p-4 rounded-lg'>

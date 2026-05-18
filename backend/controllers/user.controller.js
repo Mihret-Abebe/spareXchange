@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { User } from "../models/user.model.js";
 import { SavedSearch } from "../models/savedSearch.model.js";
-import { uploadImage, deleteImage } from "../services/image.service.js";
+import { uploadImage, deleteImage, bulkUploadVerificationDocs } from "../services/image.service.js";
 
 // Get all verified technicians
 export const getTechnicians = async (req, res) => {
@@ -118,9 +118,38 @@ export const requestRoleVerification = async (req, res) => {
 			return res.status(400).json({ success: false, message: "At least one verification document is required" });
 		}
 
-		const docUrls = req.files.map(file => `/uploads/verification/${file.filename}`);
+		// Validate file types
+		const allowedTypes = [
+			'application/pdf',
+			'image/jpeg',
+			'image/png',
+			'image/webp',
+			'image/gif'
+		];
+		
+		const invalidFiles = req.files.filter(file => !allowedTypes.includes(file.mimetype));
+		if (invalidFiles.length > 0) {
+			return res.status(400).json({ 
+				success: false, 
+				message: "Invalid file types. Only PDF, JPG, PNG, WebP, and GIF are allowed." 
+			});
+		}
 
-		user.verificationDocs = [...user.verificationDocs, ...docUrls];
+		// Upload documents to Cloudinary (with local fallback)
+		console.log(`Uploading ${req.files.length} verification document(s) to Cloudinary...`);
+		const docUrls = await bulkUploadVerificationDocs(req.files);
+		
+		if (docUrls.length === 0) {
+			return res.status(500).json({ 
+				success: false, 
+				message: "Failed to upload verification documents. Please try again." 
+			});
+		}
+
+		console.log(`✓ Successfully uploaded ${docUrls.length} document(s)`);
+
+		// Clear old verification docs and add new ones
+		user.verificationDocs = docUrls;
 		user.userType = requestedType; // Set intended role, but stay pending
 		user.roleStatus = "pending";
 		await user.save();
@@ -129,7 +158,8 @@ export const requestRoleVerification = async (req, res) => {
 			success: true,
 			message: "Verification request submitted successfully",
 			roleStatus: "pending",
-			docsCount: docUrls.length
+			docsCount: docUrls.length,
+			docUrls: docUrls
 		});
 	} catch (error) {
 		console.error("Error in requestRoleVerification:", error);
