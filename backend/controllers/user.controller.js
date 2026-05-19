@@ -136,13 +136,22 @@ export const requestRoleVerification = async (req, res) => {
 		}
 
 		// Upload documents to Cloudinary (with local fallback)
-		console.log(`Uploading ${req.files.length} verification document(s) to Cloudinary...`);
+		console.log(`\n=== VERIFICATION UPLOAD START ===`);
+		console.log(`User ID: ${userId}`);
+		console.log(`Requested Type: ${requestedType}`);
+		console.log(`Number of files: ${req.files.length}`);
+		console.log(`Cloudinary Configured: ${process.env.CLOUDINARY_CLOUD_NAME ? 'YES' : 'NO'}`);
+		
 		const docUrls = await bulkUploadVerificationDocs(req.files);
 		
+		console.log(`Upload results: ${docUrls.length} successful URL(s)`);
+		console.log(`=== VERIFICATION UPLOAD END ===\n`);
+		
 		if (docUrls.length === 0) {
+			console.error("ERROR: All document uploads failed!");
 			return res.status(500).json({ 
 				success: false, 
-				message: "Failed to upload verification documents. Please try again." 
+				message: "Failed to upload verification documents. Please try again. Check server logs for details." 
 			});
 		}
 

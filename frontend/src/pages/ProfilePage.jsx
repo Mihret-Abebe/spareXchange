@@ -191,6 +191,18 @@ const ProfilePage = () => {
 												<AlertCircle size={14} className='mr-1' /> Verification Declined
 											</span>
 										)}
+										{/* Admin Feedback Note
+										{!isAdmin && user.roleStatus === "rejected" && user.verificationNote && (
+											<div className='w-full mt-2 p-3 bg-red-900/30 border border-red-700 rounded-lg'>
+												<div className='flex items-start gap-2'>
+													<AlertCircle size={16} className='text-red-400 mt-0.5 flex-shrink-0' />
+													<div>
+														<p className='text-xs font-semibold text-red-400 mb-1'>Admin Feedback:</p>
+														<p className='text-sm text-red-300'>{user.verificationNote}</p>
+													</div>
+												</div>
+											</div>
+										)} */}
 										{!isAdmin && user.roleStatus === "pending" && (
 											<span className='flex items-center text-blue-400 text-sm bg-blue-900 bg-opacity-30 px-2 py-1 rounded-full'>
 												<Clock size={14} className='mr-1' /> Verification Pending
@@ -303,9 +315,18 @@ const ProfilePage = () => {
 												<AlertCircle size={20} className='mr-2' />
 												{user.roleStatus === "rejected" ? "Reapply for Verification" : "Get Verified"}
 											</h3>
+											
+											{/* Show admin feedback if rejected */}
+											{user.roleStatus === "rejected" && user.verificationNote && (
+												<div className='mb-4 p-3 bg-red-900/40 border border-red-600 rounded-lg'>
+													<p className='text-xs font-semibold text-red-400 mb-1'>💡 Reason for Rejection:</p>
+													<p className='text-sm text-red-300'>{user.verificationNote}</p>
+												</div>
+											)}
+											
 											<p className='text-sm text-gray-300 mb-4'>
 												{user.roleStatus === "rejected" 
-													? "Your previous verification request was declined. Please submit a new request with updated documents."
+													? "Your previous verification request was declined. Please review the feedback above and submit a new request with updated documents."
 													: "To post spare parts or work as a technician, you must verify your identity."
 												}
 											</p>

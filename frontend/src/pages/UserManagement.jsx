@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { 
   Users, 
@@ -33,6 +33,49 @@ const UserManagement = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [verificationNote, setVerificationNote] = useState("");
   const [activeTab, setActiveTab] = useState("all"); // 'all' or 'pending'
+  const [previewDoc, setPreviewDoc] = useState(null); // For document preview modal
+  const iframeRef = useRef(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState(false);
+
+  // Load PDF into iframe using blob URL to bypass CORS
+  useEffect(() => {
+    if (previewDoc && previewDoc.type === 'pdf') {
+      setPdfLoading(true);
+      setPdfError(false);
+      
+      // Remove fl_attachment from URL for preview
+      const previewUrl = previewDoc.url.replace('/upload/fl_attachment/', '/upload/');
+      
+      // Fetch PDF as blob to bypass CORS
+      fetch(previewUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch PDF');
+          }
+          return response.blob();
+        })
+        .then(blob => {
+          // Create blob URL
+          const blobUrl = URL.createObjectURL(blob);
+          
+          // Set iframe src to blob URL
+          if (iframeRef.current) {
+            iframeRef.current.src = blobUrl;
+          }
+          
+          setPdfLoading(false);
+          
+          // Cleanup blob URL when component unmounts or preview changes
+          return () => URL.revokeObjectURL(blobUrl);
+        })
+        .catch(error => {
+          console.error('Failed to load PDF:', error);
+          setPdfError(true);
+          setPdfLoading(false);
+        });
+    }
+  }, [previewDoc]);
 
   useEffect(() => {
     fetchUsers();
@@ -100,6 +143,50 @@ const UserManagement = () => {
       fetchUsers();
     } catch (error) {
       toast.error("Failed to verify user email");
+    }
+  };
+
+  const handleDownloadDoc = async (docUrl) => {
+    // More robust PDF detection
+    const isPDF = docUrl.includes('.pdf') || 
+                  docUrl.includes('raw/upload') || 
+                  docUrl.includes('fl_attachment');
+    const isCloudinary = docUrl.includes('res.cloudinary.com');
+    
+    try {
+      // Remove fl_attachment for fetching
+      const fetchUrl = docUrl.replace('/upload/fl_attachment/', '/upload/');
+      
+      // Fetch file as blob
+      const response = await fetch(fetchUrl);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to download: ${response.status} ${response.statusText}`);
+      }
+      
+      const blob = await response.blob();
+      
+      // Create download link
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = isPDF ? 'document.pdf' : 'document.jpg';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+      
+      toast.success('Download started!');
+    } catch (error) {
+      console.error('Download failed:', error);
+      toast.error('Download failed. Try opening in new tab.');
+      
+      // Fallback: open in new tab
+      let fallbackUrl = docUrl;
+      if (isPDF && isCloudinary && !fallbackUrl.includes('fl_attachment')) {
+        fallbackUrl = fallbackUrl.replace('/upload/', '/upload/fl_attachment/');
+      }
+      window.open(fallbackUrl, '_blank');
     }
   };
 
@@ -369,7 +456,10 @@ const UserManagement = () => {
                       <p className='text-sm text-gray-400 mb-2'>Verification Documents ({selectedUser.verificationDocs.length})</p>
                       <div className='space-y-3'>
                         {selectedUser.verificationDocs.map((doc, index) => {
-                          const isPDF = doc.includes('.pdf') || doc.includes('raw/upload');
+                          // More robust PDF detection
+                          const isPDF = doc.includes('.pdf') || 
+                                        doc.includes('raw/upload') || 
+                                        doc.includes('fl_attachment');
                           const isCloudinary = doc.includes('res.cloudinary.com');
                           
                           return (
@@ -413,20 +503,18 @@ const UserManagement = () => {
                               
                               {/* Action Buttons */}
                               <div className='p-3 flex gap-2'>
-                                <a
-                                  href={doc}
-                                  target='_blank'
-                                  rel='noopener noreferrer'
+                                <button
+                                  onClick={() => setPreviewDoc({ url: doc, type: isPDF ? 'pdf' : 'image', index })}
                                   className='flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white text-sm font-semibold transition flex items-center justify-center gap-2'
                                 >
-                                  🔍 View Full Size
-                                </a>
+                                  👁️ Preview
+                                </button>
                                 <button
-                                  onClick={() => window.open(doc, '_blank')}
+                                  onClick={() => handleDownloadDoc(doc)}
                                   className='px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white text-sm font-semibold transition'
                                   title='Download'
                                 >
-                                  ⬇️
+                                  ⬇️ Download
                                 </button>
                               </div>
                             </div>
@@ -474,6 +562,126 @@ const UserManagement = () => {
                     className='px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition'
                   >
                     Cancel
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Document Preview Modal */}
+        {previewDoc && (
+          <div className='fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-[60] p-4'>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className='bg-gray-900 rounded-xl border border-gray-700 max-w-5xl w-full max-h-[95vh] overflow-hidden flex flex-col'
+            >
+              {/* Header */}
+              <div className='p-4 border-b border-gray-700 flex items-center justify-between'>
+                <h3 className='text-xl font-bold text-white flex items-center gap-2'>
+                  {previewDoc.type === 'pdf' ? '📄' : '🖼️'} Document Preview
+                </h3>
+                <button
+                  onClick={() => setPreviewDoc(null)}
+                  className='p-2 hover:bg-gray-800 rounded-lg transition'
+                >
+                  <XCircle size={24} className='text-gray-400 hover:text-white' />
+                </button>
+              </div>
+
+              {/* Preview Content */}
+              <div className='flex-1 overflow-auto p-4 bg-gray-950'>
+                {previewDoc.type === 'image' ? (
+                  <div className='flex items-center justify-center min-h-[60vh]'>
+                    <img
+                      src={previewDoc.url}
+                      alt='Document preview'
+                      className='max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl'
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                    <div className='hidden flex-col items-center justify-center text-gray-400'>
+                      <AlertTriangle size={48} className='mb-4' />
+                      <p className='text-lg'>Failed to load image preview</p>
+                      <button
+                        onClick={() => window.open(previewDoc.url, '_blank')}
+                        className='mt-4 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white transition'
+                      >
+                        Open in New Tab
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className='flex flex-col items-center justify-center min-h-[60vh] w-full'>
+                    {/* Inline PDF Preview using blob URL */}
+                    <div className='w-full max-w-4xl bg-white rounded-lg shadow-2xl overflow-hidden relative' style={{ height: '75vh' }}>
+                      {/* Loading State */}
+                      {pdfLoading && (
+                        <div className='absolute inset-0 bg-gray-900 bg-opacity-90 flex items-center justify-center z-10'>
+                          <div className='text-center'>
+                            <div className='animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4'></div>
+                            <p className='text-white text-lg'>Loading PDF...</p>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Error State */}
+                      {pdfError && (
+                        <div className='absolute inset-0 bg-gray-900 bg-opacity-90 flex items-center justify-center z-10'>
+                          <div className='text-center text-white'>
+                            <AlertTriangle size={64} className='mx-auto mb-4 text-red-500' />
+                            <p className='text-lg mb-4'>Failed to load PDF preview</p>
+                            <p className='text-sm text-gray-400 mb-6'>Click "Open in New Tab" to view the document</p>
+                          </div>
+                        </div>
+                      )}
+                      
+                      <iframe
+                        ref={iframeRef}
+                        id='pdf-preview-iframe'
+                        className='w-full h-full border-0'
+                        title='PDF Preview'
+                      />
+                    </div>
+                    {/* Fallback buttons */}
+                    <div className='mt-4 flex gap-4'>
+                      <button
+                        onClick={() => window.open(previewDoc.url.replace('/upload/fl_attachment/', '/upload/'), '_blank')}
+                        className='px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold transition flex items-center gap-2'
+                      >
+                        👁️ Open in New Tab
+                      </button>
+                      <button
+                        onClick={() => handleDownloadDoc(previewDoc.url)}
+                        className='px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-semibold transition flex items-center gap-2'
+                      >
+                        ⬇️ Download PDF
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className='p-4 border-t border-gray-700 flex justify-between items-center'>
+                <p className='text-sm text-gray-400'>
+                  {previewDoc.type === 'pdf' ? 'PDF Document' : 'Image Document'}
+                </p>
+                <div className='flex gap-2'>
+                  <button
+                    onClick={() => handleDownloadDoc(previewDoc.url)}
+                    className='px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white text-sm font-semibold transition'
+                  >
+                    ⬇️ Download
+                  </button>
+                  <button
+                    onClick={() => setPreviewDoc(null)}
+                    className='px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white text-sm font-semibold transition'
+                  >
+                    Close
                   </button>
                 </div>
               </div>

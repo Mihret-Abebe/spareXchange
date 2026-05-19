@@ -56,6 +56,12 @@ export const verifyRoleStatus = async (req, res) => {
 		if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
 		user.roleStatus = status;
+		
+		// Save admin note for feedback
+		if (note) {
+			user.verificationNote = note;
+		}
+		
 		if (status === "verified") {
 			user.verifiedSeller = true; // Automatically make them a verified seller too
 			
@@ -77,14 +83,20 @@ export const verifyRoleStatus = async (req, res) => {
 		
 		await user.save();
 		
-		// Real-time Notification
+		// Real-time Notification with note
 		emitToUser(id, "role_verified", {
 			status,
 			userType: user.userType,
-			message: `Your request for ${user.userType} status has been ${status}.`
+			note: note || "",
+			message: `Your request for ${user.userType} status has been ${status}.${note ? ` Note: ${note}` : ''}`
 		});
 		
-		res.status(200).json({ success: true, message: `Role status updated to ${status}`, user });
+		res.status(200).json({ 
+			success: true, 
+			message: `Role status updated to ${status}`, 
+			user,
+			note: note || ""
+		});
 	} catch (error) {
 		console.error("Error in verifyRoleStatus:", error);
 		res.status(500).json({ success: false, message: "Server error" });

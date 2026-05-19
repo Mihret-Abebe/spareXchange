@@ -79,6 +79,7 @@ const userSchema = new mongoose.Schema(
 			enum: ["none", "pending", "verified", "rejected"],
 			default: "none",
 		},
+		verificationNote: { type: String, default: "" }, // Admin feedback for rejected verifications
 		refreshToken: { type: String },
 		mfaSecret: { type: String },
 		isMfaEnabled: { type: Boolean, default: false },
