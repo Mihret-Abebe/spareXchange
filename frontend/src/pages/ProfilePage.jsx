@@ -191,7 +191,7 @@ const ProfilePage = () => {
 												<AlertCircle size={14} className='mr-1' /> Verification Declined
 											</span>
 										)}
-										{/* Admin Feedback Note
+										{/* Admin Feedback Note */}
 										{!isAdmin && user.roleStatus === "rejected" && user.verificationNote && (
 											<div className='w-full mt-2 p-3 bg-red-900/30 border border-red-700 rounded-lg'>
 												<div className='flex items-start gap-2'>
@@ -202,7 +202,7 @@ const ProfilePage = () => {
 													</div>
 												</div>
 											</div>
-										)} */}
+										)}
 										{!isAdmin && user.roleStatus === "pending" && (
 											<span className='flex items-center text-blue-400 text-sm bg-blue-900 bg-opacity-30 px-2 py-1 rounded-full'>
 												<Clock size={14} className='mr-1' /> Verification Pending

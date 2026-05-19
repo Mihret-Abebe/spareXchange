@@ -12,7 +12,8 @@ import {
 	renewListing,
 	reportListing,
 	voteCompatibility,
-	getHighDemandAnalytics
+	getHighDemandAnalytics,
+	getAllListingsAdmin
 } from "../controllers/listing.controller.js";
 import { verifyToken } from "../middleware/verifyToken.js";
 
@@ -24,6 +25,9 @@ router.get("/recommendations", verifyToken, getRecommendations);
 router.get("/analytics/high-demand", verifyToken, getHighDemandAnalytics);
 
 import { authorize } from "../middleware/authorize.js";
+
+// Admin routes
+router.get("/admin/all", verifyToken, authorize(["view_stats"]), getAllListingsAdmin);
 
 // Protected routes (require authentication) - SPECIFIC routes BEFORE parameterized routes
 router.get("/my-listings", verifyToken, getUserListings);

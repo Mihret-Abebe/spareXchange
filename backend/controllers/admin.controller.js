@@ -57,10 +57,9 @@ export const verifyRoleStatus = async (req, res) => {
 
 		user.roleStatus = status;
 		
-		// Save admin note for feedback
-		if (note) {
-			user.verificationNote = note;
-		}
+		// Always update verification note - set to empty string if not provided
+		// This ensures fresh message on each rejection
+		user.verificationNote = note ? note.trim() : "";
 		
 		if (status === "verified") {
 			user.verifiedSeller = true; // Automatically make them a verified seller too
@@ -79,17 +78,26 @@ export const verifyRoleStatus = async (req, res) => {
 			permsToAdd.forEach(p => {
 				if (!user.permissions.includes(p)) user.permissions.push(p);
 			});
+			
+			// Send welcome notification for verified users
+			emitToUser(id, "role_verified", {
+				status,
+				userType: user.userType,
+				note: "",
+				message: `Congratulations! Your request for ${user.userType} status has been approved. Welcome to the ${user.userType} community! You now have access to exclusive features and benefits.`
+			});
+		} else if (status === "rejected") {
+			// Send rejection notification with fresh note
+			emitToUser(id, "role_verified", {
+				status,
+				userType: user.userType,
+				note: user.verificationNote,
+				message: `Your request for ${user.userType} status has been declined.${user.verificationNote ? ` Reason: ${user.verificationNote}` : ' Please review the requirements and try again.'}`
+			});
 		}
 		
+		// Save user to database
 		await user.save();
-		
-		// Real-time Notification with note
-		emitToUser(id, "role_verified", {
-			status,
-			userType: user.userType,
-			note: note || "",
-			message: `Your request for ${user.userType} status has been ${status}.${note ? ` Note: ${note}` : ''}`
-		});
 		
 		res.status(200).json({ 
 			success: true, 

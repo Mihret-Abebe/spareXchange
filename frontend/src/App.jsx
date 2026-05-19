@@ -60,6 +60,9 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AnalyticsDashboard from "./pages/AnalyticsDashboard";
 import ReportManagement from "./pages/ReportManagement";
 import UserManagement from "./pages/UserManagement";
+import AdminItemListingsPage from "./pages/AdminItemListingsPage";
+import AdminTechnicianRequestsPage from "./pages/AdminTechnicianRequestsPage";
+import AdminTechnicianRequestDetailPage from "./pages/AdminTechnicianRequestDetailPage";
 
 // Module 10: Community Engagement
 import ActivityFeedPage from "./pages/ActivityFeedPage";
@@ -491,6 +494,30 @@ function App() {
 					element={
 						<AdminRoute>
 							<UserManagement />
+						</AdminRoute>
+					}
+				/>
+				<Route
+					path='/admin/listings'
+					element={
+						<AdminRoute>
+							<AdminItemListingsPage />
+						</AdminRoute>
+					}
+				/>
+				<Route
+					path='/admin/technician-requests'
+					element={
+						<AdminRoute>
+							<AdminTechnicianRequestsPage />
+						</AdminRoute>
+					}
+				/>
+				<Route
+					path='/admin/technician-requests/:id'
+					element={
+						<AdminRoute>
+							<AdminTechnicianRequestDetailPage />
 						</AdminRoute>
 					}
 				/>

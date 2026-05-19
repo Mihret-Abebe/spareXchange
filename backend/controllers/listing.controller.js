@@ -571,3 +571,38 @@ export const getHighDemandAnalytics = async (req, res) => {
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };
+
+// Admin: Get ALL listings (including inactive/expired) with full owner details
+export const getAllListingsAdmin = async (req, res) => {
+	try {
+		const { category, condition, status, available, search } = req.query;
+		
+		// Build query - no default filters for admin
+		const query = {};
+		
+		if (category) query.category = category;
+		if (condition) query.condition = condition;
+		if (available !== undefined) query.available = available === "true";
+		if (status !== undefined) query.isActive = status === "true";
+		
+		if (search) {
+			query.$or = [
+				{ title: { $regex: search, $options: "i" } },
+				{ description: { $regex: search, $options: "i" } }
+			];
+		}
+
+		const listings = await Listing.find(query)
+			.populate("seller", "name email profilePicture verifiedSeller ecoPoints isBanned location phone createdAt userType")
+			.sort("-createdAt");
+
+		res.status(200).json({
+			success: true,
+			count: listings.length,
+			listings,
+		});
+	} catch (error) {
+		console.error("Error in getAllListingsAdmin:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};

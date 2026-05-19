@@ -111,12 +111,18 @@ const Navbar = () => {
 		{ name: "Contact", path: "/contact", icon: Phone },
 	];
 
-	// Navigation dropdown items
-	const navigationDropdownItems = [
-		{ name: user?.userType === "admin" ? "Admin Panel" : "Dashboard", path: user?.userType === "admin" ? "/admin" : "/dashboard", icon: LayoutDashboard },
-		{ name: "Marketplace", path: "/marketplace", icon: Package },
-		{ name: "My Exchanges", path: "/my-exchanges", icon: Handshake },
-	];
+	// Navigation dropdown items - different for admin vs users
+	const isAdmin = user?.userType === "admin";
+	const navigationDropdownItems = isAdmin
+		? [
+				{ name: "Admin Panel", path: "/admin", icon: Shield },
+				{ name: "Marketplace", path: "/marketplace", icon: Package },
+			]
+		: [
+				{ name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+				{ name: "Marketplace", path: "/marketplace", icon: Package },
+				{ name: "My Exchanges", path: "/my-exchanges", icon: Handshake },
+			];
 
 	// Inbox dropdown items
 	const inboxDropdownItems = [
@@ -124,17 +130,24 @@ const Navbar = () => {
 		{ name: "Notifications", path: "/notifications", icon: Bell },
 	];
 
-	// Listings dropdown items
-	const listingsDropdownItems = [
-		{ name: "Create Listing", path: "/create-listing", icon: PlusCircle },
-		{ name: "My Listings", path: "/my-listings", icon: List },
-		{ name: "Saved Searches", path: "/saved-searches", icon: Search },
-		{ name: "Analytics", path: "/analytics", icon: TrendingUp },
-		{ name: "Leaderboard", path: "/leaderboard", icon: Trophy },
-		{ name: "Find Requests", path: "/technician-requests", icon: Wrench },
-		{ name: "My Requests", path: "/technician-requests/my-requests", icon: List },
-		{ name: "Create Request", path: "/technician-requests/create", icon: PlusCircle },
-	];
+	// Listings dropdown items - different for admin vs users
+	const listingsDropdownItems = isAdmin
+		? [
+				{ name: "Item Listings", path: "/admin/listings", icon: List },
+				{ name: "Technician Requests", path: "/admin/technician-requests", icon: Wrench },
+				{ name: "Analytics", path: "/analytics", icon: TrendingUp },
+				{ name: "Leaderboard", path: "/leaderboard", icon: Trophy },
+			]
+		: [
+				{ name: "Create Listing", path: "/create-listing", icon: PlusCircle },
+				{ name: "My Listings", path: "/my-listings", icon: List },
+				{ name: "Saved Searches", path: "/saved-searches", icon: Search },
+				{ name: "Analytics", path: "/analytics", icon: TrendingUp },
+				{ name: "Leaderboard", path: "/leaderboard", icon: Trophy },
+				{ name: "Find Requests", path: "/technician-requests", icon: Wrench },
+				{ name: "My Requests", path: "/technician-requests/my-requests", icon: List },
+				{ name: "Create Request", path: "/technician-requests/create", icon: PlusCircle },
+			];
 
 	// Community dropdown items
 	const communityDropdownItems = [
@@ -534,6 +547,7 @@ const Navbar = () => {
 const UserMenu = ({ user, logout, isLoading, navigate, mobile = false }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const menuRef = useRef(null);
+	const isAdmin = user?.userType === "admin";
 
 	useEffect(() => {
 		const handleClickOutside = (event) => {
@@ -616,25 +630,27 @@ const UserMenu = ({ user, logout, isLoading, navigate, mobile = false }) => {
 							</div>
 						</Link>
 						<Link
-							to='/my-listings'
+							to={isAdmin ? '/my-listings' : '/my-listings'}
 							className='block px-4 py-2.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200 transform hover:translate-x-1 rounded-lg mx-2'
 							onClick={() => setIsOpen(false)}
 						>
 							<div className='flex items-center'>
 								<List size={14} className='mr-2 text-green-400' />
-								<span className='font-medium'>My Listings</span>
+								<span className='font-medium'>{isAdmin ? 'Listings' : 'My Listings'}</span>
 							</div>
 						</Link>
-						<Link
-							to='/create-listing'
-							className='block px-4 py-2.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200 transform hover:translate-x-1 rounded-lg mx-2'
-							onClick={() => setIsOpen(false)}
-						>
-							<div className='flex items-center'>
-								<PlusCircle size={14} className='mr-2 text-green-400' />
-								<span className='font-medium'>Create Listing</span>
-							</div>
-						</Link>
+						{!isAdmin && (
+							<Link
+								to='/create-listing'
+								className='block px-4 py-2.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200 transform hover:translate-x-1 rounded-lg mx-2'
+								onClick={() => setIsOpen(false)}
+							>
+								<div className='flex items-center'>
+									<PlusCircle size={14} className='mr-2 text-green-400' />
+									<span className='font-medium'>Create Listing</span>
+								</div>
+							</Link>
+						)}
 						<Link
 							to='/saved-searches'
 							className='block px-4 py-2.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200 transform hover:translate-x-1 rounded-lg mx-2'
@@ -771,25 +787,27 @@ const UserMenu = ({ user, logout, isLoading, navigate, mobile = false }) => {
 						</div>
 					</Link>
 					<Link
-						to='/my-listings'
+						to={isAdmin ? '/my-listings' : '/my-listings'}
 						className='block px-4 py-3 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200 transform hover:translate-x-1 rounded-lg mx-2'
 						onClick={() => setIsOpen(false)}
 					>
 						<div className='flex items-center'>
 							<List size={16} className='mr-2 text-green-400' />
-							<span className='font-medium'>My Listings</span>
+							<span className='font-medium'>{isAdmin ? 'Listings' : 'My Listings'}</span>
 						</div>
 					</Link>
-					<Link
-						to='/create-listing'
-						className='block px-4 py-3 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200 transform hover:translate-x-1 rounded-lg mx-2'
-						onClick={() => setIsOpen(false)}
-					>
-						<div className='flex items-center'>
-							<PlusCircle size={16} className='mr-2 text-green-400' />
-							<span className='font-medium'>Create Listing</span>
-						</div>
-					</Link>
+					{!isAdmin && (
+						<Link
+							to='/create-listing'
+							className='block px-4 py-3 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200 transform hover:translate-x-1 rounded-lg mx-2'
+							onClick={() => setIsOpen(false)}
+						>
+							<div className='flex items-center'>
+								<PlusCircle size={16} className='mr-2 text-green-400' />
+								<span className='font-medium'>Create Listing</span>
+							</div>
+						</Link>
+					)}
 					<Link
 						to='/saved-searches'
 						className='block px-4 py-3 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200 transform hover:translate-x-1 rounded-lg mx-2'
