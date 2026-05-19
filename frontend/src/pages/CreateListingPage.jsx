@@ -343,7 +343,7 @@ const CreateListingPage = () => {
 						transition={{ delay: 0.4 }}
 						className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl p-6 border border-gray-700'
 					>
-						<h2 className='text-2xl font-bold mb-4'>Compatible Vehicles</h2>
+						<h2 className='text-2xl font-bold mb-4'>Compatible Parts</h2>
 						<div className='space-y-4'>
 							<div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
 								<input
@@ -381,7 +381,7 @@ const CreateListingPage = () => {
 								className='px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center'
 							>
 								<Plus size={16} className='mr-2' />
-								Add Vehicle
+								Add Part
 							</button>
 
 							{formData.compatibleVehicles.length > 0 && (

@@ -46,6 +46,36 @@ export const toggleUserBan = async (req, res) => {
 	}
 };
 
+// Delete user (Admin only)
+export const deleteUser = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const user = await User.findById(id);
+		
+		if (!user) {
+			return res.status(404).json({ success: false, message: "User not found" });
+		}
+		
+		if (user.userType === "admin") {
+			return res.status(403).json({ success: false, message: "Cannot delete an admin account" });
+		}
+
+		// Soft delete: mark as inactive instead of hard delete
+		user.isActive = false;
+		user.email = `${user.email}_deleted_${Date.now()}`; // Free up email
+		await user.save();
+
+		res.status(200).json({ 
+			success: true, 
+			message: `User ${user.name} has been deleted`,
+			userId: id
+		});
+	} catch (error) {
+		console.error("Error in deleteUser:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
 // Verify User/Technician Role
 export const verifyRoleStatus = async (req, res) => {
 	try {

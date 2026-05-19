@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { 
   Users, 
   Search, 
@@ -9,13 +10,19 @@ import {
   XCircle, 
   Eye,
   UserCheck,
-  AlertTriangle
+  AlertTriangle,
+  Trash2,
+  Lock
 } from "lucide-react";
 import { useAdminStore } from "../store/adminStore";
+import { useAuthStore } from "../store/authStore";
 import LoadingSpinner from "../components/LoadingSpinner";
 import toast from "react-hot-toast";
+import axios from "axios";
 
 const UserManagement = () => {
+  const navigate = useNavigate();
+  const { user: currentUser } = useAuthStore();
   const { 
     getAllUsers, 
     getPendingVerifications,
@@ -37,6 +44,10 @@ const UserManagement = () => {
   const iframeRef = useRef(null);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfError, setPdfError] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [adminPassword, setAdminPassword] = useState("");
+  const [isVerifyingPassword, setIsVerifyingPassword] = useState(false);
 
   // Load PDF into iframe using blob URL to bypass CORS
   useEffect(() => {
@@ -143,6 +154,57 @@ const UserManagement = () => {
       fetchUsers();
     } catch (error) {
       toast.error("Failed to verify user email");
+    }
+  };
+
+  const handleUserClick = (userId) => {
+    navigate(`/profile/${userId}`);
+  };
+
+  const openDeleteModal = (user) => {
+    setUserToDelete(user);
+    setShowDeleteModal(true);
+    setAdminPassword("");
+  };
+
+  const handleDeleteUser = async () => {
+    if (!adminPassword) {
+      toast.error("Please enter your password to confirm deletion");
+      return;
+    }
+
+    setIsVerifyingPassword(true);
+    try {
+      // Verify admin password before deletion
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/verify-password",
+        { password: adminPassword },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+
+      if (response.data.success) {
+        // Password verified, proceed with deletion
+        const deleteResponse = await axios.delete(
+          `http://localhost:5000/api/admin/users/${userToDelete._id}`,
+          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+        );
+
+        if (deleteResponse.data.success) {
+          toast.success(`User ${userToDelete.name} has been deleted`);
+          setShowDeleteModal(false);
+          setUserToDelete(null);
+          setAdminPassword("");
+          fetchUsers();
+        }
+      }
+    } catch (error) {
+      if (error.response?.status === 401) {
+        toast.error("Incorrect password. Deletion cancelled.");
+      } else {
+        toast.error(error.response?.data?.message || "Failed to delete user");
+      }
+    } finally {
+      setIsVerifyingPassword(false);
     }
   };
 
@@ -299,41 +361,53 @@ const UserManagement = () => {
           className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl border border-gray-700 overflow-hidden'
         >
           <div className='overflow-x-auto'>
-            <table className='w-full'>
+            <table className='w-full' style={{ tableLayout: 'fixed' }}>
+              <colgroup>
+                <col style={{ width: '30%' }} />
+                <col style={{ width: '12%' }} />
+                <col style={{ width: '15%' }} />
+                <col style={{ width: '13%' }} />
+                <col style={{ width: '10%' }} />
+                <col style={{ width: '20%' }} />
+              </colgroup>
               <thead className='bg-gray-900 border-b border-gray-700'>
                 <tr>
-                  <th className='px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase'>User</th>
-                  <th className='px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase'>Type</th>
-                  <th className='px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase'>Email Status</th>
-                  <th className='px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase'>Role Verification</th>
-                  <th className='px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase'>Joined</th>
-                  <th className='px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase'>Actions</th>
+                  <th className='px-3 py-3 text-left text-xs font-semibold text-gray-400 uppercase'>User</th>
+                  <th className='px-3 py-3 text-left text-xs font-semibold text-gray-400 uppercase'>Type</th>
+                  <th className='px-3 py-3 text-left text-xs font-semibold text-gray-400 uppercase'>Status</th>
+                  <th className='px-3 py-3 text-left text-xs font-semibold text-gray-400 uppercase'>Role</th>
+                  <th className='px-3 py-3 text-left text-xs font-semibold text-gray-400 uppercase'>Joined</th>
+                  <th className='px-3 py-3 text-center text-xs font-semibold text-gray-400 uppercase'>Actions</th>
                 </tr>
               </thead>
               <tbody className='divide-y divide-gray-700'>
                 {filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan='6' className='px-6 py-12 text-center text-gray-400'>
+                    <td colSpan='6' className='px-3 py-12 text-center text-gray-400'>
                       <Users size={48} className='mx-auto mb-4 opacity-50' />
                       <p className='text-lg'>No users found</p>
                     </td>
                   </tr>
                 ) : (
                   filteredUsers.map((user) => (
-                    <tr key={user._id} className='hover:bg-gray-700/50 transition'>
-                      <td className='px-6 py-4'>
-                        <div className='flex items-center gap-3'>
-                          <div className='w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center font-bold'>
+                    <tr 
+                      key={user._id} 
+                      className='hover:bg-gray-700/50 transition cursor-pointer'
+                      onClick={() => handleUserClick(user._id)}
+                    >
+                      <td className='px-3 py-3'>
+                        <div className='flex items-center gap-2'>
+                          <div className='w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center font-bold text-xs flex-shrink-0'>
                             {user.name?.charAt(0).toUpperCase() || "U"}
                           </div>
-                          <div>
-                            <p className='font-semibold'>{user.name}</p>
-                            <p className='text-sm text-gray-400'>{user.email}</p>
+                          <div className='min-w-0'>
+                            <p className='font-semibold text-sm truncate' title={user.name}>{user.name}</p>
+                            <p className='text-xs text-gray-400 truncate' title={user.email}>{user.email}</p>
                           </div>
                         </div>
                       </td>
-                      <td className='px-6 py-4'>
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      <td className='px-3 py-3'>
+                        <span className={`px-2 py-1 rounded-full text-xs font-semibold block text-center ${
                           user.userType === "admin" ? "bg-red-900/50 text-red-400" :
                           user.userType === "technician" ? "bg-blue-900/50 text-blue-400" :
                           user.userType === "recycler" ? "bg-green-900/50 text-green-400" :
@@ -342,70 +416,91 @@ const UserManagement = () => {
                           {user.userType}
                         </span>
                       </td>
-                      <td className='px-6 py-4'>
-                        <div className='flex items-center gap-2'>
+                      <td className='px-3 py-3'>
+                        <div className='flex items-center justify-start gap-1'>
                           {user.isBanned ? (
-                            <span className='px-3 py-1 rounded-full text-xs font-semibold bg-red-900/50 text-red-400 flex items-center gap-1'>
-                              <Ban size={12} /> Banned
+                            <span className='px-2 py-1 rounded-full text-xs font-semibold bg-red-900/50 text-red-400 flex items-center gap-1'>
+                              <Ban size={11} /> <span className='hidden sm:inline'>Banned</span>
                             </span>
                           ) : user.isVerified ? (
-                            <span className='px-3 py-1 rounded-full text-xs font-semibold bg-green-900/50 text-green-400 flex items-center gap-1'>
-                              <CheckCircle size={12} /> Verified
+                            <span className='px-2 py-1 rounded-full text-xs font-semibold bg-green-900/50 text-green-400 flex items-center gap-1'>
+                              <CheckCircle size={11} /> <span className='hidden sm:inline'>Verified</span>
                             </span>
                           ) : (
-                            <span className='px-3 py-1 rounded-full text-xs font-semibold bg-yellow-900/50 text-yellow-400 flex items-center gap-1'>
-                              <AlertTriangle size={12} /> Not Verified
+                            <span className='px-2 py-1 rounded-full text-xs font-semibold bg-yellow-900/50 text-yellow-400 flex items-center gap-1'>
+                              <AlertTriangle size={11} /> <span className='hidden sm:inline'>Unverified</span>
                             </span>
                           )}
                         </div>
                       </td>
-                      <td className='px-6 py-4'>
+                      <td className='px-3 py-3'>
                         {user.roleStatus === "pending" ? (
-                          <span className='px-3 py-1 rounded-full text-xs font-semibold bg-yellow-900/50 text-yellow-400 flex items-center gap-1'>
-                            <AlertTriangle size={12} /> Pending
+                          <span className='px-2 py-1 rounded-full text-xs font-semibold bg-yellow-900/50 text-yellow-400 flex items-center gap-1'>
+                            <AlertTriangle size={11} /> <span className='hidden sm:inline'>Pending</span>
                           </span>
                         ) : user.roleStatus === "verified" ? (
-                          <span className='px-3 py-1 rounded-full text-xs font-semibold bg-green-900/50 text-green-400 flex items-center gap-1'>
-                            <UserCheck size={12} /> Verified
+                          <span className='px-2 py-1 rounded-full text-xs font-semibold bg-green-900/50 text-green-400 flex items-center gap-1'>
+                            <UserCheck size={11} /> <span className='hidden sm:inline'>Verified</span>
                           </span>
                         ) : (
-                          <span className='text-gray-500 text-sm'>N/A</span>
+                          <span className='text-gray-500 text-xs'>N/A</span>
                         )}
                       </td>
-                      <td className='px-6 py-4 text-sm text-gray-400'>
+                      <td className='px-3 py-3 text-xs text-gray-400'>
                         {new Date(user.createdAt).toLocaleDateString()}
                       </td>
-                      <td className='px-6 py-4'>
-                        <div className='flex gap-2'>
+                      <td className='px-3 py-3'>
+                        <div className='flex gap-1 justify-center flex-wrap'>
                           {user.roleStatus === "pending" && user.userType !== "admin" && (
                             <button
-                              onClick={() => openVerificationModal(user)}
-                              className='p-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition'
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openVerificationModal(user);
+                              }}
+                              className='p-1.5 bg-blue-600 hover:bg-blue-700 rounded-lg transition flex-shrink-0'
                               title='Review Verification'
                             >
-                              <Eye size={16} />
+                              <Eye size={14} />
                             </button>
                           )}
                           {!user.isVerified && user.userType !== "admin" && (
                             <button
-                              onClick={() => handleVerifyEmail(user._id)}
-                              className='p-2 bg-green-600 hover:bg-green-700 rounded-lg transition'
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleVerifyEmail(user._id);
+                              }}
+                              className='p-1.5 bg-green-600 hover:bg-green-700 rounded-lg transition flex-shrink-0'
                               title='Verify Email'
                             >
-                              <UserCheck size={16} />
+                              <UserCheck size={14} />
                             </button>
                           )}
                           {user.userType !== "admin" && (
                             <button
-                              onClick={() => handleBanUser(user._id)}
-                              className={`p-2 rounded-lg transition ${
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleBanUser(user._id);
+                              }}
+                              className={`p-1.5 rounded-lg transition flex-shrink-0 ${
                                 user.isBanned 
                                   ? "bg-green-600 hover:bg-green-700" 
                                   : "bg-red-600 hover:bg-red-700"
                               }`}
                               title={user.isBanned ? "Unban User" : "Ban User"}
                             >
-                              {user.isBanned ? <CheckCircle size={16} /> : <Ban size={16} />}
+                              {user.isBanned ? <CheckCircle size={14} /> : <Ban size={14} />}
+                            </button>
+                          )}
+                          {user.userType !== "admin" && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openDeleteModal(user);
+                              }}
+                              className='p-1.5 bg-red-700 hover:bg-red-800 rounded-lg transition flex-shrink-0'
+                              title='Delete User'
+                            >
+                              <Trash2 size={14} />
                             </button>
                           )}
                         </div>
@@ -682,6 +777,91 @@ const UserManagement = () => {
                     className='px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white text-sm font-semibold transition'
                   >
                     Close
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Delete User Modal with Password Verification */}
+        {showDeleteModal && userToDelete && (
+          <div className='fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4'>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className='bg-gray-800 rounded-xl border border-red-700 max-w-md w-full'
+            >
+              <div className='p-6'>
+                <div className='flex items-center gap-3 mb-4'>
+                  <div className='p-3 bg-red-600/20 rounded-full'>
+                    <AlertTriangle size={32} className='text-red-500' />
+                  </div>
+                  <div>
+                    <h2 className='text-2xl font-bold text-white'>Delete User Account</h2>
+                    <p className='text-sm text-gray-400'>This action cannot be undone</p>
+                  </div>
+                </div>
+
+                <div className='bg-red-900/20 border border-red-700 rounded-lg p-4 mb-6'>
+                  <p className='text-white font-semibold mb-2'>You are about to delete:</p>
+                  <div className='bg-gray-900/50 p-3 rounded-lg'>
+                    <p className='text-white font-semibold'>{userToDelete.name}</p>
+                    <p className='text-sm text-gray-400'>{userToDelete.email}</p>
+                    <p className='text-xs text-gray-500 mt-1'>User ID: {userToDelete._id}</p>
+                  </div>
+                  <p className='text-xs text-red-400 mt-3'>
+                    ⚠️ Warning: This will permanently delete the user account and all associated data including listings, exchanges, and messages.
+                  </p>
+                </div>
+
+                <div className='mb-6'>
+                  <label className='text-sm text-gray-400 mb-2 block flex items-center gap-2'>
+                    <Lock size={14} />
+                    Enter your admin password to confirm:
+                  </label>
+                  <input
+                    type='password'
+                    value={adminPassword}
+                    onChange={(e) => setAdminPassword(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && adminPassword) {
+                        handleDeleteUser();
+                      }
+                    }}
+                    placeholder='Enter your password...'
+                    className='w-full p-3 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:border-red-500 text-white'
+                    autoFocus
+                  />
+                </div>
+
+                <div className='flex gap-3'>
+                  <button
+                    onClick={handleDeleteUser}
+                    disabled={!adminPassword || isVerifyingPassword}
+                    className='flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-semibold transition flex items-center justify-center gap-2'
+                  >
+                    {isVerifyingPassword ? (
+                      <>
+                        <div className='animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white'></div>
+                        Verifying...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 size={18} />
+                        Delete User
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowDeleteModal(false);
+                      setUserToDelete(null);
+                      setAdminPassword("");
+                    }}
+                    className='px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition'
+                  >
+                    Cancel
                   </button>
                 </div>
               </div>

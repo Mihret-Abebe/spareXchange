@@ -551,3 +551,29 @@ export const googleLogin = async (req, res) => {
 		res.status(401).json({ success: false, message: "Invalid Google token or verification failed" });
 	}
 };
+
+// Verify admin password (for sensitive operations)
+export const verifyPassword = async (req, res) => {
+	try {
+		const { password } = req.body;
+		
+		if (!password) {
+			return res.status(400).json({ success: false, message: "Password is required" });
+		}
+
+		const user = await User.findById(req.userId);
+		if (!user) {
+			return res.status(404).json({ success: false, message: "User not found" });
+		}
+
+		const isPasswordValid = await bcryptjs.compare(password, user.password);
+		if (!isPasswordValid) {
+			return res.status(401).json({ success: false, message: "Incorrect password" });
+		}
+
+		res.status(200).json({ success: true, message: "Password verified" });
+	} catch (error) {
+		console.error("Error in verifyPassword:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};

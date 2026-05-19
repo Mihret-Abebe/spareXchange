@@ -13,7 +13,8 @@ import {
 	setupMFA,
 	verifyMFA,
 	validateMFALogin,
-	googleLogin
+	googleLogin,
+	verifyPassword
 } from "../controllers/auth.controller.js";
 
 const syncPermissions = (user) => {
@@ -48,5 +49,8 @@ router.post("/mfa/validate", validateMFALogin);
 
 // OAuth2 Routes
 router.post("/oauth/google", googleLogin);
+
+// Password verification for sensitive operations
+router.post("/verify-password", verifyToken, verifyPassword);
 
 export default router;
