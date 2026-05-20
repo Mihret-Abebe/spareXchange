@@ -11,7 +11,7 @@ export const getPublicUserProfile = async (req, res) => {
 
 		// Fetch user with safe fields (no sensitive data)
 		const user = await User.findById(userId)
-			.select('name email profilePicture userType roleStatus ecoPoints ecoTier achievements trustScore totalReviews location joinedAt isActive');
+			.select('name email profilePicture userType roleStatus ecoPoints ecoTier achievements trustScore totalReviews location joinedAt isActive isBanned permissions');
 
 		if (!user || !user.isActive) {
 			return res.status(404).json({ success: false, message: "User not found" });
@@ -30,17 +30,17 @@ export const getPublicUserProfile = async (req, res) => {
 		});
 
 		// Get average rating
-		const reviews = await Review.find({ reviewedUser: userId });
+		const reviews = await Review.find({ revieweeId: userId });
 		const averageRating = reviews.length > 0
 			? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
 			: 0;
 
 		// Get recent reviews (last 5)
-		const recentReviews = await Review.find({ reviewedUser: userId })
-			.populate('reviewer', 'name profilePicture')
+		const recentReviews = await Review.find({ revieweeId: userId })
+			.populate('reviewerId', 'name profilePicture')
 			.sort({ createdAt: -1 })
 			.limit(5)
-			.select('rating comment createdAt reviewer');
+			.select('rating comment createdAt reviewerId');
 
 		// Get user's achievements and badges
 		const achievements = user.achievements || [];
@@ -55,12 +55,14 @@ export const getPublicUserProfile = async (req, res) => {
 		const profile = {
 			userId: user._id,
 			name: user.name,
+			email: user.email,
 			profilePicture: user.profilePicture,
 			userType: user.userType,
 			roleStatus: user.roleStatus,
 			location: user.location,
 			memberSince,
 			daysAsMember,
+			isActive: user.isActive !== false,
 			// Stats
 			stats: {
 				activeListings: activeListingsCount,
@@ -76,7 +78,13 @@ export const getPublicUserProfile = async (req, res) => {
 				achievements
 			},
 			// Recent activity
-			recentReviews,
+			recentReviews: recentReviews.map(r => ({
+				_id: r._id,
+				rating: r.rating,
+				comment: r.comment,
+				createdAt: r.createdAt,
+				reviewer: r.reviewerId
+			})),
 			// Trust indicators
 			trust: {
 				isVerified: user.roleStatus === 'verified',
@@ -96,11 +104,12 @@ export const getPublicUserProfile = async (req, res) => {
 	}
 };
 
-// Get user's active listings (public view)
+// Get user's listings (public view, admin sees all)
 export const getUserPublicListings = async (req, res) => {
 	try {
 		const { userId } = req.params;
-		const { page = 1, limit = 10, category, condition } = req.query;
+		const { page = 1, limit = 10, category, condition, status } = req.query;
+		const viewerId = req.userId; // May be undefined if not logged in
 
 		// Check if user exists
 		const user = await User.findById(userId);
@@ -108,10 +117,25 @@ export const getUserPublicListings = async (req, res) => {
 			return res.status(404).json({ success: false, message: "User not found" });
 		}
 
+		// Check if viewer is admin
+		let isAdmin = false;
+		if (viewerId) {
+			const viewer = await User.findById(viewerId);
+			isAdmin = viewer && (viewer.userType === "admin" || viewer.permissions?.includes("admin"));
+		}
+
+		// Build query - admins can see all listings, public sees only active
 		const query = {
-			owner: userId,
-			status: 'active'
+			owner: userId
 		};
+
+		// If status filter is provided (for admins), use it; otherwise default to active for public
+		if (status) {
+			query.status = status;
+		} else if (!isAdmin) {
+			query.status = 'active';
+		}
+		// If admin and no status specified, don't filter by status (show all)
 
 		if (category) {
 			query.category = category;
@@ -127,7 +151,7 @@ export const getUserPublicListings = async (req, res) => {
 			.sort({ createdAt: -1 })
 			.skip(skip)
 			.limit(parseInt(limit))
-			.select('title category brand model condition location price exchangeFor images createdAt');
+			.select('title category brand model condition location price exchangeFor images createdAt status owner');
 
 		const totalListings = await Listing.countDocuments(query);
 
@@ -137,7 +161,8 @@ export const getUserPublicListings = async (req, res) => {
 			totalListings,
 			page: parseInt(page),
 			totalPages: Math.ceil(totalListings / parseInt(limit)),
-			listings
+			listings,
+			isAdminView: isAdmin
 		});
 	} catch (error) {
 		console.error("Error in getUserPublicListings:", error);
@@ -160,41 +185,47 @@ export const getUserReviewsSummary = async (req, res) => {
 		const skip = (parseInt(page) - 1) * parseInt(limit);
 
 		// Get all reviews
-		const reviews = await Review.find({ reviewedUser: userId })
-			.populate('reviewer', 'name profilePicture')
-			.populate('exchange', 'listing')
+		const reviews = await Review.find({ revieweeId: userId })
+			.populate('reviewerId', 'name profilePicture')
+			.populate('exchangeId', 'listingId')
 			.sort({ createdAt: -1 })
 			.skip(skip)
 			.limit(parseInt(limit));
 
-		const totalReviews = await Review.countDocuments({ reviewedUser: userId });
+		const totalReviews = await Review.countDocuments({ revieweeId: userId });
 
 		// Calculate rating distribution
 		const ratingDistribution = {
-			5: await Review.countDocuments({ reviewedUser: userId, rating: 5 }),
-			4: await Review.countDocuments({ reviewedUser: userId, rating: 4 }),
-			3: await Review.countDocuments({ reviewedUser: userId, rating: 3 }),
-			2: await Review.countDocuments({ reviewedUser: userId, rating: 2 }),
-			1: await Review.countDocuments({ reviewedUser: userId, rating: 1 })
+			5: await Review.countDocuments({ revieweeId: userId, rating: 5 }),
+			4: await Review.countDocuments({ revieweeId: userId, rating: 4 }),
+			3: await Review.countDocuments({ revieweeId: userId, rating: 3 }),
+			2: await Review.countDocuments({ revieweeId: userId, rating: 2 }),
+			1: await Review.countDocuments({ revieweeId: userId, rating: 1 })
 		};
 
 		// Calculate average rating
 		const averageRating = totalReviews > 0
 			? await Review.aggregate([
-				{ $match: { reviewedUser: user._id } },
+				{ $match: { revieweeId: user._id } },
 				{ $group: { _id: null, avg: { $avg: "$rating" } } }
 			  ]).then(result => result[0]?.avg || 0)
 			: 0;
 
+		// Map reviews to include reviewer field for frontend compatibility
+		const mappedReviews = reviews.map(r => ({
+			...r.toObject(),
+			reviewer: r.reviewerId
+		}));
+
 		res.status(200).json({
 			success: true,
-			count: reviews.length,
+			count: mappedReviews.length,
 			totalReviews,
 			averageRating: parseFloat(averageRating.toFixed(2)),
 			ratingDistribution,
 			page: parseInt(page),
 			totalPages: Math.ceil(totalReviews / parseInt(limit)),
-			reviews
+			reviews: mappedReviews
 		});
 	} catch (error) {
 		console.error("Error in getUserReviewsSummary:", error);

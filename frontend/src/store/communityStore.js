@@ -132,8 +132,10 @@ export const useCommunityStore = create((set, get) => ({
     set({ loadingProfile: true, profileError: null });
     try {
       const { page = 1, limit = 10, category, condition } = filters;
+      const token = localStorage.getItem("token");
       const response = await axios.get(`${API_URL}/profile/${userId}/listings`, {
-        params: { page, limit, category, condition }
+        params: { page, limit, category, condition },
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
       
       set({

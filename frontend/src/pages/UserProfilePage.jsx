@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { 
   User, MapPin, Star, Package, Handshake, 
   ShieldCheck, Award, Clock, ChevronLeft,
-  MessageSquare, Star as StarIcon
+  MessageSquare, Star as StarIcon, Shield, Mail, Phone, Calendar, AlertTriangle
 } from "lucide-react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useCommunityStore } from "../store/communityStore";
@@ -38,6 +38,8 @@ const UserProfilePage = () => {
   const loadProfileData = async () => {
     await getPublicProfile(userId);
     await getUserStats(userId);
+    // Preload listings to get total count for header
+    await getUserListings(userId, { page: 1, limit: 10 });
   };
 
   const handleListingsPageChange = (newPage) => {
@@ -94,6 +96,9 @@ const UserProfilePage = () => {
     { id: "listings", name: "Listings", icon: Package },
     { id: "reviews", name: "Reviews", icon: Star },
     { id: "stats", name: "Statistics", icon: Award },
+    ...(currentUser?.userType === "admin" || currentUser?.permissions?.includes("admin")
+      ? [{ id: "admin", name: "Admin View", icon: Shield }]
+      : []),
   ];
 
   const getEcoTierColor = (tier) => {
@@ -168,9 +173,9 @@ const UserProfilePage = () => {
                 <div className="flex flex-wrap justify-center md:justify-start gap-6">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-green-400">
-                      {userProfile.stats?.activeListings || 0}
+                      {userListingsMeta.totalListings || userProfile.stats?.activeListings || 0}
                     </div>
-                    <div className="text-sm text-gray-400">Active Listings</div>
+                    <div className="text-sm text-gray-400">Total Listings</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-blue-400">
@@ -373,6 +378,36 @@ const UserProfilePage = () => {
 
           {activeTab === "listings" && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              {/* Listings Header */}
+              <div className="mb-6 bg-gray-800 rounded-xl p-4 border border-gray-700">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-bold text-white">User Listings</h2>
+                    <p className="text-sm text-gray-400 mt-1">
+                      {userListingsMeta.totalListings || 0} total listing{userListingsMeta.totalListings !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {userListingsMeta.totalListings > 0 && (
+                      <div className="flex items-center gap-2">
+                        <Package className="text-green-400" size={20} />
+                        <span className="text-green-400 font-bold">
+                          Showing {userListings.length} of {userListingsMeta.totalListings}
+                        </span>
+                      </div>
+                    )}
+                    {/* Admin badge - shows all listings including inactive */}
+                    {(currentUser?.userType === "admin" || currentUser?.permissions?.includes("admin")) && (
+                      <div className="px-3 py-1 bg-purple-900/50 border border-purple-700 rounded-full">
+                        <span className="text-xs font-bold text-purple-300">
+                          🔑 Admin View - All Listings
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               {userListings.length === 0 ? (
                 <div className="bg-gray-800 rounded-xl p-12 text-center">
                   <Package size={48} className="mx-auto text-gray-500 mb-4" />
@@ -386,8 +421,23 @@ const UserProfilePage = () => {
                       <Link
                         key={listing._id}
                         to={`/listing/${listing._id}`}
-                        className="bg-gray-800 rounded-xl overflow-hidden hover:border-green-600 border border-gray-700 transition duration-300"
+                        className="bg-gray-800 rounded-xl overflow-hidden hover:border-green-600 border border-gray-700 transition duration-300 relative"
                       >
+                        {/* Status Badge for Admin */}
+                        {(currentUser?.userType === "admin" || currentUser?.permissions?.includes("admin")) && (
+                          <div className="absolute top-2 right-2 z-10">
+                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                              listing.status === 'active' ? 'bg-green-600 text-white' :
+                              listing.status === 'sold' ? 'bg-blue-600 text-white' :
+                              listing.status === 'expired' ? 'bg-gray-600 text-white' :
+                              listing.status === 'cancelled' ? 'bg-red-600 text-white' :
+                              'bg-yellow-600 text-white'
+                            }`}>
+                              {listing.status}
+                            </span>
+                          </div>
+                        )}
+                        
                         {listing.images?.[0] && (
                           <img
                             src={listing.images[0]}
@@ -652,6 +702,218 @@ const UserProfilePage = () => {
                     <span className="text-gray-300">Eco Tier</span>
                     <span className="font-bold text-green-400">{userStats.reputation?.ecoTier || "Bronze"}</span>
                   </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "admin" && (currentUser?.userType === "admin" || currentUser?.permissions?.includes("admin")) && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="space-y-6"
+            >
+              {/* Admin Alert Banner */}
+              <div className="bg-red-900/30 border border-red-700 rounded-xl p-4 flex items-start gap-3">
+                <AlertTriangle className="text-red-400 flex-shrink-0 mt-1" size={24} />
+                <div>
+                  <h3 className="text-lg font-bold text-red-400">Admin View</h3>
+                  <p className="text-sm text-red-300">
+                    You are viewing this profile with administrative privileges. All user data is visible for moderation purposes.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Account Details */}
+                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                  <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                    <Shield className="text-red-400" />
+                    Account Details
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
+                      <span className="text-gray-300 flex items-center gap-2">
+                        <Mail size={16} /> Email
+                      </span>
+                      <span className="font-bold text-white">{userProfile.email || "N/A"}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
+                      <span className="text-gray-300 flex items-center gap-2">
+                        <User size={16} /> User ID
+                      </span>
+                      <span className="font-mono text-xs text-white bg-gray-900 px-2 py-1 rounded">
+                        {userProfile.userId}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
+                      <span className="text-gray-300 flex items-center gap-2">
+                        <Calendar size={16} /> Joined
+                      </span>
+                      <span className="font-bold text-white">
+                        {new Date(userProfile.memberSince).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
+                      <span className="text-gray-300">Account Status</span>
+                      <span className={`px-3 py-1 rounded-full text-sm font-bold ${
+                        userProfile.isActive !== false
+                          ? "bg-green-900 text-green-300"
+                          : "bg-red-900 text-red-300"
+                      }`}>
+                        {userProfile.isActive !== false ? "Active" : "Inactive"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Verification & Role */}
+                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                  <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                    <ShieldCheck className="text-blue-400" />
+                    Verification & Role
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
+                      <span className="text-gray-300">User Type</span>
+                      <span className="px-3 py-1 bg-green-900 text-green-300 rounded-full text-sm font-bold capitalize">
+                        {userProfile.userType}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
+                      <span className="text-gray-300">Role Status</span>
+                      <span className={`px-3 py-1 rounded-full text-sm font-bold capitalize ${
+                        userProfile.roleStatus === "verified"
+                          ? "bg-green-900 text-green-300"
+                          : userProfile.roleStatus === "pending"
+                          ? "bg-yellow-900 text-yellow-300"
+                          : "bg-gray-600 text-gray-300"
+                      }`}>
+                        {userProfile.roleStatus}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
+                      <span className="text-gray-300">Email Verified</span>
+                      <span className={`px-3 py-1 rounded-full text-sm font-bold ${
+                        userProfile.trust?.isVerified
+                          ? "bg-green-900 text-green-300"
+                          : "bg-red-900 text-red-300"
+                      }`}>
+                        {userProfile.trust?.isVerified ? "Verified" : "Not Verified"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Activity Summary */}
+                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                  <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                    <Award className="text-purple-400" />
+                    Activity Summary
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
+                      <span className="text-gray-300">Member Duration</span>
+                      <span className="font-bold text-white">
+                        {userProfile.daysAsMember} days
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
+                      <span className="text-gray-300">Total Listings</span>
+                      <span className="font-bold text-blue-400">
+                        {userStats?.listings?.total || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
+                      <span className="text-gray-300">Total Exchanges</span>
+                      <span className="font-bold text-green-400">
+                        {userStats?.exchanges?.total || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
+                      <span className="text-gray-300">Recycling Submissions</span>
+                      <span className="font-bold text-purple-400">
+                        {userStats?.recycling?.totalSubmissions || 0}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Reputation & Trust */}
+                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                  <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                    <StarIcon className="text-yellow-400" />
+                    Reputation & Trust
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
+                      <span className="text-gray-300">Trust Score</span>
+                      <span className="font-bold text-blue-400">
+                        {userProfile.trust?.trustScore || 0}/100
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
+                      <span className="text-gray-300">Average Rating</span>
+                      <div className="flex items-center gap-2">
+                        <StarIcon size={16} className="text-yellow-400 fill-current" />
+                        <span className="font-bold text-yellow-400">
+                          {userProfile.stats?.averageRating || "N/A"}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
+                      <span className="text-gray-300">Total Reviews</span>
+                      <span className="font-bold text-white">
+                        {userProfile.stats?.totalReviews || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
+                      <span className="text-gray-300">Eco Points</span>
+                      <span className="font-bold text-purple-400">
+                        {userProfile.sustainability?.ecoPoints || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
+                      <span className="text-gray-300">Eco Tier</span>
+                      <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full text-white font-bold capitalize">
+                        {userProfile.sustainability?.ecoTier || "Bronze"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Admin Actions */}
+              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <Shield className="text-red-400" />
+                  Quick Admin Actions
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Link
+                    to={`/admin/users`}
+                    className="p-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition duration-300 text-center"
+                  >
+                    <User size={24} className="mx-auto mb-2 text-blue-400" />
+                    <p className="font-bold text-white">Manage Users</p>
+                    <p className="text-xs text-gray-400 mt-1">View all users</p>
+                  </Link>
+                  <Link
+                    to={`/reviews/${userId}`}
+                    className="p-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition duration-300 text-center"
+                  >
+                    <StarIcon size={24} className="mx-auto mb-2 text-yellow-400" />
+                    <p className="font-bold text-white">Write Review</p>
+                    <p className="text-xs text-gray-400 mt-1">Admin review</p>
+                  </Link>
+                  <button
+                    onClick={() => navigate(-1)}
+                    className="p-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition duration-300 text-center"
+                  >
+                    <ChevronLeft size={24} className="mx-auto mb-2 text-green-400" />
+                    <p className="font-bold text-white">Go Back</p>
+                    <p className="text-xs text-gray-400 mt-1">Return to previous</p>
+                  </button>
                 </div>
               </div>
             </motion.div>

@@ -3,7 +3,7 @@ import { getTechnicians, getTechnicianById, redeemPoints, requestRoleVerificatio
 import { getActivityFeed, getUserPublicActivity, getCommunityHighlights } from "../controllers/activityFeed.controller.js";
 import { getPublicUserProfile, getUserPublicListings, getUserReviewsSummary, getUserStats } from "../controllers/publicProfile.controller.js";
 import { getAchievementDefinitions, checkAndUnlockAchievements, getUserAchievements, getAchievementLeaderboard } from "../controllers/achievement.controller.js";
-import { verifyToken } from "../middleware/verifyToken.js";
+import { verifyToken, verifyTokenOptional } from "../middleware/verifyToken.js";
 import { upload, uploadProfilePicture } from "../middleware/upload.middleware.js";
 
 const router = express.Router();
@@ -33,7 +33,7 @@ router.get("/feed/:userId", verifyToken, getUserPublicActivity);
 
 // Public User Profiles
 router.get("/profile/:userId/public", getPublicUserProfile);
-router.get("/profile/:userId/listings", getUserPublicListings);
+router.get("/profile/:userId/listings", verifyTokenOptional, getUserPublicListings);
 router.get("/profile/:userId/reviews", getUserReviewsSummary);
 router.get("/profile/:userId/stats", getUserStats);
 
