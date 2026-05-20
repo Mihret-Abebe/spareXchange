@@ -79,14 +79,28 @@ const CreateListingPage = () => {
 	};
 
 	const addSpecification = () => {
-		if (specKey && specValue) {
-			setFormData(prev => ({
-				...prev,
-				specifications: { ...prev.specifications, [specKey]: specValue }
-			}));
-			setSpecKey("");
-			setSpecValue("");
+		if (!specKey.trim()) {
+			toast.error("Please enter a specification key");
+			return;
 		}
+		if (!specValue.trim()) {
+			toast.error("Please enter a specification value");
+			return;
+		}
+		
+		// Check if key already exists
+		if (formData.specifications[specKey.trim()]) {
+			toast.error(`Specification "${specKey}" already exists. Remove it first to update.`);
+			return;
+		}
+
+		setFormData(prev => ({
+			...prev,
+			specifications: { ...prev.specifications, [specKey.trim()]: specValue.trim() }
+		}));
+		setSpecKey("");
+		setSpecValue("");
+		toast.success(`Added specification: ${specKey}`);
 	};
 
 	const removeSpecification = (key) => {
@@ -98,13 +112,47 @@ const CreateListingPage = () => {
 	};
 
 	const addVehicle = () => {
-		if (vehicleForm.brand && vehicleForm.model && vehicleForm.yearStart && vehicleForm.yearEnd) {
-			setFormData(prev => ({
-				...prev,
-				compatibleVehicles: [...prev.compatibleVehicles, { ...vehicleForm, yearStart: Number(vehicleForm.yearStart), yearEnd: Number(vehicleForm.yearEnd) }]
-			}));
-			setVehicleForm({ brand: "", model: "", yearStart: "", yearEnd: "" });
+		if (!vehicleForm.brand.trim()) {
+			toast.error("Please enter a brand");
+			return;
 		}
+		if (!vehicleForm.model.trim()) {
+			toast.error("Please enter a model");
+			return;
+		}
+		if (!vehicleForm.yearStart) {
+			toast.error("Please enter a start year");
+			return;
+		}
+		if (!vehicleForm.yearEnd) {
+			toast.error("Please enter an end year");
+			return;
+		}
+
+		const yearStart = Number(vehicleForm.yearStart);
+		const yearEnd = Number(vehicleForm.yearEnd);
+
+		if (yearStart > yearEnd) {
+			toast.error("Start year cannot be greater than end year");
+			return;
+		}
+
+		if (yearStart < 1900 || yearEnd > 2030) {
+			toast.error("Please enter valid years (1900-2030)");
+			return;
+		}
+
+		setFormData(prev => ({
+			...prev,
+			compatibleVehicles: [...prev.compatibleVehicles, { 
+				brand: vehicleForm.brand.trim(), 
+				model: vehicleForm.model.trim(), 
+				yearStart, 
+				yearEnd 
+			}]
+		}));
+		setVehicleForm({ brand: "", model: "", yearStart: "", yearEnd: "" });
+		toast.success(`Added compatible part: ${vehicleForm.brand} ${vehicleForm.model}`);
 	};
 
 	const removeVehicle = (index) => {
@@ -351,6 +399,7 @@ const CreateListingPage = () => {
 									placeholder='Brand'
 									value={vehicleForm.brand}
 									onChange={(e) => setVehicleForm(prev => ({ ...prev, brand: e.target.value }))}
+									onKeyPress={(e) => e.key === 'Enter' && addVehicle()}
 									className='px-4 py-2 bg-gray-700 bg-opacity-50 border border-gray-600 rounded-lg text-white'
 								/>
 								<input
@@ -358,6 +407,7 @@ const CreateListingPage = () => {
 									placeholder='Model'
 									value={vehicleForm.model}
 									onChange={(e) => setVehicleForm(prev => ({ ...prev, model: e.target.value }))}
+									onKeyPress={(e) => e.key === 'Enter' && addVehicle()}
 									className='px-4 py-2 bg-gray-700 bg-opacity-50 border border-gray-600 rounded-lg text-white'
 								/>
 								<input
@@ -365,6 +415,7 @@ const CreateListingPage = () => {
 									placeholder='Year Start'
 									value={vehicleForm.yearStart}
 									onChange={(e) => setVehicleForm(prev => ({ ...prev, yearStart: e.target.value }))}
+									onKeyPress={(e) => e.key === 'Enter' && addVehicle()}
 									className='px-4 py-2 bg-gray-700 bg-opacity-50 border border-gray-600 rounded-lg text-white'
 								/>
 								<input
@@ -372,17 +423,23 @@ const CreateListingPage = () => {
 									placeholder='Year End'
 									value={vehicleForm.yearEnd}
 									onChange={(e) => setVehicleForm(prev => ({ ...prev, yearEnd: e.target.value }))}
+									onKeyPress={(e) => e.key === 'Enter' && addVehicle()}
 									className='px-4 py-2 bg-gray-700 bg-opacity-50 border border-gray-600 rounded-lg text-white'
 								/>
 							</div>
-							<button
-								type='button'
-								onClick={addVehicle}
-								className='px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center'
-							>
-								<Plus size={16} className='mr-2' />
-								Add Part
-							</button>
+							<div className="flex items-center justify-between">
+								<button
+									type='button'
+									onClick={addVehicle}
+									className='px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center'
+								>
+									<Plus size={16} className='mr-2' />
+									Add Compatible Part
+								</button>
+								<p className="text-xs text-gray-400">
+									💡 Tip: Fill all fields and click "Add" or press Enter
+								</p>
+							</div>
 
 							{formData.compatibleVehicles.length > 0 && (
 								<div className='space-y-2'>
@@ -418,6 +475,7 @@ const CreateListingPage = () => {
 									placeholder='Key (e.g., Brand)'
 									value={specKey}
 									onChange={(e) => setSpecKey(e.target.value)}
+									onKeyPress={(e) => e.key === 'Enter' && addSpecification()}
 									className='flex-1 px-4 py-2 bg-gray-700 bg-opacity-50 border border-gray-600 rounded-lg text-white'
 								/>
 								<input
@@ -425,16 +483,21 @@ const CreateListingPage = () => {
 									placeholder='Value (e.g., Brembo)'
 									value={specValue}
 									onChange={(e) => setSpecValue(e.target.value)}
+									onKeyPress={(e) => e.key === 'Enter' && addSpecification()}
 									className='flex-1 px-4 py-2 bg-gray-700 bg-opacity-50 border border-gray-600 rounded-lg text-white'
 								/>
 								<button
 									type='button'
 									onClick={addSpecification}
 									className='px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition'
+									title="Add Specification"
 								>
 									<Plus size={16} />
 								</button>
 							</div>
+							<p className="text-xs text-gray-400">
+								💡 Tip: Enter a key and value, then click "+" or press Enter to add. You can add multiple specifications.
+							</p>
 
 							{Object.keys(formData.specifications).length > 0 && (
 								<div className='space-y-2'>
