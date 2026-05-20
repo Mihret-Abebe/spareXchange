@@ -76,6 +76,135 @@ export const deleteUser = async (req, res) => {
 	}
 };
 
+// Make user an admin (Admin only)
+export const makeUserAdmin = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const user = await User.findById(id);
+		
+		if (!user) {
+			return res.status(404).json({ success: false, message: "User not found" });
+		}
+		
+		if (user.userType === "admin") {
+			return res.status(400).json({ success: false, message: "User is already an admin" });
+		}
+
+		// Store previous user type for logging
+		const previousType = user.userType;
+		const userName = user.name;
+		
+		// Update user to admin
+		user.userType = "admin";
+		user.roleStatus = "verified"; // Auto-verify admin role
+		
+		// Add admin permissions if not already present
+		const adminPermissions = ["admin", "view_stats", "view_reports", "view_users", "ban_users", "verify_roles", "moderate_content", "run_jobs"];
+		adminPermissions.forEach(perm => {
+			if (!user.permissions.includes(perm)) {
+				user.permissions.push(perm);
+			}
+		});
+		
+		await user.save();
+
+		// Notify the user about promotion (non-critical, don't fail if this fails)
+		try {
+			if (emitToUser && typeof emitToUser === 'function') {
+				emitToUser(id, 'admin_promotion', {
+					message: `Congratulations! You have been promoted to admin from ${previousType}.`,
+					promotedBy: req.userId,
+					timestamp: new Date().toISOString()
+				});
+				console.log(`Notification sent to user ${id} about admin promotion`);
+			}
+		} catch (notifyError) {
+			console.error('Failed to notify user about promotion (non-critical):', notifyError.message);
+		}
+
+		res.status(200).json({ 
+			success: true, 
+			message: `User ${userName} has been promoted to admin`,
+			userId: id,
+			previousType,
+			newType: "admin"
+		});
+	} catch (error) {
+		console.error("Error in makeUserAdmin:", error);
+		console.error("Error details:", error.message);
+		res.status(500).json({ success: false, message: "Server error", error: error.message });
+	}
+};
+
+// Remove admin privileges from user (Admin only)
+export const removeUserAdmin = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const user = await User.findById(id);
+		
+		if (!user) {
+			return res.status(404).json({ success: false, message: "User not found" });
+		}
+		
+		if (user.userType !== "admin") {
+			return res.status(400).json({ success: false, message: "User is not an admin" });
+		}
+
+		// Prevent self-demotion
+		if (id === req.userId) {
+			return res.status(403).json({ success: false, message: "You cannot remove your own admin privileges" });
+		}
+
+		// Store user info before update
+		const userName = user.name;
+
+		// Update user to regular user (default to "individual" type)
+		user.userType = "individual";
+		user.roleStatus = "pending"; // Reset role status
+		
+		// Remove admin permissions
+		const adminPermissions = ["admin", "view_stats", "view_reports", "view_users", "ban_users", "verify_roles", "moderate_content", "run_jobs"];
+		user.permissions = user.permissions.filter(perm => !adminPermissions.includes(perm));
+		
+		// Add default user permissions
+		const defaultPerms = ["create_listings", "propose_exchanges"];
+		defaultPerms.forEach(perm => {
+			if (!user.permissions.includes(perm)) {
+				user.permissions.push(perm);
+			}
+		});
+		
+		await user.save();
+
+		// Notify the user about demotion (non-critical, don't fail if this fails)
+		try {
+			if (emitToUser && typeof emitToUser === 'function') {
+				emitToUser(id, 'admin_demotion', {
+					message: `Your admin privileges have been revoked by a senior administrator.`,
+					demotedBy: req.userId,
+					timestamp: new Date().toISOString()
+				});
+				console.log(`Notification sent to user ${id} about admin demotion`);
+			}
+		} catch (notifyError) {
+			console.error('Failed to notify user about demotion (non-critical):', notifyError.message);
+		}
+
+		res.status(200).json({ 
+			success: true, 
+			message: `Admin privileges removed from ${userName}`,
+			userId: id,
+			previousType: "admin",
+			newType: "individual"
+		});
+	} catch (error) {
+		console.error("Error in removeUserAdmin:", error);
+		console.error("Error details:", error.message);
+		console.error("Error stack:", error.stack);
+		res.status(500).json({ success: false, message: "Server error", error: error.message });
+	}
+};
+
 // Verify User/Technician Role
 export const verifyRoleStatus = async (req, res) => {
 	try {

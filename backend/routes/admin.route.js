@@ -8,7 +8,9 @@ import {
 	getPlatformStats,
 	getPendingVerifications,
 	runSavedSearchAlertsJob,
-	deleteUser
+	deleteUser,
+	makeUserAdmin,
+	removeUserAdmin
 } from "../controllers/admin.controller.js";
 import {
 	getComprehensiveStats,
@@ -40,6 +42,8 @@ router.post("/users/:id/ban", verifyToken, authorize(["ban_users"]), toggleUserB
 router.post("/users/:id/verify", verifyToken, authorize(["verify_roles"]), verifyRoleStatus);
 router.post("/users/:id/verify-email", verifyToken, authorize(["verify_roles"]), verifyUserEmail);
 router.delete("/users/:id", verifyToken, authorize(["ban_users"]), deleteUser);
+router.patch("/users/:id/make-admin", verifyToken, authorize(["ban_users"]), makeUserAdmin);
+router.patch("/users/:id/remove-admin", verifyToken, authorize(["ban_users"]), removeUserAdmin);
 router.post("/jobs/saved-search-alerts", verifyToken, authorize(["run_jobs"]), runSavedSearchAlertsJob);
 
 // Advanced analytics routes

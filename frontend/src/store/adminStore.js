@@ -302,5 +302,10 @@ export const useAdminStore = create((set) => ({
 
 	clearError: () => {
 		set({ error: null });
+	},
+
+	// Generic state updater for optimistic updates
+	setState: (updater) => {
+		set((state) => typeof updater === 'function' ? updater(state) : updater);
 	}
 }));

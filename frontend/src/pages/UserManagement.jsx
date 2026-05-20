@@ -12,7 +12,9 @@ import {
   UserCheck,
   AlertTriangle,
   Trash2,
-  Lock
+  Lock,
+  Shield,
+  ShieldCheck
 } from "lucide-react";
 import { useAdminStore } from "../store/adminStore";
 import { useAuthStore } from "../store/authStore";
@@ -31,7 +33,8 @@ const UserManagement = () => {
     toggleUserBan,
     users,
     pendingVerifications,
-    isLoading 
+    isLoading,
+    setState
   } = useAdminStore();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -48,6 +51,12 @@ const UserManagement = () => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [adminPassword, setAdminPassword] = useState("");
   const [isVerifyingPassword, setIsVerifyingPassword] = useState(false);
+  const [showMakeAdminModal, setShowMakeAdminModal] = useState(false);
+  const [userToPromote, setUserToPromote] = useState(null);
+  const [isPromoting, setIsPromoting] = useState(false);
+  const [showRemoveAdminModal, setShowRemoveAdminModal] = useState(false);
+  const [userToDemote, setUserToDemote] = useState(null);
+  const [isDemoting, setIsDemoting] = useState(false);
 
   // Load PDF into iframe using blob URL to bypass CORS
   useEffect(() => {
@@ -190,11 +199,21 @@ const UserManagement = () => {
         );
 
         if (deleteResponse.data.success) {
-          toast.success(`User ${userToDelete.name} has been deleted`);
+          // Success - close modal first
           setShowDeleteModal(false);
           setUserToDelete(null);
           setAdminPassword("");
-          fetchUsers();
+          
+          // Show success message
+          toast.success(`User ${userToDelete.name} has been deleted`);
+          
+          // Optimistically remove the user from local state for instant UI update
+          setState((prev) => ({
+            users: prev.users.filter(u => u._id !== userToDelete._id)
+          }));
+          
+          // Refresh from server in background
+          setTimeout(() => fetchUsers(), 500);
         }
       }
     } catch (error) {
@@ -205,6 +224,145 @@ const UserManagement = () => {
       }
     } finally {
       setIsVerifyingPassword(false);
+    }
+  };
+
+  const openMakeAdminModal = (user) => {
+    if (user.userType === "admin") {
+      toast.error("User is already an admin");
+      return;
+    }
+    setUserToPromote(user);
+    setShowMakeAdminModal(true);
+  };
+
+  const handleMakeAdmin = async () => {
+    if (!adminPassword) {
+      toast.error("Please enter your password to confirm");
+      return;
+    }
+
+    setIsPromoting(true);
+    try {
+      // Verify admin password
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/verify-password",
+        { password: adminPassword },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+
+      if (response.data.success) {
+        // Password verified, proceed with promotion
+        const promoteResponse = await axios.patch(
+          `http://localhost:5000/api/admin/users/${userToPromote._id}/make-admin`,
+          {},
+          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+        );
+
+        if (promoteResponse.data.success) {
+          // Store user info before clearing state
+          const promotedUserId = userToPromote._id;
+          const promotedUserName = userToPromote.name;
+          
+          // Success - close modal first
+          setShowMakeAdminModal(false);
+          setUserToPromote(null);
+          setAdminPassword("");
+          
+          // Show success messages
+          toast.success(`${promotedUserName} has been promoted to admin`);
+          toast.info(`${promotedUserName} needs to logout and login again to access admin features`, { duration: 8000 });
+          
+          // Optimistically update the user in the local state for instant UI update
+          setState((prev) => ({
+            users: prev.users.map(u => 
+              u._id === promotedUserId 
+                ? { ...u, userType: "admin", roleStatus: "verified" }
+                : u
+            )
+          }));
+          
+          // Refresh from server in background
+          setTimeout(() => fetchUsers(), 500);
+        }
+      }
+    } catch (error) {
+      if (error.response?.status === 401) {
+        toast.error("Incorrect password. Action cancelled.");
+      } else {
+        toast.error(error.response?.data?.message || "Failed to promote user");
+      }
+    } finally {
+      setIsPromoting(false);
+    }
+  };
+
+  const openRemoveAdminModal = (user) => {
+    if (user.userType !== "admin") {
+      toast.error("User is not an admin");
+      return;
+    }
+    if (user._id === currentUser?._id) {
+      toast.error("You cannot remove your own admin privileges");
+      return;
+    }
+    setUserToDemote(user);
+    setShowRemoveAdminModal(true);
+  };
+
+  const handleRemoveAdmin = async () => {
+    if (!adminPassword) {
+      toast.error("Please enter your password to confirm");
+      return;
+    }
+
+    setIsDemoting(true);
+    try {
+      // Verify admin password
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/verify-password",
+        { password: adminPassword },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+
+      if (response.data.success) {
+        // Password verified, proceed with demotion
+        const demoteResponse = await axios.patch(
+          `http://localhost:5000/api/admin/users/${userToDemote._id}/remove-admin`,
+          {},
+          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+        );
+
+        if (demoteResponse.data.success) {
+          // Success - close modal first
+          setShowRemoveAdminModal(false);
+          setUserToDemote(null);
+          setAdminPassword("");
+          
+          // Show success message
+          toast.success(`${userToDemote.name} has been demoted to ${demoteResponse.data.newType}`);
+          
+          // Optimistically update the user in the local state for instant UI update
+          setState((prev) => ({
+            users: prev.users.map(u => 
+              u._id === userToDemote._id 
+                ? { ...u, userType: demoteResponse.data.newType, roleStatus: "pending" }
+                : u
+            )
+          }));
+          
+          // Refresh from server in background
+          setTimeout(() => fetchUsers(), 500);
+        }
+      }
+    } catch (error) {
+      if (error.response?.status === 401) {
+        toast.error("Incorrect password. Action cancelled.");
+      } else {
+        toast.error(error.response?.data?.message || "Failed to remove admin privileges");
+      }
+    } finally {
+      setIsDemoting(false);
     }
   };
 
@@ -501,6 +659,30 @@ const UserManagement = () => {
                               title='Delete User'
                             >
                               <Trash2 size={14} />
+                            </button>
+                          )}
+                          {user.userType !== "admin" && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openMakeAdminModal(user);
+                              }}
+                              className='p-1.5 bg-purple-600 hover:bg-purple-700 rounded-lg transition flex-shrink-0'
+                              title='Make Admin'
+                            >
+                              <Shield size={14} />
+                            </button>
+                          )}
+                          {user.userType === "admin" && user._id !== currentUser?._id && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openRemoveAdminModal(user);
+                              }}
+                              className='p-1.5 bg-orange-600 hover:bg-orange-700 rounded-lg transition flex-shrink-0'
+                              title='Remove Admin'
+                            >
+                              <ShieldCheck size={14} />
                             </button>
                           )}
                         </div>
@@ -857,6 +1039,176 @@ const UserManagement = () => {
                     onClick={() => {
                       setShowDeleteModal(false);
                       setUserToDelete(null);
+                      setAdminPassword("");
+                    }}
+                    className='px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition'
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Make Admin Modal with Password Verification */}
+        {showMakeAdminModal && userToPromote && (
+          <div className='fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4'>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className='bg-gray-800 rounded-xl border border-purple-700 max-w-md w-full'
+            >
+              <div className='p-6'>
+                <div className='flex items-center gap-3 mb-4'>
+                  <div className='p-3 bg-purple-600/20 rounded-full'>
+                    <ShieldCheck size={32} className='text-purple-500' />
+                  </div>
+                  <div>
+                    <h2 className='text-2xl font-bold text-white'>Promote to Admin</h2>
+                    <p className='text-sm text-gray-400'>Grant admin privileges</p>
+                  </div>
+                </div>
+
+                <div className='bg-purple-900/20 border border-purple-700 rounded-lg p-4 mb-6'>
+                  <p className='text-white font-semibold mb-2'>You are about to promote:</p>
+                  <div className='bg-gray-900/50 p-3 rounded-lg'>
+                    <p className='text-white font-semibold'>{userToPromote.name}</p>
+                    <p className='text-sm text-gray-400'>{userToPromote.email}</p>
+                    <p className='text-xs text-gray-500 mt-1'>Current Role: {userToPromote.userType}</p>
+                  </div>
+                  <p className='text-xs text-purple-400 mt-3'>
+                    ⚠️ Warning: This user will have full admin access including user management, content moderation, and system settings.
+                  </p>
+                </div>
+
+                <div className='mb-6'>
+                  <label className='text-sm text-gray-400 mb-2 block flex items-center gap-2'>
+                    <Lock size={14} />
+                    Enter your admin password to confirm:
+                  </label>
+                  <input
+                    type='password'
+                    value={adminPassword}
+                    onChange={(e) => setAdminPassword(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && adminPassword) {
+                        handleMakeAdmin();
+                      }
+                    }}
+                    placeholder='Enter your password...'
+                    className='w-full p-3 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500 text-white'
+                    autoFocus
+                  />
+                </div>
+
+                <div className='flex gap-3'>
+                  <button
+                    onClick={handleMakeAdmin}
+                    disabled={!adminPassword || isPromoting}
+                    className='flex-1 px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-semibold transition flex items-center justify-center gap-2'
+                  >
+                    {isPromoting ? (
+                      <>
+                        <div className='animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white'></div>
+                        Promoting...
+                      </>
+                    ) : (
+                      <>
+                        <ShieldCheck size={18} />
+                        Promote to Admin
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowMakeAdminModal(false);
+                      setUserToPromote(null);
+                      setAdminPassword("");
+                    }}
+                    className='px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition'
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Remove Admin Modal with Password Verification */}
+        {showRemoveAdminModal && userToDemote && (
+          <div className='fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4'>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className='bg-gray-800 rounded-xl border border-orange-700 max-w-md w-full'
+            >
+              <div className='p-6'>
+                <div className='flex items-center gap-3 mb-4'>
+                  <div className='p-3 bg-orange-600/20 rounded-full'>
+                    <Shield size={32} className='text-orange-500' />
+                  </div>
+                  <div>
+                    <h2 className='text-2xl font-bold text-white'>Remove Admin Privileges</h2>
+                    <p className='text-sm text-gray-400'>Demote user from admin role</p>
+                  </div>
+                </div>
+
+                <div className='bg-orange-900/20 border border-orange-700 rounded-lg p-4 mb-6'>
+                  <p className='text-white font-semibold mb-2'>You are about to remove admin from:</p>
+                  <div className='bg-gray-900/50 p-3 rounded-lg'>
+                    <p className='text-white font-semibold'>{userToDemote.name}</p>
+                    <p className='text-sm text-gray-400'>{userToDemote.email}</p>
+                    <p className='text-xs text-gray-500 mt-1'>Current Role: {userToDemote.userType}</p>
+                  </div>
+                  <p className='text-xs text-orange-400 mt-3'>
+                    ⚠️ Warning: This user will lose all admin access including user management, content moderation, and system settings. They will be reverted to a regular user.
+                  </p>
+                </div>
+
+                <div className='mb-6'>
+                  <label className='text-sm text-gray-400 mb-2 block flex items-center gap-2'>
+                    <Lock size={14} />
+                    Enter your admin password to confirm:
+                  </label>
+                  <input
+                    type='password'
+                    value={adminPassword}
+                    onChange={(e) => setAdminPassword(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && adminPassword) {
+                        handleRemoveAdmin();
+                      }
+                    }}
+                    placeholder='Enter your password...'
+                    className='w-full p-3 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:border-orange-500 text-white'
+                    autoFocus
+                  />
+                </div>
+
+                <div className='flex gap-3'>
+                  <button
+                    onClick={handleRemoveAdmin}
+                    disabled={!adminPassword || isDemoting}
+                    className='flex-1 px-6 py-3 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-semibold transition flex items-center justify-center gap-2'
+                  >
+                    {isDemoting ? (
+                      <>
+                        <div className='animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white'></div>
+                        Removing...
+                      </>
+                    ) : (
+                      <>
+                        <Shield size={18} />
+                        Remove Admin
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowRemoveAdminModal(false);
+                      setUserToDemote(null);
                       setAdminPassword("");
                     }}
                     className='px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition'
