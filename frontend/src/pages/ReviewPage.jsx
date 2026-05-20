@@ -8,18 +8,21 @@ import {
 	Star,
 	ArrowLeft,
 	User,
-	Calendar
+	Calendar,
+	CheckCircle
 } from "lucide-react";
 
 const ReviewPage = () => {
 	const { userId } = useParams();
 	const navigate = useNavigate();
-	const { reviews, loading, getUserReviews, createReview } = useReviewStore();
+	const { reviews, loading, getUserReviews, createReview, getReviewableExchanges, reviewableExchanges } = useReviewStore();
 	const [showReviewForm, setShowReviewForm] = useState(false);
 	const [rating, setRating] = useState(0);
 	const [comment, setComment] = useState("");
 	const [hoveredRating, setHoveredRating] = useState(0);
 	const [exchangeId, setExchangeId] = useState("");
+	const [selectedExchange, setSelectedExchange] = useState(null);
+	const [isFetchingExchanges, setIsFetchingExchanges] = useState(false);
 
 	useEffect(() => {
 		fetchReviews();
@@ -33,6 +36,20 @@ const ReviewPage = () => {
 		}
 	};
 
+	const handleOpenReviewForm = async () => {
+		setShowReviewForm(true);
+		setIsFetchingExchanges(true);
+		try {
+			// Fetch completed exchanges with this user
+			await getReviewableExchanges(userId);
+		} catch (error) {
+			console.error("Error fetching exchanges:", error);
+			toast.error("Failed to load exchange history");
+		} finally {
+			setIsFetchingExchanges(false);
+		}
+	};
+
 	const handleSubmitReview = async (e) => {
 		e.preventDefault();
 		
@@ -42,7 +59,7 @@ const ReviewPage = () => {
 		}
 
 		if (!exchangeId) {
-			toast.error("Exchange ID is required");
+			toast.error("Please select an exchange");
 			return;
 		}
 
@@ -53,6 +70,7 @@ const ReviewPage = () => {
 			setRating(0);
 			setComment("");
 			setExchangeId("");
+			setSelectedExchange(null);
 			fetchReviews();
 		} catch (error) {
 			toast.error(error.response?.data?.message || "Failed to submit review");
@@ -113,7 +131,7 @@ const ReviewPage = () => {
 							<h1 className="text-3xl font-bold">Reviews & Ratings</h1>
 						</div>
 						<button
-							onClick={() => setShowReviewForm(!showReviewForm)}
+							onClick={() => showReviewForm ? setShowReviewForm(false) : handleOpenReviewForm()}
 							className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
 						>
 							{showReviewForm ? "Cancel" : "Write a Review"}
@@ -149,15 +167,49 @@ const ReviewPage = () => {
 						<h2 className="text-xl font-semibold mb-4">Write a Review</h2>
 						<form onSubmit={handleSubmitReview} className="space-y-4">
 							<div>
-								<label className="block text-sm font-medium mb-2">Exchange ID *</label>
-								<input
-									type="text"
-									value={exchangeId}
-									onChange={(e) => setExchangeId(e.target.value)}
-									placeholder="Enter exchange ID"
-									className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-									required
-								/>
+								<label className="block text-sm font-medium mb-2">Select Exchange *</label>
+								{isFetchingExchanges ? (
+									<div className="flex items-center gap-2 p-3 border border-gray-300 dark:border-gray-700 rounded-lg">
+										<LoadingSpinner size="sm" />
+										<span className="text-sm text-gray-500">Loading exchanges...</span>
+									</div>
+								) : reviewableExchanges.length > 0 ? (
+									<select
+										value={selectedExchange || ''}
+										onChange={(e) => {
+											setSelectedExchange(e.target.value);
+											setExchangeId(e.target.value);
+										}}
+										className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+										required
+									>
+										<option value="">Select a completed exchange...</option>
+										{reviewableExchanges.map((ex) => (
+											<option key={ex.exchangeId} value={ex.exchangeId}>
+												{ex.exchangeType} {ex.revieweeName} - {ex.listingTitle}
+											</option>
+										))}
+									</select>
+								) : (
+									<div className="p-4 border border-yellow-300 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+										<div className="flex items-start gap-2">
+											<CheckCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+											<div>
+												<p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+													No completed exchanges found
+												</p>
+												<p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
+													You need to complete an exchange with this user before leaving a review.
+												</p>
+											</div>
+										</div>
+									</div>
+								)}
+								{reviewableExchanges.length > 0 && (
+									<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+										Select from your completed exchanges with this user.
+									</p>
+								)}
 							</div>
 
 							<div>
@@ -175,17 +227,21 @@ const ReviewPage = () => {
 								<textarea
 									value={comment}
 									onChange={(e) => setComment(e.target.value)}
-									placeholder="Share your experience..."
+									placeholder="Share your experience with this user..."
 									rows="4"
 									className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
 								/>
+								<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+									Optional: Tell others about your experience with this exchange.
+								</p>
 							</div>
 
 							<button
 								type="submit"
-								className="w-full px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-semibold"
+								disabled={loading || rating === 0 || !exchangeId}
+								className="w-full px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-semibold"
 							>
-								Submit Review
+								{loading ? "Submitting..." : "Submit Review"}
 							</button>
 						</form>
 					</motion.div>

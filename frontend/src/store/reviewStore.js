@@ -9,6 +9,7 @@ export const useReviewStore = create((set) => ({
 	reviews: [],
 	loading: false,
 	error: null,
+	reviewableExchanges: [],
 
 	getUserReviews: async (userId) => {
 		set({ loading: true, error: null });
@@ -22,10 +23,40 @@ export const useReviewStore = create((set) => ({
 		}
 	},
 
+	getReviewableExchanges: async (revieweeId = null) => {
+		set({ loading: true, error: null });
+		try {
+			const token = localStorage.getItem("token");
+			const params = revieweeId ? `?revieweeId=${revieweeId}` : '';
+			const res = await axios.get(
+				`${API_URL}/reviewable${params}`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`
+					}
+				}
+			);
+			set({ reviewableExchanges: res.data.data, loading: false });
+			return res.data.data;
+		} catch (error) {
+			set({ error: error.response?.data?.message || "Failed to fetch reviewable exchanges", loading: false });
+			throw error;
+		}
+	},
+
 	createReview: async (revieweeId, exchangeId, rating, comment) => {
 		set({ loading: true, error: null });
 		try {
-			const res = await axios.post(`${API_URL}`, { revieweeId, exchangeId, rating, comment });
+			const token = localStorage.getItem("token");
+			const res = await axios.post(
+				`${API_URL}`, 
+				{ revieweeId, exchangeId, rating, comment },
+				{
+					headers: {
+						Authorization: `Bearer ${token}`
+					}
+				}
+			);
 			set({ loading: false });
 			return res.data;
 		} catch (error) {
