@@ -112,7 +112,8 @@ const ReviewPage = () => {
 	}
 
 	return (
-		<div className="max-w-4xl mx-auto px-4 py-8">
+		<div className="min-h-screen bg-white dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-gray-900 dark:text-white py-8 px-4">
+			<div className="max-w-4xl mx-auto">
 			<motion.div
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
@@ -139,7 +140,7 @@ const ReviewPage = () => {
 					</div>
 
 					{/* Rating Summary */}
-					<div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+					<div className="bg-primary dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700">
 						<div className="flex items-center gap-6">
 							<div className="text-center">
 								<div className="text-5xl font-bold text-green-500">
@@ -162,12 +163,12 @@ const ReviewPage = () => {
 						initial={{ opacity: 0, height: 0 }}
 						animate={{ opacity: 1, height: "auto" }}
 						exit={{ opacity: 0, height: 0 }}
-						className="mb-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
+						className="mb-6 bg-primary dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700"
 					>
 						<h2 className="text-xl font-semibold mb-4">Write a Review</h2>
 						<form onSubmit={handleSubmitReview} className="space-y-4">
 							<div>
-								<label className="block text-sm font-medium mb-2">Select Exchange *</label>
+								<label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Select Exchange *</label>
 								{isFetchingExchanges ? (
 									<div className="flex items-center gap-2 p-3 border border-gray-300 dark:border-gray-700 rounded-lg">
 										<LoadingSpinner size="sm" />
@@ -180,7 +181,7 @@ const ReviewPage = () => {
 											setSelectedExchange(e.target.value);
 											setExchangeId(e.target.value);
 										}}
-										className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+										className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-200 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
 										required
 									>
 										<option value="">Select a completed exchange...</option>
@@ -213,7 +214,7 @@ const ReviewPage = () => {
 							</div>
 
 							<div>
-								<label className="block text-sm font-medium mb-2">Rating *</label>
+								<label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Rating *</label>
 								<div className="flex items-center gap-2">
 									{renderStars(rating, true, setRating)}
 									<span className="text-sm text-gray-600 dark:text-gray-400 ml-2">
@@ -223,13 +224,13 @@ const ReviewPage = () => {
 							</div>
 
 							<div>
-								<label className="block text-sm font-medium mb-2">Comment</label>
+								<label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Comment</label>
 								<textarea
 									value={comment}
 									onChange={(e) => setComment(e.target.value)}
 									placeholder="Share your experience with this user..."
 									rows="4"
-									className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+									className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-200 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
 								/>
 								<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
 									Optional: Tell others about your experience with this exchange.
@@ -250,7 +251,7 @@ const ReviewPage = () => {
 				{/* Reviews List */}
 				<div className="space-y-4">
 					{reviews.length === 0 ? (
-						<div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-16 text-center">
+						<div className="bg-primary dark:bg-gray-800 rounded-lg shadow-lg p-16 text-center border border-gray-200 dark:border-gray-700">
 							<User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
 							<h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
 								No reviews yet
@@ -266,7 +267,7 @@ const ReviewPage = () => {
 								initial={{ opacity: 0, y: 20 }}
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ delay: index * 0.05 }}
-								className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
+								className="bg-primary dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700"
 							>
 								<div className="flex items-start gap-4">
 									{review.reviewerId?.profilePicture ? (
@@ -309,6 +310,7 @@ const ReviewPage = () => {
 				</div>
 			</motion.div>
 		</div>
+	</div>
 	);
 };
 
