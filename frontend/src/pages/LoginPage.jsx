@@ -6,9 +6,10 @@ import { Checkbox } from '../components/ui/checkbox';
 import { Recycle, Eye, EyeOff, Loader } from 'lucide-react';
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import { useTheme } from "../contexts/ThemeContext";
 import toast from "react-hot-toast";
 const LoginPage = () => {
-
+	const { darkMode } = useTheme();
 	const [showPassword, setShowPassword] = useState(false);
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -45,7 +46,7 @@ const LoginPage = () => {
 	};
 
 	return (
-		<section className="min-h-screen flex">
+		<section className={`min-h-screen flex ${darkMode ? 'bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white' : 'bg-white text-gray-900'}`}>
 			{/* Left side - Image */}
 			<section className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
 				<div className="absolute inset-0 bg-gradient-to-br from-green-600/90 to-green-900/90 z-10" />
@@ -71,7 +72,7 @@ const LoginPage = () => {
 			</section>
 
 			{/* Right side - Form */}
-			<section className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 dark:text-white">
+			<section className={`w-full lg:w-1/2 flex items-center justify-center p-8 ${darkMode ? 'bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white' : 'bg-white text-gray-900'}`}>
 				<div className="w-full max-w-md space-y-8">
 					{/* Mobile Logo */}
 					<div className="lg:hidden flex items-center gap-3 justify-center">

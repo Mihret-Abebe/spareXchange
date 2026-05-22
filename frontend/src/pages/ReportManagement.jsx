@@ -169,7 +169,7 @@ const ReportManagement = () => {
   }
 
   return (
-    <div className='min-h-screen bg-gradient-to-b from-gray-900 via-green-900 to-emerald-900 text-white py-8'>
+    <div className='min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-green-900 to-emerald-900 text-gray-900 dark:text-white py-8'>
       <div className='container mx-auto px-4 max-w-7xl'>
         {/* Header */}
         <motion.div
@@ -177,11 +177,11 @@ const ReportManagement = () => {
           animate={{ opacity: 1, y: 0 }}
           className='mb-8'
         >
-          <h1 className='text-4xl font-bold mb-2 bg-gradient-to-r from-red-400 to-pink-500 text-transparent bg-clip-text flex items-center'>
-            <AlertTriangle size={40} className='mr-3' />
+          <h1 className='text-4xl font-bold mb-2 flex items-center'>
+            <AlertTriangle size={40} className='mr-3 text-red-600 dark:text-red-400' />
             Report Management
           </h1>
-          <p className='text-gray-400'>Moderate content and handle user reports</p>
+          <p className='text-gray-600 dark:text-gray-400'>Moderate content and handle user reports</p>
         </motion.div>
 
         {/* Stats Overview */}
@@ -191,27 +191,27 @@ const ReportManagement = () => {
             animate={{ opacity: 1, y: 0 }}
             className='mb-6 grid grid-cols-2 md:grid-cols-4 gap-4'
           >
-            <div className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl border border-yellow-700 p-4'>
-              <p className='text-sm text-gray-400 mb-1'>Pending</p>
-              <p className='text-2xl font-bold text-yellow-400'>
+            <div className='bg-primary dark:bg-gray-800 rounded-xl border border-yellow-600 dark:border-yellow-700 p-4'>
+              <p className='text-sm text-gray-600 dark:text-gray-400 mb-1'>Pending</p>
+              <p className='text-2xl font-bold text-yellow-600 dark:text-yellow-400'>
                 {reportStats.reportsByStatus.find(s => s._id === "pending")?.count || 0}
               </p>
             </div>
-            <div className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl border border-blue-700 p-4'>
-              <p className='text-sm text-gray-400 mb-1'>Reviewed</p>
-              <p className='text-2xl font-bold text-blue-400'>
+            <div className='bg-primary dark:bg-gray-800 rounded-xl border border-blue-600 dark:border-blue-700 p-4'>
+              <p className='text-sm text-gray-600 dark:text-gray-400 mb-1'>Reviewed</p>
+              <p className='text-2xl font-bold text-blue-600 dark:text-blue-400'>
                 {reportStats.reportsByStatus.find(s => s._id === "reviewed")?.count || 0}
               </p>
             </div>
-            <div className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl border border-green-700 p-4'>
-              <p className='text-sm text-gray-400 mb-1'>Resolved</p>
-              <p className='text-2xl font-bold text-green-400'>
+            <div className='bg-primary dark:bg-gray-800 rounded-xl border border-green-600 dark:border-green-700 p-4'>
+              <p className='text-sm text-gray-600 dark:text-gray-400 mb-1'>Resolved</p>
+              <p className='text-2xl font-bold text-background dark:text-green-400'>
                 {reportStats.reportsByStatus.find(s => s._id === "resolved")?.count || 0}
               </p>
             </div>
-            <div className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl border border-gray-700 p-4'>
-              <p className='text-sm text-gray-400 mb-1'>Avg Resolution</p>
-              <p className='text-2xl font-bold text-purple-400'>
+            <div className='bg-primary dark:bg-gray-800 rounded-xl border border-gray-300 dark:border-gray-700 p-4'>
+              <p className='text-sm text-gray-600 dark:text-gray-400 mb-1'>Avg Resolution</p>
+              <p className='text-2xl font-bold text-purple-600 dark:text-purple-400'>
                 {reportStats.avgResolutionTimeHours}h
               </p>
             </div>
@@ -222,14 +222,14 @@ const ReportManagement = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className='mb-6 p-4 bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl border border-gray-700'
+          className='mb-6 p-4 bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700'
         >
           <div className='flex items-center gap-4 flex-wrap'>
-            <Filter size={20} className='text-green-400' />
+            <Filter size={20} className=' text-background dark:text-green-600 dark:text-green-400' />
             <select
               value={filters.status || ""}
               onChange={(e) => handleFilterChange("status", e.target.value)}
-              className='bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600'
+              className='bg-gray-200 dark:bg-gray-900 text-gray-900 dark:text-white px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600'
             >
               <option value="">All Status</option>
               <option value="pending">Pending</option>
@@ -240,7 +240,7 @@ const ReportManagement = () => {
             <select
               value={filters.targetModel || ""}
               onChange={(e) => handleFilterChange("targetModel", e.target.value)}
-              className='bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600'
+              className='bg-gray-200 dark:bg-gray-900 text-gray-900 dark:text-white px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600'
             >
               <option value="">All Types</option>
               <option value="Listing">Listing</option>
@@ -254,18 +254,18 @@ const ReportManagement = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl border border-gray-700 overflow-hidden'
+          className='bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden'
         >
           <div className='overflow-x-auto'>
             <table className='w-full'>
-              <thead className='bg-gray-900 bg-opacity-50'>
+              <thead className='bg-gray-100 dark:bg-gray-900/50'>
                 <tr>
-                  <th className='px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase'>Date</th>
-                  <th className='px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase'>Type</th>
-                  <th className='px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase'>Reason</th>
-                  <th className='px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase'>Status</th>
-                  <th className='px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase'>Reporter</th>
-                  <th className='px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase'>Actions</th>
+                  <th className='px-6 py-4 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase'>Date</th>
+                  <th className='px-6 py-4 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase'>Type</th>
+                  <th className='px-6 py-4 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase'>Reason</th>
+                  <th className='px-6 py-4 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase'>Status</th>
+                  <th className='px-6 py-4 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase'>Reporter</th>
+                  <th className='px-6 py-4 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase'>Actions</th>
                 </tr>
               </thead>
               <tbody className='divide-y divide-border'>
@@ -275,7 +275,7 @@ const ReportManagement = () => {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className='hover:bg-gray-700 hover:bg-opacity-30 transition'
+                    className='hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:bg-opacity-30 transition'
                   >
                     <td className='px-6 py-4 text-sm'>
                       {new Date(report.createdAt).toLocaleDateString()}
@@ -332,21 +332,21 @@ const ReportManagement = () => {
           {/* Pagination */}
           {reportsPagination && reportsPagination.totalPages > 1 && (
             <div className='px-6 py-4 border-t border-gray-700 flex items-center justify-between'>
-              <p className='text-sm text-gray-400'>
+              <p className='text-sm text-gray-600 dark:text-gray-400'>
                 Page {reportsPagination.page} of {reportsPagination.totalPages}
               </p>
               <div className='flex gap-2'>
                 <button
                   onClick={() => setFilters(prev => ({ ...prev, page: prev.page - 1 }))}
                   disabled={filters.page === 1}
-                  className='p-2 bg-gray-700 hover:bg-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed'
+                  className='p-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed'
                 >
                   <ChevronLeft size={20} />
                 </button>
                 <button
                   onClick={() => setFilters(prev => ({ ...prev, page: prev.page + 1 }))}
                   disabled={filters.page === reportsPagination.totalPages}
-                  className='p-2 bg-gray-700 hover:bg-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed'
+                  className='p-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed'
                 >
                   <ChevronRight size={20} />
                 </button>
@@ -361,7 +361,7 @@ const ReportManagement = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className='bg-gray-800 rounded-xl border border-gray-700 p-6 max-w-md w-full mx-4'
+              className='bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 max-w-md w-full mx-4'
             >
               <h3 className='text-xl font-bold mb-4'>Moderator Action</h3>
               <p className='text-gray-400 mb-4'>
@@ -419,7 +419,7 @@ const ReportDetail = ({ report, onBack, onAction, onDelete }) => {
   };
 
   return (
-    <div className='min-h-screen bg-gradient-to-b from-gray-900 via-green-900 to-emerald-900 text-white py-8'>
+    <div className='min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-green-900 to-emerald-900 text-gray-900 dark:text-white py-8'>
       <div className='container mx-auto px-4 max-w-4xl'>
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -442,7 +442,7 @@ const ReportDetail = ({ report, onBack, onAction, onDelete }) => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl border border-gray-700 p-6'
+          className='bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6'
         >
           <div className='grid grid-cols-2 gap-4 mb-6'>
             <div>

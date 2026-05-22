@@ -92,7 +92,7 @@ const MyListingsPage = () => {
 	}
 
 	return (
-		<div className='min-h-screen bg-gradient-to-b from-gray-900 via-green-900 to-emerald-900 text-white py-8'>
+		<div className='min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-green-900 to-emerald-900 text-gray-900 dark:text-white py-8'>
 			<div className='container mx-auto px-4'>
 				{/* Header */}
 				<motion.div
@@ -101,10 +101,10 @@ const MyListingsPage = () => {
 					className='mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4'
 				>
 					<div>
-						<h1 className='text-4xl font-bold mb-2 bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'>
+						<h1 className='text-4xl font-bold mb-2'>
 							My Listings
 						</h1>
-						<p className='text-gray-400'>Manage your spare part listings</p>
+						<p className='text-gray-600 dark:text-gray-400'>Manage your spare part listings</p>
 					</div>
 					<Link
 						to='/create-listing'
@@ -128,8 +128,8 @@ const MyListingsPage = () => {
 							onClick={() => setFilter(filterOption)}
 							className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
 								filter === filterOption
-									? "bg-primary text-primary-foreground"
-									: "bg-gray-700 text-gray-300 hover:bg-gray-600"
+									? "bg-green-600 text-white"
+									: "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
 							}`}
 						>
 							{filterOption.charAt(0).toUpperCase() + filterOption.slice(1)}
@@ -142,11 +142,11 @@ const MyListingsPage = () => {
 					<motion.div
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
-						className='text-center py-16 bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl border border-gray-700'
+						className='text-center py-16 bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700'
 					>
-						<Package size={64} className='mx-auto mb-4 text-gray-600' />
-						<h3 className='text-2xl font-bold mb-2'>No listings yet</h3>
-						<p className='text-gray-400 mb-6'>Start by creating your first listing</p>
+						<Package size={64} className='mx-auto mb-4 text-gray-400 dark:text-gray-600' />
+						<h3 className='text-2xl font-bold mb-2 text-gray-900 dark:text-white'>No listings yet</h3>
+						<p className='text-gray-600 dark:text-gray-400 mb-6'>Start by creating your first listing</p>
 						<Link
 							to='/create-listing'
 							className='px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg hover:from-green-600 hover:to-emerald-700 transition inline-flex items-center'
@@ -172,7 +172,7 @@ const MyListingsPage = () => {
 									initial={{ opacity: 0, y: 20 }}
 									animate={{ opacity: 1, y: 0 }}
 									transition={{ delay: index * 0.05 }}
-									className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl overflow-hidden border border-gray-700 hover:border-green-500 transition duration-300'
+									className='bg-primary dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-green-500 transition duration-300'
 								>
 									{/* Image */}
 									<div className='relative h-48'>
@@ -197,12 +197,12 @@ const MyListingsPage = () => {
 
 									{/* Content */}
 									<div className='p-4'>
-										<h3 className='font-bold text-lg mb-2 truncate'>{listing.title}</h3>
+										<h3 className='font-bold text-lg mb-2 truncate text-gray-900 dark:text-white'>{listing.title}</h3>
 										<div className='flex justify-between items-center mb-2'>
-											<span className='text-green-400 font-bold text-xl'>${listing.price}</span>
-											<span className='text-xs bg-gray-700 px-2 py-1 rounded'>{listing.condition}</span>
+											<span className='text-green-600 dark:text-green-400 font-bold text-xl'>${listing.price}</span>
+											<span className='text-xs bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded'>{listing.condition}</span>
 										</div>
-										<div className='text-sm text-gray-400 mb-2'>
+										<div className='text-sm text-gray-600 dark:text-gray-400 mb-2'>
 											Views: {listing.views || 0}
 										</div>
 										<div className='text-xs text-gray-500 mb-4'>

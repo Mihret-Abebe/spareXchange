@@ -71,35 +71,35 @@ const MyExchangesPage = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gray-800 rounded-xl border border-gray-700 p-6 hover:border-green-500 transition-all duration-300"
+        className="bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:border-green-500 transition-all duration-300"
       >
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
-            <h3 className="text-xl font-bold text-white mb-2">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
               {exchange.listingId?.title || "Unknown Listing"}
             </h3>
             <StatusBadge status={exchange.status} />
           </div>
-          <span className="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded">
+          <span className="text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
             {role}
           </span>
         </div>
 
         <div className="space-y-2 mb-4 text-sm">
           {exchange.offeredItems && (
-            <p className="text-gray-300">
-              <span className="text-gray-500">Your Offer:</span> {exchange.offeredItems}
+            <p className="text-gray-700 dark:text-gray-300">
+              <span className="text-gray-500 dark:text-gray-400">Your Offer:</span> {exchange.offeredItems}
             </p>
           )}
           {exchange.meetingDetails?.location && (
-            <p className="text-gray-300 flex items-center gap-2">
-              <MapPin size={14} className="text-green-400" />
+            <p className="text-gray-700 dark:text-gray-300 flex items-center gap-2">
+              <MapPin size={14} className="text-green-600 dark:text-green-400" />
               {exchange.meetingDetails.location}
             </p>
           )}
           {exchange.meetingDetails?.time && (
-            <p className="text-gray-300 flex items-center gap-2">
-              <Calendar size={14} className="text-green-400" />
+            <p className="text-gray-700 dark:text-gray-300 flex items-center gap-2">
+              <Calendar size={14} className="text-green-600 dark:text-green-400" />
               {new Date(exchange.meetingDetails.time).toLocaleDateString()}
             </p>
           )}
@@ -111,8 +111,8 @@ const MyExchangesPage = () => {
           )}
         </div>
 
-        <div className="flex justify-between items-center pt-4 border-t border-gray-700">
-          <span className="text-xs text-gray-500">
+        <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
+          <span className="text-xs text-gray-500 dark:text-gray-400">
             {new Date(exchange.createdAt).toLocaleDateString()}
           </span>
           <button
@@ -129,14 +129,14 @@ const MyExchangesPage = () => {
 
   if (isLoading && exchanges.length === 0) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 flex items-center justify-center">
         <LoadingSpinner />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-white py-8">
+    <div className="min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 py-8">
       <div className="container mx-auto px-4">
         {/* Header */}
         <motion.div
@@ -144,8 +144,8 @@ const MyExchangesPage = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-4xl font-bold mb-2">My Exchanges</h1>
-          <p className="text-gray-400">Manage your exchange proposals and transactions</p>
+          <h1 className="text-4xl font-bold mb-2 text-gray-900 dark:text-white">My Exchanges</h1>
+          <p className="text-gray-600 dark:text-gray-400">Manage your exchange proposals and transactions</p>
         </motion.div>
 
         {/* Filters */}
@@ -154,11 +154,11 @@ const MyExchangesPage = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 flex items-center gap-4"
         >
-          <Filter size={20} className="text-green-400" />
+          <Filter size={20} className="text-green-600 dark:text-green-400" />
           <select
             value={filter}
             onChange={(e) => { setFilter(e.target.value); setPage(1); }}
-            className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-green-500"
+            className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 text-gray-900 dark:text-white focus:outline-none focus:border-green-500"
           >
             <option value="">All Exchanges</option>
             <option value="pending">Pending</option>
@@ -169,7 +169,7 @@ const MyExchangesPage = () => {
             <option value="cancelled">Cancelled</option>
             <option value="expired">Expired</option>
           </select>
-          <span className="text-sm text-gray-400">
+          <span className="text-sm text-gray-600 dark:text-gray-400">
             {totalExchanges} total exchange{totalExchanges !== 1 ? 's' : ''}
           </span>
         </motion.div>
@@ -181,10 +181,10 @@ const MyExchangesPage = () => {
             animate={{ opacity: 1 }}
             className="text-center py-20"
           >
-            <p className="text-xl text-gray-400 mb-4">No exchanges found</p>
+            <p className="text-xl text-gray-600 dark:text-gray-400 mb-4">No exchanges found</p>
             <button
               onClick={() => navigate("/marketplace")}
-              className="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg transition duration-300"
+              className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition duration-300"
             >
               Browse Marketplace
             </button>
@@ -207,18 +207,18 @@ const MyExchangesPage = () => {
                 <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-800 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700 transition"
+                  className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white transition"
                 >
                   <ChevronLeft size={16} />
                   Previous
                 </button>
-                <span className="text-gray-400">
+                <span className="text-gray-600 dark:text-gray-400">
                   Page {currentPage} of {totalPages}
                 </span>
                 <button
                   onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-800 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700 transition"
+                  className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white transition"
                 >
                   Next
                   <ChevronRight size={16} />

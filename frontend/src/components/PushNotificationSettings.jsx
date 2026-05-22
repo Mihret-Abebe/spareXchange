@@ -122,7 +122,7 @@ const PushNotificationSettings = () => {
 	}
 
 	return (
-		<div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+		<div className="bg-primary dark:bg-gray-800 rounded-lg shadow-lg p-6">
 			<div className="flex items-center justify-between mb-6">
 				<div>
 					<h2 className="text-xl font-semibold">Push Notification Devices</h2>
@@ -133,7 +133,7 @@ const PushNotificationSettings = () => {
 				
 				<button
 					onClick={() => setShowAddDevice(true)}
-					className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
+					className="flex items-center gap-2 px-4 py-2 bg-white  hover:bg-gray-600 text-primary rounded-lg transition-colors"
 				>
 					<Plus className="w-4 h-4" />
 					<span>Add Device</span>

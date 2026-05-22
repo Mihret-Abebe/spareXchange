@@ -7,11 +7,13 @@ import { Label } from "../components/ui/label";
 import { Recycle, Eye, EyeOff,Loader } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTheme } from "../contexts/ThemeContext";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
 import { useAuthStore } from "../store/authStore";
 import toast from "react-hot-toast";
 
 const SignUpPage = () => {
+	const { darkMode } = useTheme();
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const [formData, setFormData] = useState({
@@ -66,9 +68,9 @@ const SignUpPage = () => {
 		setFormData((prev) => ({ ...prev, [field]: value }));
 	};
 	return (
-		<section className="min-h-screen flex">
+		<section className={`min-h-screen flex ${darkMode ? 'bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white' : 'bg-white text-gray-900'}`}>
 			{/* Left side - Image */}
-			<section className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+			<section className={`hidden lg:flex lg:w-1/2 relative overflow-hidden ${darkMode ? '' : 'bg-gradient-to-br from-gray-100 via-green-50 to-emerald-50'}`}>
 				<div className="absolute inset-0 bg-gradient-to-br from-green-600/90 to-green-900/90 z-10" />
 				<img
 					src="https://images.unsplash.com/photo-1766650189458-bb0e7969ba5d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhdXRvJTIwcGFydHMlMjBtZWNoYW5pY2FsJTIwd29ya3Nob3B8ZW58MXx8fHwxNzc0MDI1NDUyfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
@@ -182,7 +184,7 @@ const SignUpPage = () => {
 
 			{/* Right side - Form */}
 
-			<section className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 dark:text-white">
+			<section className={`w-full lg:w-1/2 flex items-center justify-center p-8 ${darkMode ? 'bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white' : 'bg-white text-gray-900'}`}>
 				<div className="w-full max-w-md space-y-6">
 					{/* Mobile Logo */}
 					<article className="lg:hidden flex items-center gap-3 justify-center">

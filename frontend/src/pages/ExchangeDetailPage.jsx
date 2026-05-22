@@ -223,7 +223,7 @@ const ExchangeDetailPage = () => {
 
   if (isLoading || !currentExchange) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 flex items-center justify-center">
         <LoadingSpinner />
       </div>
     );
@@ -251,7 +251,7 @@ const ExchangeDetailPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-white py-8">
+    <div className="min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 py-8">
       <div className="container mx-auto px-4 max-w-6xl">
         {/* Header */}
         <motion.div
@@ -261,15 +261,15 @@ const ExchangeDetailPage = () => {
         >
           <button
             onClick={() => navigate("/my-exchanges")}
-            className="flex items-center gap-2 text-gray-400 hover:text-white mb-4 transition"
+            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4 transition"
           >
             <ArrowLeft size={20} />
             Back to Exchanges
           </button>
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-4xl font-bold mb-2">Exchange Details</h1>
-              <p className="text-gray-400">
+              <h1 className="text-4xl font-bold mb-2 text-gray-900 dark:text-white">Exchange Details</h1>
+              <p className="text-gray-600 dark:text-gray-400">
                 {isBuyer ? "You are the buyer" : "You are the seller"}
               </p>
             </div>
@@ -284,17 +284,17 @@ const ExchangeDetailPage = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-gray-800 rounded-xl border border-gray-700 p-6"
+              className="bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6"
             >
-              <h2 className="text-2xl font-bold mb-4">Listing Information</h2>
+              <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Listing Information</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-gray-400 text-sm">Title</p>
-                  <p className="font-semibold">{currentExchange.listingId?.title || "N/A"}</p>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">Title</p>
+                  <p className="font-semibold text-gray-900 dark:text-white">{currentExchange.listingId?.title || "N/A"}</p>
                 </div>
                 <div>
-                  <p className="text-gray-400 text-sm">Price</p>
-                  <p className="font-semibold text-green-400">${currentExchange.listingId?.price || "0"}</p>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">Price</p>
+                  <p className="font-semibold text-green-600 dark:text-green-400">${currentExchange.listingId?.price || "0"}</p>
                 </div>
               </div>
             </motion.div>
@@ -304,18 +304,18 @@ const ExchangeDetailPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-gray-800 rounded-xl border border-gray-700 p-6"
+              className="bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6"
             >
-              <h2 className="text-2xl font-bold mb-4">Offer Details</h2>
+              <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Offer Details</h2>
               <div className="space-y-3">
                 <div>
-                  <p className="text-gray-400 text-sm">Offered Items</p>
-                  <p className="font-semibold">{currentExchange.offeredItems || "No items specified"}</p>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">Offered Items</p>
+                  <p className="font-semibold text-gray-900 dark:text-white">{currentExchange.offeredItems || "No items specified"}</p>
                 </div>
                 {currentExchange.offeredListingId && (
                   <div>
-                    <p className="text-gray-400 text-sm">Offered Listing</p>
-                    <p className="font-semibold text-green-400">
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">Offered Listing</p>
+                    <p className="font-semibold text-green-600 dark:text-green-400">
                       {currentExchange.offeredListingId.title} - ${currentExchange.offeredListingId.price}
                     </p>
                   </div>
@@ -329,22 +329,22 @@ const ExchangeDetailPage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-gray-800 rounded-xl border border-gray-700 p-6"
+                className="bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6"
               >
-                <h2 className="text-2xl font-bold mb-4">Negotiation History</h2>
+                <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Negotiation History</h2>
                 <div className="space-y-4">
                   {currentExchange.counterOffers.map((offer, idx) => (
-                    <div key={idx} className="bg-gray-700 rounded-lg p-4">
+                    <div key={idx} className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
                       <div className="flex justify-between items-start mb-2">
-                        <span className="text-sm text-gray-400">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
                           {offer.proposedBy === user?._id ? "You" : "Other party"} offered:
                         </span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
                           {new Date(offer.createdAt).toLocaleString()}
                         </span>
                       </div>
-                      <p className="font-semibold">{offer.offeredItems}</p>
-                      {offer.note && <p className="text-sm text-gray-400 mt-2">Note: {offer.note}</p>}
+                      <p className="font-semibold text-gray-900 dark:text-white">{offer.offeredItems}</p>
+                      {offer.note && <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Note: {offer.note}</p>}
                     </div>
                   ))}
                 </div>
@@ -356,9 +356,9 @@ const ExchangeDetailPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-gray-800 rounded-xl border border-gray-700 p-6"
+              className="bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6"
             >
-              <h2 className="text-2xl font-bold mb-4">Meeting Details</h2>
+              <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Meeting Details</h2>
               {currentExchange.status === "accepted" && !currentExchange.meetingDetails?.isLocked && canAct && (
                 <div className="mb-4 space-y-3">
                   <input
@@ -366,19 +366,19 @@ const ExchangeDetailPage = () => {
                     placeholder="Meeting location"
                     value={meetingLocation}
                     onChange={(e) => setMeetingLocation(e.target.value)}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                    className="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                   />
                   <input
                     type="datetime-local"
                     value={meetingTime}
                     onChange={(e) => setMeetingTime(e.target.value)}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                    className="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-gray-900 dark:text-white"
                   />
                   <textarea
                     placeholder="Negotiation notes..."
                     value={negotiationNotes}
                     onChange={(e) => setNegotiationNotes(e.target.value)}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                    className="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                     rows="3"
                   />
                   <div className="flex gap-2">
@@ -401,23 +401,23 @@ const ExchangeDetailPage = () => {
               <div className="space-y-2">
                 {currentExchange.meetingDetails?.location && (
                   <p className="flex items-center gap-2">
-                    <MapPin size={16} className="text-green-400" />
-                    <span className="font-semibold">{currentExchange.meetingDetails.location}</span>
+                    <MapPin size={16} className="text-green-600 dark:text-green-400" />
+                    <span className="font-semibold text-gray-900 dark:text-white">{currentExchange.meetingDetails.location}</span>
                     {currentExchange.meetingDetails.isLocked && (
-                      <Lock size={14} className="text-red-400" />
+                      <Lock size={14} className="text-red-600 dark:text-red-400" />
                     )}
                   </p>
                 )}
                 {currentExchange.meetingDetails?.time && (
                   <p className="flex items-center gap-2">
-                    <Calendar size={16} className="text-green-400" />
-                    <span className="font-semibold">
+                    <Calendar size={16} className="text-green-600 dark:text-green-400" />
+                    <span className="font-semibold text-gray-900 dark:text-white">
                       {new Date(currentExchange.meetingDetails.time).toLocaleString()}
                     </span>
                   </p>
                 )}
                 {currentExchange.negotiationNotes && (
-                  <p className="text-gray-400 text-sm">Notes: {currentExchange.negotiationNotes}</p>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">Notes: {currentExchange.negotiationNotes}</p>
                 )}
               </div>
             </motion.div>
@@ -428,10 +428,10 @@ const ExchangeDetailPage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="bg-gray-800 rounded-xl border border-green-700 p-6"
+                className="bg-primary dark:bg-gray-800 rounded-xl border border-green-200 dark:border-green-700 p-6"
               >
-                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                  <QrCode size={24} className="text-green-400" />
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-white">
+                  <QrCode size={24} className="text-green-600 dark:text-green-400" />
                   Digital Handshake
                 </h2>
                 
@@ -448,15 +448,15 @@ const ExchangeDetailPage = () => {
                     
                     {currentExchange.handshakeToken && (
                       <div className="space-y-4">
-                        <div className="bg-gray-900 rounded-lg p-6 text-center">
-                          <p className="text-gray-400 mb-3">Current verification code:</p>
-                          <p className="text-5xl font-bold text-green-400 tracking-widest mb-3">{handshakeToken || currentExchange.handshakeToken}</p>
+                        <div className="bg-gray-100 dark:bg-gray-900 rounded-lg p-6 text-center border border-gray-200 dark:border-gray-700">
+                          <p className="text-gray-600 dark:text-gray-400 mb-3">Current verification code:</p>
+                          <p className="text-5xl font-bold text-green-600 dark:text-green-400 tracking-widest mb-3">{handshakeToken || currentExchange.handshakeToken}</p>
                           <div className="flex justify-center gap-4 text-sm">
-                            <span className="text-gray-500">
+                            <span className="text-gray-600 dark:text-gray-400">
                               Expires: {new Date(currentExchange.handshakeExpiresAt).toLocaleTimeString()}
                             </span>
                             {currentExchange.handshakeRegenerated > 0 && (
-                              <span className="text-blue-400">
+                              <span className="text-blue-600 dark:text-blue-400">
                                 Regenerated: {currentExchange.handshakeRegenerated}x
                               </span>
                             )}
@@ -482,8 +482,8 @@ const ExchangeDetailPage = () => {
                           </button>
                         </div>
                         
-                        <div className="bg-yellow-900/30 border border-yellow-700 rounded-lg p-3">
-                          <p className="text-sm text-yellow-300">
+                        <div className="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 rounded-lg p-3">
+                          <p className="text-sm text-yellow-800 dark:text-yellow-300">
                             <strong>⚠️ Important:</strong> Regenerating will invalidate the previous token. 
                             The buyer will need to use the new code.
                           </p>
@@ -497,7 +497,7 @@ const ExchangeDetailPage = () => {
                   <div className="space-y-3">
                     {currentExchange.handshakeToken ? (
                       <>
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
                           Enter the 6-digit code shown by the seller:
                         </p>
                         <input
@@ -506,7 +506,7 @@ const ExchangeDetailPage = () => {
                           value={handshakeToken}
                           onChange={(e) => setHandshakeToken(e.target.value)}
                           maxLength="6"
-                          className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-2xl text-center tracking-widest"
+                          className="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 text-2xl text-center tracking-widest text-gray-900 dark:text-white placeholder-gray-500"
                         />
                         <button
                           onClick={handleVerifyQR}
@@ -516,8 +516,8 @@ const ExchangeDetailPage = () => {
                         </button>
                       </>
                     ) : (
-                      <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-4 text-center">
-                        <p className="text-blue-300">
+                      <div className="bg-blue-100 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 rounded-lg p-4 text-center">
+                        <p className="text-blue-700 dark:text-blue-300">
                           ⏳ Waiting for seller to generate verification code...
                         </p>
                       </div>
@@ -534,9 +534,9 @@ const ExchangeDetailPage = () => {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="bg-gray-800 rounded-xl border border-gray-700 p-6"
+              className="bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6"
             >
-              <h3 className="text-xl font-bold mb-4">Actions</h3>
+              <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Actions</h3>
               <div className="space-y-3">
                 {currentExchange.status === "pending" && isSeller && (
                   <>
@@ -606,12 +606,12 @@ const ExchangeDetailPage = () => {
               </div>
 
               {/* Cancel Form */}
-              <div id="cancelSection" className="hidden mt-4 pt-4 border-t border-gray-700">
+              <div id="cancelSection" className="hidden mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                 <textarea
                   placeholder="Cancellation reason (required)"
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white mb-2"
+                  className="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 mb-2"
                   rows="3"
                 />
                 <button
@@ -624,12 +624,12 @@ const ExchangeDetailPage = () => {
 
               {/* Counter Offer Form */}
               {showCounterOfferForm && (
-                <div className="mt-4 pt-4 border-t border-gray-700 space-y-3">
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
                   <textarea
                     placeholder="Your offer (e.g., 'Brake Pads + $75')"
                     value={counterOfferText}
                     onChange={(e) => setCounterOfferText(e.target.value)}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                    className="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                     rows="2"
                   />
                   <input
@@ -637,13 +637,13 @@ const ExchangeDetailPage = () => {
                     placeholder="Offered listing ID (optional)"
                     value={counterOfferListing}
                     onChange={(e) => setCounterOfferListing(e.target.value)}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                    className="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                   />
                   <textarea
                     placeholder="Note to buyer (optional)"
                     value={counterOfferNote}
                     onChange={(e) => setCounterOfferNote(e.target.value)}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                    className="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                     rows="2"
                   />
                   <button
@@ -657,12 +657,12 @@ const ExchangeDetailPage = () => {
 
               {/* Dispute Form */}
               {showDisputeForm && (
-                <div className="mt-4 pt-4 border-t border-gray-700">
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                   <textarea
                     placeholder="Reason for dispute..."
                     value={disputeReason}
                     onChange={(e) => setDisputeReason(e.target.value)}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white mb-2"
+                    className="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 mb-2"
                     rows="4"
                   />
                   <button
@@ -680,17 +680,17 @@ const ExchangeDetailPage = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-gray-800 rounded-xl border border-gray-700 p-6"
+              className="bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6"
             >
-              <h3 className="text-xl font-bold mb-4">Participants</h3>
+              <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Participants</h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <User size={20} className="text-green-400" />
+                  <User size={20} className="text-green-600 dark:text-green-400" />
                   <div className="flex-1">
-                    <p className="text-sm text-gray-400">Buyer</p>
-                    <p className="font-semibold">{currentExchange.buyerId?.name || "Unknown"}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Buyer</p>
+                    <p className="font-semibold text-gray-900 dark:text-white">{currentExchange.buyerId?.name || "Unknown"}</p>
                     {currentExchange.buyerId?.trustScore && (
-                      <p className="text-xs text-yellow-400">★ {currentExchange.buyerId.trustScore.toFixed(1)} ({currentExchange.buyerId.totalReviews} reviews)</p>
+                      <p className="text-xs text-yellow-600 dark:text-yellow-400">★ {currentExchange.buyerId.trustScore.toFixed(1)} ({currentExchange.buyerId.totalReviews} reviews)</p>
                     )}
                   </div>
                   {isSeller && currentExchange.buyerId?._id && (
@@ -703,12 +703,12 @@ const ExchangeDetailPage = () => {
                   )}
                 </div>
                 <div className="flex items-center gap-3">
-                  <User size={20} className="text-blue-400" />
+                  <User size={20} className="text-blue-600 dark:text-blue-400" />
                   <div className="flex-1">
-                    <p className="text-sm text-gray-400">Seller</p>
-                    <p className="font-semibold">{currentExchange.sellerId?.name || "Unknown"}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Seller</p>
+                    <p className="font-semibold text-gray-900 dark:text-white">{currentExchange.sellerId?.name || "Unknown"}</p>
                     {currentExchange.sellerId?.trustScore && (
-                      <p className="text-xs text-yellow-400">★ {currentExchange.sellerId.trustScore.toFixed(1)} ({currentExchange.sellerId.totalReviews} reviews)</p>
+                      <p className="text-xs text-yellow-600 dark:text-yellow-400">★ {currentExchange.sellerId.trustScore.toFixed(1)} ({currentExchange.sellerId.totalReviews} reviews)</p>
                     )}
                   </div>
                   {isBuyer && currentExchange.sellerId?._id && (
@@ -723,11 +723,11 @@ const ExchangeDetailPage = () => {
               </div>
 
               {/* View Reviews Button */}
-              <div className="mt-4 pt-4 border-t border-gray-700 space-y-2">
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
                 {currentExchange.buyerId?._id && (
                   <button
                     onClick={() => navigate(`/reviews/${currentExchange.buyerId._id}`)}
-                    className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition text-sm"
+                    className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition text-sm text-gray-900 dark:text-white"
                   >
                     View Buyer's Reviews
                   </button>
@@ -735,7 +735,7 @@ const ExchangeDetailPage = () => {
                 {currentExchange.sellerId?._id && (
                   <button
                     onClick={() => navigate(`/reviews/${currentExchange.sellerId._id}`)}
-                    className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition text-sm"
+                    className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition text-sm text-gray-900 dark:text-white"
                   >
                     View Seller's Reviews
                   </button>
@@ -748,17 +748,17 @@ const ExchangeDetailPage = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-gray-800 rounded-xl border border-gray-700 p-6"
+              className="bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6"
             >
-              <h3 className="text-xl font-bold mb-4">Activity History</h3>
+              <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Activity History</h3>
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {currentExchange.history?.map((entry, idx) => (
                   <div key={idx} className="text-sm border-l-2 border-green-500 pl-3 py-2">
-                    <p className="font-semibold capitalize">{entry.action.replace(/_/g, " ")}</p>
-                    <p className="text-gray-500 text-xs">
+                    <p className="font-semibold capitalize text-gray-900 dark:text-white">{entry.action.replace(/_/g, " ")}</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-xs">
                       {new Date(entry.at).toLocaleString()}
                     </p>
-                    {entry.note && <p className="text-gray-400 text-xs mt-1">{entry.note}</p>}
+                    {entry.note && <p className="text-gray-600 dark:text-gray-400 text-xs mt-1">{entry.note}</p>}
                   </div>
                 ))}
               </div>

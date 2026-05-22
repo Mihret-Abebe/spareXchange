@@ -4,9 +4,11 @@ import { User, Mail, MapPin, Edit3, Star, Package, CreditCard, Settings, LogOut,
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { useCommunityStore } from "../store/communityStore";
+import { useTheme } from "../contexts/ThemeContext";
 import PointsRedemptionModal from "../components/PointsRedemptionModal";
 
 const ProfilePage = () => {
+	const { darkMode } = useTheme();
 	const navigate = useNavigate();
 	const { user, logout, requestVerificationWithFiles } = useAuthStore();
 	const { userAchievements, getUserAchievements } = useCommunityStore();
@@ -144,7 +146,7 @@ const ProfilePage = () => {
 	];
 
 	return (
-		<div className='min-h-screen dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white'>
+		<div className={`min-h-screen ${darkMode ? 'bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white' : 'bg-white text-gray-900'}`}>
 			<div className='container mx-auto px-4 py-8'>
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
@@ -152,7 +154,7 @@ const ProfilePage = () => {
 					transition={{ duration: 0.5 }}
 				>
 					{/* Profile Header */}
-					<div className='bg-primary text-white dark:bg-gray-800 rounded-xl p-6 mb-8 border border-gray-700'>
+					<div className='bg-primary dark:bg-gray-800 rounded-xl p-6 mb-8 border border-gray-200 dark:border-gray-700'>
 						<div className='flex flex-col md:flex-row items-center md:items-start'>
 							<div className='w-24 h-24 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center mb-4 md:mb-0 md:mr-6'>
 								<span className='text-3xl font-bold text-white'>{user.name.charAt(0)}</span>
@@ -168,48 +170,48 @@ const ProfilePage = () => {
 									)}
 								</h1>
 								<div className='flex flex-wrap justify-center md:justify-start gap-4 mb-4'>
-									<div className='flex items-center text-gray-300'>
+									<div className='flex items-center text-gray-700 dark:text-gray-300'>
 										<Mail size={16} className='mr-2' />
 										<span>{user.email}</span>
 									</div>
-									<div className='flex items-center text-gray-300'>
+									<div className='flex items-center text-gray-700 dark:text-gray-300'>
 										<MapPin size={16} className='mr-2' />
 										<span>{user.location || "Location not set"}</span>
 									</div>
 									<div className='flex items-center'>
 										{isAdmin ? (
-											<span className='flex items-center text-red-400 text-sm bg-red-900 bg-opacity-30 px-2 py-1 rounded-full'>
+											<span className='flex items-center text-red-600 dark:text-red-400 text-sm bg-red-100 dark:bg-red-900 dark:bg-opacity-30 px-2 py-1 rounded-full'>
 												<ShieldCheck size={14} className='mr-1' /> Administrator
 											</span>
 										) : user.roleStatus === "none" && (
-											<span className='flex items-center text-yellow-500 text-sm bg-yellow-900 bg-opacity-30 px-2 py-1 rounded-full'>
+											<span className='flex items-center text-yellow-600 dark:text-yellow-500 text-sm bg-yellow-100 dark:bg-yellow-900 dark:bg-opacity-30 px-2 py-1 rounded-full'>
 												<AlertCircle size={14} className='mr-1' /> Unverified
 											</span>
 										)}
 										{!isAdmin && user.roleStatus === "rejected" && (
-											<span className='flex items-center text-red-500 text-sm bg-red-900 bg-opacity-30 px-2 py-1 rounded-full'>
+											<span className='flex items-center text-red-600 dark:text-red-500 text-sm bg-red-100 dark:bg-red-900 dark:bg-opacity-30 px-2 py-1 rounded-full'>
 												<AlertCircle size={14} className='mr-1' /> Verification Declined
 											</span>
 										)}
 										{/* Admin Feedback Note */}
 										{!isAdmin && user.roleStatus === "rejected" && user.verificationNote && (
-											<div className='w-full mt-2 p-3 bg-red-900/30 border border-red-700 rounded-lg'>
+											<div className='w-full mt-2 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg'>
 												<div className='flex items-start gap-2'>
-													<AlertCircle size={16} className='text-red-400 mt-0.5 flex-shrink-0' />
+													<AlertCircle size={16} className='text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0' />
 													<div>
-														<p className='text-xs font-semibold text-red-400 mb-1'>Admin Feedback:</p>
-														<p className='text-sm text-red-300'>{user.verificationNote}</p>
+														<p className='text-xs font-semibold text-red-600 dark:text-red-400 mb-1'>Admin Feedback:</p>
+														<p className='text-sm text-red-700 dark:text-red-300'>{user.verificationNote}</p>
 													</div>
 												</div>
 											</div>
 										)}
 										{!isAdmin && user.roleStatus === "pending" && (
-											<span className='flex items-center text-blue-400 text-sm bg-blue-900 bg-opacity-30 px-2 py-1 rounded-full'>
+											<span className='flex items-center text-blue-600 dark:text-blue-400 text-sm bg-blue-100 dark:bg-blue-900 dark:bg-opacity-30 px-2 py-1 rounded-full'>
 												<Clock size={14} className='mr-1' /> Verification Pending
 											</span>
 										)}
 										{!isAdmin && user.roleStatus === "verified" && (
-											<span className='flex items-center text-green-400 text-sm bg-green-900 bg-opacity-30 px-2 py-1 rounded-full'>
+											<span className='flex items-center text-green-600 dark:text-green-400 text-sm bg-green-100 dark:bg-green-900 dark:bg-opacity-30 px-2 py-1 rounded-full'>
 												<CheckCircle size={14} className='mr-1' /> Verified {user.userType}
 											</span>
 										)}
@@ -219,35 +221,35 @@ const ProfilePage = () => {
 									{!isAdmin && (
 										<>
 											<div className='text-center'>
-												<div className='text-2xl font-bold text-white'>{user.ecoPoints}</div>
-												<div className='text-sm text-white'>Eco Points</div>
+												<div className='text-2xl font-bold text-green-600 dark:text-white'>{user.ecoPoints}</div>
+												<div className='text-sm text-gray-700 dark:text-gray-300'>Eco Points</div>
 											</div>
 											<div className='text-center'>
-												<div className='text-2xl font-bold'>{user.listings}</div>
-												<div className='text-sm text-white'>Listings</div>
+												<div className='text-2xl font-bold text-gray-900 dark:text-white'>{user.listings}</div>
+												<div className='text-sm text-gray-700 dark:text-gray-300'>Listings</div>
 											</div>
 											<div className='text-center'>
 												<div className='flex items-center justify-center'>
-													<Star size={16} className='text-yellow-400 fill-current mr-1' />
-													<span className='text-2xl font-bold'>{user.rating}</span>
+													<Star size={16} className='text-yellow-600 dark:text-yellow-400 fill-current mr-1' />
+													<span className='text-2xl font-bold text-gray-900 dark:text-white'>{user.rating}</span>
 												</div>
-												<div className='text-sm text-white'>{user.reviews} Reviews</div>
+												<div className='text-sm text-gray-700 dark:text-gray-300'>{user.reviews} Reviews</div>
 											</div>
 										</>
 									)}
 									{isAdmin && (
 										<div className='text-center'>
-											<div className='text-2xl font-bold text-red-400'>Admin</div>
-											<div className='text-sm text-white'>Platform Administrator</div>
+											<div className='text-2xl font-bold text-red-600 dark:text-red-400'>Admin</div>
+											<div className='text-sm text-gray-700 dark:text-gray-300'>Platform Administrator</div>
 										</div>
 									)}
 								</div>
-								<div className='text-sm text-white'>
+								<div className='text-sm text-gray-700 dark:text-gray-300'>
 									Member since {user.memberSince}
 								</div>
 							</div>
 							<div className='mt-4 md:mt-0'>
-								<button onClick={handleEditProfile} className='flex items-center px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition duration-300'>
+								<button onClick={handleEditProfile} className='flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition duration-300'>
 									<Edit3 size={16} className='mr-2' />
 									Edit Profile
 								</button>

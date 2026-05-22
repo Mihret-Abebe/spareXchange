@@ -95,7 +95,7 @@ const EditProfilePage = () => {
 	if (!user) return null;
 
 	return (
-		<div className="min-h-screen bg-background text-gray-700 dark:bg-gray-800 dark:text-background py-8 px-4">
+		<div className="min-h-screen bg-white dark:bg-gray-800 py-8 px-4">
 			<div className="max-w-2xl mx-auto">
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
@@ -106,16 +106,16 @@ const EditProfilePage = () => {
 					<div className="flex items-center mb-8">
 						<button
 							onClick={() => navigate("/profile")}
-							className="flex items-center text-gray-300 hover:text-primary transition-colors mr-4"
+							className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors mr-4"
 						>
 							<ArrowLeft className="w-5 h-5 mr-2" />
 							Back to Profile
 						</button>
-						<h1 className="text-3xl font-bold">Edit Profile</h1>
+						<h1 className="text-3xl font-bold text-gray-900 dark:text-white">Edit Profile</h1>
 					</div>
 
 					{/* Form Card */}
-					<div className="bg-primary dark:bg-gray-800 rounded-xl p-8 border border-gray-700">
+					<div className="bg-primary dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700">
 						<form onSubmit={handleSubmit} className="space-y-6">
 							{/* Profile Picture Upload */}
 							<div className="flex flex-col items-center mb-8">
@@ -157,11 +157,11 @@ const EditProfilePage = () => {
 										</button>
 									)}
 								</div>
-								<p className="text-sm text-gray-400 mt-2">
+								<p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
 									{profilePictureFile ? profilePictureFile.name : "Click to upload profile picture"}
 								</p>
 								{profilePictureFile && (
-									<p className="text-xs text-gray-500">
+									<p className="text-xs text-gray-500 dark:text-gray-400">
 										{(profilePictureFile.size / 1024).toFixed(1)} KB
 									</p>
 								)}
@@ -169,7 +169,7 @@ const EditProfilePage = () => {
 
 							{/* Name */}
 							<div className="space-y-2">
-								<Label htmlFor="name" className="flex items-center text-gray-300">
+								<Label htmlFor="name" className="flex items-center text-gray-900 dark:text-gray-300">
 									<User className="w-4 h-4 mr-2" />
 									Full Name
 								</Label>
@@ -181,13 +181,13 @@ const EditProfilePage = () => {
 									onChange={handleChange}
 									placeholder="John Doe"
 									required
-									className="bg-gray-700 border-gray-600 text-white focus:border-green-500 focus:ring-green-500"
+									className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-green-500 focus:ring-green-500"
 								/>
 							</div>
 
 							{/* Email (Read-only) */}
 							<div className="space-y-2">
-								<Label htmlFor="email" className="flex items-center text-gray-300">
+								<Label htmlFor="email" className="flex items-center text-gray-900 dark:text-gray-300">
 									<Mail className="w-4 h-4 mr-2" />
 									Email Address
 								</Label>
@@ -196,14 +196,14 @@ const EditProfilePage = () => {
 									type="email"
 									value={formData.email}
 									disabled
-									className="bg-gray-700 border-gray-600 text-gray-400 cursor-not-allowed"
+									className="bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed"
 								/>
-								<p className="text-xs text-red-300 ml-2">Email cannot be changed</p>
+								<p className="text-xs text-red-600 dark:text-red-300 ml-2">Email cannot be changed</p>
 							</div>
 
 							{/* Phone */}
 							<div className="space-y-2">
-								<Label htmlFor="phone" className="flex items-center text-gray-300">
+								<Label htmlFor="phone" className="flex items-center text-gray-900 dark:text-gray-300">
 									<Phone className="w-4 h-4 mr-2" />
 									Phone Number
 								</Label>
@@ -214,13 +214,13 @@ const EditProfilePage = () => {
 									value={formData.phone}
 									onChange={handleChange}
 									placeholder="+251 911 223 344"
-									className="bg-gray-700 border-gray-600 text-white focus:border-green-500 focus:ring-green-500"
+									className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-green-500 focus:ring-green-500"
 								/>
 							</div>
 
 							{/* Location */}
 							<div className="space-y-2">
-								<Label htmlFor="location" className="flex items-center text-gray-300">
+								<Label htmlFor="location" className="flex items-center text-gray-900 dark:text-gray-300">
 									<MapPin className="w-4 h-4 mr-2" />
 									Location
 								</Label>
@@ -231,7 +231,7 @@ const EditProfilePage = () => {
 									value={formData.location}
 									onChange={handleChange}
 									placeholder="Addis Ababa, Ethiopia"
-									className="bg-gray-700 border-gray-600 text-white focus:border-green-500 focus:ring-green-500"
+									className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-green-500 focus:ring-green-500"
 								/>
 							</div>
 
@@ -241,14 +241,14 @@ const EditProfilePage = () => {
 									type="button"
 									variant="outline"
 									onClick={() => navigate("/profile")}
-									className="flex-1 bg-gray-700 border-gray-600 text-white hover:bg-gray-600"
+									className="flex-1 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600"
 									disabled={isUpdating}
 								>
 									Cancel
 								</Button>
 								<Button
 									type="submit"
-									className="flex-1 bg-green-600 hover:bg-green-700 dark:bg-background dark:text-primary dark:hover:bg-accent text-white"
+									className="flex-1 bg-green-600 hover:bg-green-700 text-white"
 									disabled={isUpdating}
 								>
 									{isUpdating ? (

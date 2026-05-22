@@ -248,6 +248,7 @@ export const useNotificationStore = create((set, get) => ({
 		try {
 			const res = await axios.post(`${API_URL}/webhooks`, webhookData);
 			await get().getWebhooks();
+			await get().getWebhookStats(); // Refresh stats immediately
 			return res.data;
 		} catch (error) {
 			console.error("Failed to create webhook:", error);
@@ -259,6 +260,7 @@ export const useNotificationStore = create((set, get) => ({
 		try {
 			const res = await axios.put(`${API_URL}/webhooks/${id}`, webhookData);
 			await get().getWebhooks();
+			await get().getWebhookStats(); // Refresh stats immediately
 			return res.data;
 		} catch (error) {
 			console.error("Failed to update webhook:", error);
@@ -270,6 +272,7 @@ export const useNotificationStore = create((set, get) => ({
 		try {
 			await axios.delete(`${API_URL}/webhooks/${id}`);
 			await get().getWebhooks();
+			await get().getWebhookStats(); // Refresh stats immediately
 		} catch (error) {
 			console.error("Failed to delete webhook:", error);
 			throw error;

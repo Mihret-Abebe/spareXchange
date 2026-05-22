@@ -109,7 +109,7 @@ const RequestDetailPage = () => {
 
 	if (!currentRequest) {
 		return (
-			<div className='min-h-screen bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 flex items-center justify-center'>
+			<div className='min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 text-gray-900 dark:text-white flex items-center justify-center'>
 				<div className='animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-cyan-500'></div>
 			</div>
 		);
@@ -124,7 +124,7 @@ const RequestDetailPage = () => {
 			initial={{ opacity: 0 }}
 			animate={{ opacity: 1 }}
 			transition={{ duration: 0.5 }}
-			className='min-h-screen bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 py-8 px-4'
+			className='min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 text-gray-900 dark:text-white py-8 px-4'
 		>
 			<div className='max-w-5xl mx-auto'>
 				{/* Back Button */}
@@ -137,53 +137,53 @@ const RequestDetailPage = () => {
 				</button>
 
 				{/* Header */}
-				<div className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl p-8 border border-gray-700 mb-6'>
+				<div className='bg-primary dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700 mb-6'>
 					<div className='flex items-start justify-between mb-4'>
 						<div>
 							<div className='flex items-center gap-3 mb-2'>
-								<h1 className='text-4xl font-bold text-white capitalize'>{currentRequest.serviceType}</h1>
+								<h1 className='text-4xl font-bold text-gray-900 dark:text-white capitalize'>{currentRequest.serviceType}</h1>
 								<span className={`px-4 py-2 ${STATUS_COLORS[currentRequest.status]} text-white text-sm rounded-full capitalize`}>
 									{currentRequest.status}
 								</span>
 							</div>
-							<p className='text-gray-300 text-lg'>{currentRequest.description}</p>
+							<p className='text-gray-600 dark:text-gray-400 text-lg'>{currentRequest.description}</p>
 						</div>
 					</div>
 
 					<div className='grid grid-cols-2 md:grid-cols-4 gap-4 mt-6'>
-						<div className='flex items-center gap-2 text-gray-300'>
-							<MapPin size={18} className='text-cyan-400' />
+						<div className='flex items-center gap-2 text-gray-700 dark:text-gray-300'>
+							<MapPin size={18} className='text-cyan-600 dark:text-cyan-400' />
 							<span>{currentRequest.location}</span>
 						</div>
-						<div className='flex items-center gap-2 text-gray-300'>
-							<Clock size={18} className='text-cyan-400' />
+						<div className='flex items-center gap-2 text-gray-700 dark:text-gray-300'>
+							<Clock size={18} className='text-cyan-600 dark:text-cyan-400' />
 							<span className='capitalize'>{currentRequest.priority} priority</span>
 						</div>
 						{currentRequest.budgetMin && currentRequest.budgetMax && (
-							<div className='flex items-center gap-2 text-green-400'>
+							<div className='flex items-center gap-2 text-green-600 dark:text-green-400'>
 								<DollarSign size={18} />
 								<span>${currentRequest.budgetMin} - ${currentRequest.budgetMax}</span>
 							</div>
 						)}
-						<div className='flex items-center gap-2 text-gray-300'>
-							<Clock size={18} className='text-cyan-400' />
+						<div className='flex items-center gap-2 text-gray-700 dark:text-gray-300'>
+							<Clock size={18} className='text-cyan-600 dark:text-cyan-400' />
 							<span>{formatDate(currentRequest.createdAt)}</span>
 						</div>
 					</div>
 
 					{currentRequest.contactInfo && (currentRequest.contactInfo.phone || currentRequest.contactInfo.email) && (
-						<div className='mt-6 pt-6 border-t border-gray-700'>
-							<h3 className='text-white font-semibold mb-3'>Contact Information</h3>
+						<div className='mt-6 pt-6 border-t border-gray-200 dark:border-gray-700'>
+							<h3 className='text-gray-900 dark:text-white font-semibold mb-3'>Contact Information</h3>
 							<div className='flex gap-4'>
 								{currentRequest.contactInfo.phone && (
-									<div className='flex items-center gap-2 text-gray-300'>
-										<Phone size={18} className='text-cyan-400' />
+									<div className='flex items-center gap-2 text-gray-700 dark:text-gray-300'>
+										<Phone size={18} className='text-cyan-600 dark:text-cyan-400' />
 										<span>{currentRequest.contactInfo.phone}</span>
 									</div>
 								)}
 								{currentRequest.contactInfo.email && (
-									<div className='flex items-center gap-2 text-gray-300'>
-										<Mail size={18} className='text-cyan-400' />
+									<div className='flex items-center gap-2 text-gray-700 dark:text-gray-300'>
+										<Mail size={18} className='text-cyan-600 dark:text-cyan-400' />
 										<span>{currentRequest.contactInfo.email}</span>
 									</div>
 								)}
@@ -194,9 +194,9 @@ const RequestDetailPage = () => {
 
 				{/* Assigned Technician Info */}
 				{currentRequest.assignedTechnician && (
-					<div className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl p-8 border border-gray-700 mb-6'>
-						<h2 className='text-2xl font-bold text-white mb-4 flex items-center gap-2'>
-							<User className='text-cyan-400' size={24} />
+					<div className='bg-primary dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700 mb-6'>
+						<h2 className='text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2'>
+							<User className='text-cyan-600 dark:text-cyan-400' size={24} />
 							Assigned Technician
 						</h2>
 						<div className='flex items-center gap-4'>
@@ -204,7 +204,7 @@ const RequestDetailPage = () => {
 								<img
 									src={currentRequest.assignedTechnician.profilePicture}
 									alt={currentRequest.assignedTechnician.name}
-									className='w-16 h-16 rounded-full object-cover border-2 border-cyan-400'
+									className='w-16 h-16 rounded-full object-cover border-2 border-cyan-600 dark:border-cyan-400'
 								/>
 							) : (
 								<div className='w-16 h-16 rounded-full bg-cyan-600 flex items-center justify-center text-white text-2xl font-bold'>
@@ -212,12 +212,12 @@ const RequestDetailPage = () => {
 								</div>
 							)}
 							<div className='flex-1'>
-								<h3 className='text-xl font-semibold text-white'>{currentRequest.assignedTechnician.name}</h3>
-								<p className='text-gray-300'>{currentRequest.assignedTechnician.expertise}</p>
+								<h3 className='text-xl font-semibold text-gray-900 dark:text-white'>{currentRequest.assignedTechnician.name}</h3>
+								<p className='text-gray-600 dark:text-gray-400'>{currentRequest.assignedTechnician.expertise}</p>
 								<div className='flex items-center gap-4 mt-2'>
-									<span className='text-blue-400'>Trust Score: {currentRequest.assignedTechnician.trustScore}%</span>
+									<span className='text-blue-600 dark:text-blue-400'>Trust Score: {currentRequest.assignedTechnician.trustScore}%</span>
 									{currentRequest.assignedTechnician.phone && (
-										<span className='text-gray-300 flex items-center gap-1'>
+										<span className='text-gray-700 dark:text-gray-300 flex items-center gap-1'>
 											<Phone size={14} /> {currentRequest.assignedTechnician.phone}
 										</span>
 									)}
@@ -229,14 +229,14 @@ const RequestDetailPage = () => {
 
 				{/* Quotes Section */}
 				{currentRequest.quotes && currentRequest.quotes.length > 0 && (
-					<div className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl p-8 border border-gray-700 mb-6'>
-						<h2 className='text-2xl font-bold text-white mb-6 flex items-center gap-2'>
-							<MessageSquare className='text-cyan-400' size={24} />
+					<div className='bg-primary dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700 mb-6'>
+						<h2 className='text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2'>
+							<MessageSquare className='text-cyan-600 dark:text-cyan-400' size={24} />
 							Quotes ({currentRequest.quotes.length})
 						</h2>
 						<div className='space-y-4'>
 							{currentRequest.quotes.map((quote, index) => (
-								<div key={quote._id || index} className='bg-gray-700 bg-opacity-50 rounded-lg p-6 border border-gray-600'>
+								<div key={quote._id || index} className='bg-gray-100 dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600'>
 									<div className='flex items-start justify-between'>
 										<div className='flex-1'>
 											<div className='flex items-center gap-3 mb-2'>
@@ -244,7 +244,7 @@ const RequestDetailPage = () => {
 													<img
 														src={quote.technicianId.profilePicture}
 														alt={quote.technicianId.name}
-														className='w-12 h-12 rounded-full object-cover border-2 border-cyan-400'
+														className='w-12 h-12 rounded-full object-cover border-2 border-cyan-600 dark:border-cyan-400'
 													/>
 												) : (
 													<div className='w-12 h-12 rounded-full bg-cyan-600 flex items-center justify-center text-white text-xl font-bold'>
@@ -252,18 +252,18 @@ const RequestDetailPage = () => {
 													</div>
 												)}
 												<div>
-													<h3 className='text-lg font-semibold text-white'>{quote.technicianId?.name || 'Unknown Technician'}</h3>
-													<p className='text-gray-400 text-sm'>{quote.technicianId?.expertise}</p>
+													<h3 className='text-lg font-semibold text-gray-900 dark:text-white'>{quote.technicianId?.name || 'Unknown Technician'}</h3>
+													<p className='text-gray-600 dark:text-gray-400 text-sm'>{quote.technicianId?.expertise}</p>
 												</div>
 											</div>
 											<div className='mt-3'>
-												<p className='text-3xl font-bold text-green-400 mb-2'>
+												<p className='text-3xl font-bold text-green-600 dark:text-green-400 mb-2'>
 													<DollarSign size={28} className='inline' />{quote.estimatedCost}
 												</p>
 												{quote.additionalNotes && (
-													<p className='text-gray-300'>{quote.additionalNotes}</p>
+													<p className='text-gray-700 dark:text-gray-300'>{quote.additionalNotes}</p>
 												)}
-												<p className='text-gray-500 text-sm mt-2'>
+												<p className='text-gray-500 dark:text-gray-500 text-sm mt-2'>
 													Submitted {formatDate(quote.createdAt)}
 												</p>
 											</div>
@@ -286,7 +286,7 @@ const RequestDetailPage = () => {
 
 				{/* Submit Quote Form (For Technicians) */}
 				{isTechnician && !isOwner && (currentRequest.status === 'pending' || currentRequest.status === 'quoted') && (
-					<div className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl p-8 border border-gray-700 mb-6'>
+					<div className='bg-primary dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700 mb-6'>
 						<button
 							onClick={() => setShowQuoteForm(!showQuoteForm)}
 							className='w-full py-4 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-lg hover:from-cyan-600 hover:to-blue-700 transition duration-200'
@@ -297,23 +297,23 @@ const RequestDetailPage = () => {
 						{showQuoteForm && (
 							<form onSubmit={handleSubmitQuote} className='mt-6 space-y-4'>
 								<div>
-									<label className='block text-white font-semibold mb-2'>Estimated Cost ($)</label>
+									<label className='block text-gray-700 dark:text-gray-300 font-semibold mb-2'>Estimated Cost ($)</label>
 									<input
 										type='number'
 										value={quoteForm.estimatedCost}
 										onChange={(e) => setQuoteForm(prev => ({ ...prev, estimatedCost: e.target.value }))}
 										required
-										className='w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500'
+										className='w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500'
 									/>
 								</div>
 								<div>
-									<label className='block text-white font-semibold mb-2'>Additional Notes</label>
+									<label className='block text-gray-700 dark:text-gray-300 font-semibold mb-2'>Additional Notes</label>
 									<textarea
 										value={quoteForm.additionalNotes}
 										onChange={(e) => setQuoteForm(prev => ({ ...prev, additionalNotes: e.target.value }))}
 										rows={4}
 										placeholder='Describe your approach, timeline, etc.'
-										className='w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500'
+										className='w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500'
 									/>
 								</div>
 								<button
@@ -330,12 +330,12 @@ const RequestDetailPage = () => {
 
 				{/* Handshake Completion Section */}
 				{isAssignedTechnician && (currentRequest.status === 'accepted' || currentRequest.status === 'started') && (
-					<div className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl p-8 border border-gray-700 mb-6'>
-						<h2 className='text-2xl font-bold text-white mb-4 flex items-center gap-2'>
-							<Shield className='text-cyan-400' size={24} />
+					<div className='bg-primary dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700 mb-6'>
+						<h2 className='text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2'>
+							<Shield className='text-cyan-600 dark:text-cyan-400' size={24} />
 							Complete the Job
 						</h2>
-						<p className='text-gray-300 mb-4'>
+						<p className='text-gray-600 dark:text-gray-400 mb-4'>
 							When you're finished with the work, generate a 6-digit verification token and share it with the customer.
 						</p>
 						<button
@@ -349,12 +349,12 @@ const RequestDetailPage = () => {
 				)}
 
 				{isOwner && currentRequest.status === 'started' && (
-					<div className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl p-8 border border-gray-700 mb-6'>
-						<h2 className='text-2xl font-bold text-white mb-4 flex items-center gap-2'>
-							<Shield className='text-cyan-400' size={24} />
+					<div className='bg-primary dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700 mb-6'>
+						<h2 className='text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2'>
+							<Shield className='text-cyan-600 dark:text-cyan-400' size={24} />
 							Verify Completion
 						</h2>
-						<p className='text-gray-300 mb-4'>
+						<p className='text-gray-600 dark:text-gray-400 mb-4'>
 							Enter the 6-digit token provided by the technician to verify and complete the service.
 						</p>
 						<form onSubmit={handleCompleteRequest} className='space-y-4'>
@@ -366,7 +366,7 @@ const RequestDetailPage = () => {
 								maxLength={6}
 								pattern='\d{6}'
 								required
-								className='w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-center text-2xl font-mono tracking-widest'
+								className='w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-center text-2xl font-mono tracking-widest'
 							/>
 							<button
 								type='submit'
@@ -385,13 +385,13 @@ const RequestDetailPage = () => {
 						<motion.div
 							initial={{ opacity: 0, scale: 0.9 }}
 							animate={{ opacity: 1, scale: 1 }}
-							className='bg-gray-800 rounded-xl p-8 max-w-md w-full border border-gray-700 text-center'
+							className='bg-white dark:bg-gray-800 rounded-xl p-8 max-w-md w-full border border-gray-200 dark:border-gray-700 text-center'
 						>
-							<Shield size={48} className='mx-auto text-cyan-400 mb-4' />
-							<h3 className='text-2xl font-bold text-white mb-2'>Your Verification Token</h3>
-							<p className='text-gray-300 mb-4'>Share this 6-digit code with the customer to complete the service</p>
-							<div className='bg-gray-900 rounded-lg p-6 mb-6'>
-								<p className='text-5xl font-bold text-cyan-400 font-mono tracking-widest'>{generatedToken}</p>
+							<Shield size={48} className='mx-auto text-cyan-600 dark:text-cyan-400 mb-4' />
+							<h3 className='text-2xl font-bold text-gray-900 dark:text-white mb-2'>Your Verification Token</h3>
+							<p className='text-gray-600 dark:text-gray-400 mb-4'>Share this 6-digit code with the customer to complete the service</p>
+							<div className='bg-gray-100 dark:bg-gray-900 rounded-lg p-6 mb-6'>
+								<p className='text-5xl font-bold text-cyan-600 dark:text-cyan-400 font-mono tracking-widest'>{generatedToken}</p>
 							</div>
 							<button
 								onClick={() => setShowTokenModal(false)}

@@ -126,18 +126,18 @@ const SavedSearchesPage = () => {
 			initial={{ opacity: 0 }}
 			animate={{ opacity: 1 }}
 			transition={{ duration: 0.5 }}
-			className='min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 py-8 px-4'
+			className='min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-gray-900 dark:text-white py-8 px-4'
 		>
 			<div className='max-w-7xl mx-auto'>
 				{/* Header */}
 				<div className='mb-8'>
 					<div className='flex flex-col md:flex-row md:items-center md:justify-between gap-4'>
 						<div>
-							<h1 className='text-4xl font-bold text-white mb-2 flex items-center gap-3'>
-								<Search className='text-green-400' size={40} />
+							<h1 className='text-4xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-3'>
+								<Search className='text-green-600 dark:text-green-400' size={40} />
 								Saved Searches
 							</h1>
-							<p className='text-gray-400'>
+							<p className='text-gray-600 dark:text-gray-400'>
 								Manage your saved searches and get notified when new listings match
 							</p>
 						</div>
@@ -156,11 +156,11 @@ const SavedSearchesPage = () => {
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
-						className='bg-gray-800 border border-gray-700 rounded-2xl p-12 text-center'
+						className='bg-primary dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-12 text-center'
 					>
-						<Search size={64} className='text-gray-600 mx-auto mb-4' />
-						<h3 className='text-2xl font-bold text-white mb-2'>No Saved Searches Yet</h3>
-						<p className='text-gray-400 mb-6'>
+						<Search size={64} className='text-gray-400 dark:text-gray-600 mx-auto mb-4' />
+						<h3 className='text-2xl font-bold text-gray-900 dark:text-white mb-2'>No Saved Searches Yet</h3>
+						<p className='text-gray-600 dark:text-gray-400 mb-6'>
 							Save your search criteria from the marketplace to get notified when new listings match
 						</p>
 						<button
@@ -179,13 +179,13 @@ const SavedSearchesPage = () => {
 								initial={{ opacity: 0, y: 20 }}
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ delay: index * 0.05 }}
-								className='bg-gray-800 border border-gray-700 rounded-xl p-6 hover:border-green-500 transition-colors'
+								className='bg-primary dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:border-green-500 transition-colors'
 							>
 								<div className='flex flex-col lg:flex-row lg:items-start justify-between gap-4'>
 									{/* Search Info */}
 									<div className='flex-1'>
 										<div className='flex items-center gap-3 mb-3'>
-											<h3 className='text-xl font-bold text-white'>
+											<h3 className='text-xl font-bold text-gray-900 dark:text-white'>
 												{search.name || "Untitled Search"}
 											</h3>
 											<button
@@ -193,22 +193,22 @@ const SavedSearchesPage = () => {
 												className={`p-2 rounded-lg transition-colors ${
 													search.notify
 														? "bg-green-600 hover:bg-green-700"
-														: "bg-gray-700 hover:bg-gray-600"
+														: "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
 												}`}
 												title={search.notify ? "Disable notifications" : "Enable notifications"}
 											>
 												{search.notify ? (
 													<Bell size={18} className='text-white' />
 												) : (
-													<BellOff size={18} className='text-gray-400' />
+													<BellOff size={18} className='text-gray-600 dark:text-gray-400' />
 												)}
 											</button>
 										</div>
 
 										{/* Query */}
 										{search.query && (
-											<p className='text-gray-300 mb-2 flex items-center gap-2'>
-												<Search size={16} className='text-green-400' />
+											<p className='text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2'>
+												<Search size={16} className='text-green-600 dark:text-green-400' />
 												<span className='font-medium'>Query:</span> {search.query}
 											</p>
 										)}
@@ -218,7 +218,7 @@ const SavedSearchesPage = () => {
 											{formatFilters(search).map((filter, idx) => (
 												<span
 													key={idx}
-													className='px-3 py-1 bg-gray-700 text-gray-300 rounded-full text-sm flex items-center gap-1'
+													className='px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm flex items-center gap-1'
 												>
 													<Filter size={12} />
 													{filter}
@@ -228,8 +228,8 @@ const SavedSearchesPage = () => {
 
 										{/* Geo Info */}
 										{search.geo?.latitude && search.geo?.longitude && (
-											<p className='text-gray-400 text-sm flex items-center gap-2'>
-												<MapPin size={14} className='text-green-400' />
+											<p className='text-gray-600 dark:text-gray-400 text-sm flex items-center gap-2'>
+												<MapPin size={14} className='text-green-600 dark:text-green-400' />
 												Location: {search.geo.latitude.toFixed(4)}, {search.geo.longitude.toFixed(4)} 
 												({search.geo.radiusKm}km radius)
 											</p>

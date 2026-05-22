@@ -220,7 +220,7 @@ const WebhookManagementPage = () => {
 								resetForm();
 								setShowCreateModal(true);
 							}}
-							className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
+							className="flex items-center gap-2 px-4 py-2 ml-2 bg-primary dark:bg-gray-800 hover:bg-gray-600 text-white rounded-lg transition-colors"
 						>
 							<Plus className="w-4 h-4" />
 							<span>Create Webhook</span>
@@ -228,26 +228,24 @@ const WebhookManagementPage = () => {
 					</div>
 
 					{/* Stats Cards */}
-					{webhookStats && (
-						<div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-							<div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-								<p className="text-sm text-gray-600 dark:text-gray-400">Total Webhooks</p>
-								<p className="text-2xl font-bold">{webhookStats.totalWebhooks}</p>
-							</div>
-							<div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-								<p className="text-sm text-gray-600 dark:text-gray-400">Active</p>
-								<p className="text-2xl font-bold text-green-600">{webhookStats.activeWebhooks}</p>
-							</div>
-							<div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-								<p className="text-sm text-gray-600 dark:text-gray-400">Total Deliveries</p>
-								<p className="text-2xl font-bold">{webhookStats.totalDeliveries}</p>
-							</div>
-							<div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-								<p className="text-sm text-gray-600 dark:text-gray-400">Success Rate</p>
-								<p className="text-2xl font-bold text-green-600">{webhookStats.successRate}</p>
-							</div>
+					<div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+						<div className="bg-primary dark:bg-gray-800 rounded-lg shadow p-4">
+							<p className="text-sm text-gray-600 dark:text-gray-400">Total Webhooks</p>
+							<p className="text-2xl font-bold">{webhookStats?.totalWebhooks || webhooks.length}</p>
 						</div>
-					)}
+						<div className="bg-primary dark:bg-gray-800 rounded-lg shadow p-4">
+							<p className="text-sm text-gray-600 dark:text-gray-400">Active</p>
+							<p className="text-2xl font-bold text-white dark:text-green-400">{webhookStats?.activeWebhooks || webhooks.filter(w => w.isActive).length}</p>
+						</div>
+						<div className="bg-primary dark:bg-gray-800 rounded-lg shadow p-4">
+							<p className="text-sm text-gray-600 dark:text-gray-400">Total Deliveries</p>
+							<p className="text-2xl font-bold">{webhookStats?.totalDeliveries || webhooks.reduce((sum, w) => sum + (w.totalDeliveries || 0), 0)}</p>
+						</div>
+						<div className="bg-primary dark:bg-gray-800 rounded-lg shadow p-4">
+							<p className="text-sm text-gray-600 dark:text-gray-400">Success Rate</p>
+							<p className="text-2xl font-bold text-white dark:text-green-400">{webhookStats?.successRate || '0%'}</p>
+						</div>
+					</div>
 				</div>
 
 				{/* Newly Created Secret Alert */}
@@ -285,12 +283,12 @@ const WebhookManagementPage = () => {
 				{/* Webhooks List */}
 				<div className="space-y-4">
 					{webhooks.length === 0 ? (
-						<div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-16 text-center">
+						<div className="bg-primary dark:bg-gray-800 rounded-lg shadow-lg p-16 text-center">
 							<Activity className="w-16 h-16 text-gray-400 mx-auto mb-4" />
 							<h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
 								No webhooks configured
 							</h3>
-							<p className="text-gray-500 dark:text-gray-400">
+							<p className="text-gray-600 dark:text-gray-400">
 								Create your first webhook to start receiving event notifications
 							</p>
 						</div>
@@ -301,7 +299,7 @@ const WebhookManagementPage = () => {
 								initial={{ opacity: 0, y: 20 }}
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ delay: index * 0.05 }}
-								className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
+								className="bg-primary dark:bg-gray-800 rounded-lg shadow-lg p-6"
 							>
 								<div className="flex items-start justify-between mb-4">
 									<div className="flex-1">
@@ -389,7 +387,7 @@ const WebhookManagementPage = () => {
 							initial={{ opacity: 0, scale: 0.9 }}
 							animate={{ opacity: 1, scale: 1 }}
 							exit={{ opacity: 0, scale: 0.9 }}
-							className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6"
+							className="bg-primary dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6"
 						>
 							<h2 className="text-2xl font-bold mb-6">
 								{editingWebhook ? "Edit Webhook" : "Create Webhook"}
@@ -398,7 +396,7 @@ const WebhookManagementPage = () => {
 							<div className="space-y-4">
 								{/* Name */}
 								<div>
-									<label className="block text-sm font-medium mb-2">Name *</label>
+									<label className="block text-sm font-medium mb-2 dark:text-gray-400">Name *</label>
 									<input
 										type="text"
 										value={formData.name}
@@ -410,7 +408,7 @@ const WebhookManagementPage = () => {
 
 								{/* URL */}
 								<div>
-									<label className="block text-sm font-medium mb-2">URL *</label>
+									<label className="block text-sm font-medium mb-2 dark:text-gray-400">URL *</label>
 									<input
 										type="url"
 										value={formData.url}
@@ -422,12 +420,12 @@ const WebhookManagementPage = () => {
 
 								{/* Events */}
 								<div>
-									<label className="block text-sm font-medium mb-2">Events * (Select at least one)</label>
+									<label className="block text-sm font-medium mb-2 dark:text-gray-400">Events * (Select at least one)</label>
 									<div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
 										{availableEvents.map(event => (
 											<label
 												key={event}
-												className="flex items-center gap-2 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded cursor-pointer"
+												className="flex items-center gap-2 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded cursor-pointer dark:text-gray-400"
 											>
 												<input
 													type="checkbox"

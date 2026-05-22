@@ -223,20 +223,20 @@ const CreateSavedSearchModal = ({ isOpen, onClose, onSave, initialData = null })
 					animate={{ scale: 1, opacity: 1 }}
 					exit={{ scale: 0.9, opacity: 0 }}
 					transition={{ type: "spring", damping: 25, stiffness: 300 }}
-					className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+					className="bg-gray-900 dark:bg-gray-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-700 dark:border-gray-700"
 					onClick={(e) => e.stopPropagation()}
 				>
 					{/* Header */}
-					<div className="sticky top-0 bg-gray-900 border-b border-gray-700 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
-						<h2 className="text-2xl font-bold text-white flex items-center gap-2">
-							<Search className="text-green-400" size={24} />
+					<div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
+						<h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+							<Search className="text-green-600 dark:text-green-400" size={24} />
 							{initialData?._id ? "Edit Saved Search" : "Save This Search"}
 						</h2>
 						<button
 							onClick={onClose}
-							className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+							className="p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg transition-colors"
 						>
-							<X size={24} className="text-gray-400 hover:text-white" />
+							<X size={24} className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" />
 						</button>
 					</div>
 
@@ -244,7 +244,7 @@ const CreateSavedSearchModal = ({ isOpen, onClose, onSave, initialData = null })
 					<form onSubmit={handleSubmit} className="p-6 space-y-6">
 						{/* Search Name */}
 						<div>
-							<label className="block text-sm font-medium text-gray-300 mb-2">
+							<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 								Saved Search Name (Optional)
 							</label>
 							<input
@@ -252,13 +252,13 @@ const CreateSavedSearchModal = ({ isOpen, onClose, onSave, initialData = null })
 								value={formData.name}
 								onChange={(e) => handleChange("name", e.target.value)}
 								placeholder="e.g., Toyota Brake Pads"
-								className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+								className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
 							/>
 						</div>
 
 						{/* Keywords */}
 						<div>
-							<label className="block text-sm font-medium text-gray-300 mb-2">
+							<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 								Search Keywords
 							</label>
 							<input
@@ -266,14 +266,14 @@ const CreateSavedSearchModal = ({ isOpen, onClose, onSave, initialData = null })
 								value={formData.query}
 								onChange={(e) => handleChange("query", e.target.value)}
 								placeholder="e.g., brake pads toyota camry"
-								className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+								className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
 							/>
 						</div>
 
 						{/* Filters Section */}
-						<div className="border-t border-gray-700 pt-6">
-							<h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-								<Tag size={20} className="text-green-400" />
+						<div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+							<h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+								<Tag size={20} className="text-green-600 dark:text-green-400" />
 								Filters
 							</h3>
 							
@@ -284,7 +284,7 @@ const CreateSavedSearchModal = ({ isOpen, onClose, onSave, initialData = null })
 									<select
 										value={formData.filters.category}
 										onChange={(e) => handleChange("filters.category", e.target.value)}
-										className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+										className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
 									>
 										<option value="">All Categories</option>
 										{CATEGORIES.map(cat => (
@@ -299,7 +299,7 @@ const CreateSavedSearchModal = ({ isOpen, onClose, onSave, initialData = null })
 									<select
 										value={formData.filters.condition}
 										onChange={(e) => handleChange("filters.condition", e.target.value)}
-										className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+										className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
 									>
 										<option value="">Any Condition</option>
 										{CONDITIONS.map(cond => (
@@ -348,13 +348,13 @@ const CreateSavedSearchModal = ({ isOpen, onClose, onSave, initialData = null })
 								<div>
 									<label className="block text-sm font-medium text-gray-300 mb-2">Min Price</label>
 									<div className="relative">
-										<DollarSign size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+										<DollarSign size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
 										<input
 											type="number"
 											value={formData.filters.minPrice}
 											onChange={(e) => handleChange("filters.minPrice", e.target.value)}
 											placeholder="0"
-											className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+											className="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
 										/>
 									</div>
 								</div>
@@ -363,13 +363,13 @@ const CreateSavedSearchModal = ({ isOpen, onClose, onSave, initialData = null })
 								<div>
 									<label className="block text-sm font-medium text-gray-300 mb-2">Max Price</label>
 									<div className="relative">
-										<DollarSign size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+										<DollarSign size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
 										<input
 											type="number"
 											value={formData.filters.maxPrice}
 											onChange={(e) => handleChange("filters.maxPrice", e.target.value)}
 											placeholder="No limit"
-											className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+											className="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
 										/>
 									</div>
 								</div>
@@ -377,9 +377,9 @@ const CreateSavedSearchModal = ({ isOpen, onClose, onSave, initialData = null })
 						</div>
 
 						{/* Location Section */}
-						<div className="border-t border-gray-700 pt-6">
-							<h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-								<MapPin size={20} className="text-green-400" />
+						<div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+							<h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+								<MapPin size={20} className="text-green-600 dark:text-green-400" />
 								Search Location
 							</h3>
 
@@ -387,7 +387,7 @@ const CreateSavedSearchModal = ({ isOpen, onClose, onSave, initialData = null })
 								type="button"
 								onClick={handleGetMyLocation}
 								disabled={locationLoading}
-								className="mb-4 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white rounded-lg transition-colors flex items-center gap-2"
+								className="mb-4 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg transition-colors flex items-center gap-2"
 							>
 								<MapPin size={18} />
 								{locationLoading ? "Detecting..." : "Use My Current Location"}
@@ -402,7 +402,7 @@ const CreateSavedSearchModal = ({ isOpen, onClose, onSave, initialData = null })
 										value={formData.geo.latitude}
 										onChange={(e) => handleChange("geo.latitude", e.target.value)}
 										placeholder="e.g., 8.9806"
-										className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+										className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
 									/>
 								</div>
 								<div>
@@ -413,7 +413,7 @@ const CreateSavedSearchModal = ({ isOpen, onClose, onSave, initialData = null })
 										value={formData.geo.longitude}
 										onChange={(e) => handleChange("geo.longitude", e.target.value)}
 										placeholder="e.g., 38.7578"
-										className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+										className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
 									/>
 								</div>
 								<div>
@@ -424,24 +424,24 @@ const CreateSavedSearchModal = ({ isOpen, onClose, onSave, initialData = null })
 										onChange={(e) => handleChange("geo.radiusKm", e.target.value)}
 										min="1"
 										max="500"
-										className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+										className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
 									/>
 								</div>
 							</div>
 						</div>
 
 						{/* Notification Toggle */}
-						<div className="border-t border-gray-700 pt-6">
+						<div className="border-t border-gray-200 dark:border-gray-700 pt-6">
 							<label className="flex items-center gap-3 cursor-pointer">
 								<input
 									type="checkbox"
 									checked={formData.notify}
 									onChange={(e) => handleChange("notify", e.target.checked)}
-									className="w-5 h-5 text-green-500 bg-gray-800 border-gray-600 rounded focus:ring-green-500 focus:ring-2"
+									className="w-5 h-5 text-green-500 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded focus:ring-green-500 focus:ring-2"
 								/>
 								<div className="flex items-center gap-2">
-									<Bell size={18} className="text-green-400" />
-									<span className="text-white font-medium">Notify me when new listings match</span>
+									<Bell size={18} className="text-green-600 dark:text-green-400" />
+									<span className="text-gray-900 dark:text-white font-medium">Notify me when new listings match</span>
 								</div>
 							</label>
 						</div>
@@ -451,7 +451,7 @@ const CreateSavedSearchModal = ({ isOpen, onClose, onSave, initialData = null })
 							<button
 								type="button"
 								onClick={onClose}
-								className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-semibold transition-colors"
+								className="flex-1 px-6 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg font-semibold transition-colors"
 							>
 								Cancel
 							</button>

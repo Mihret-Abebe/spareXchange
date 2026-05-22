@@ -7,8 +7,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import toast from "react-hot-toast";
 import {
 	ArrowLeft,
-	Send,
-	Image
+	Send
 } from "lucide-react";
 import { initSocket, onNewMessage, offNewMessage } from "../utils/socket";
 
@@ -106,21 +105,22 @@ const ChatPage = () => {
 	}
 
 	return (
-		<div className="max-w-4xl mx-auto px-4 py-8 h-[calc(100vh-80px)] flex flex-col">
+		<div className="min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 py-8 px-4">
+		<div className="max-w-4xl mx-auto h-[calc(100vh-120px)] flex flex-col">
 			<motion.div
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.5 }}
-				className="flex-1 flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden"
+				className="flex-1 flex flex-col bg-primary dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700"
 			>
 				{/* Header */}
-				<div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+				<div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900">
 					<div className="flex items-center gap-4">
 						<button
 							onClick={() => navigate("/messages")}
 							className="p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg transition-colors"
 						>
-							<ArrowLeft className="w-6 h-6" />
+							<ArrowLeft className="w-6 h-6 text-gray-900 dark:text-white" />
 						</button>
 						{otherUser && (
 							<>
@@ -136,8 +136,8 @@ const ChatPage = () => {
 									</div>
 								)}
 								<div>
-									<h2 className="font-semibold text-lg">{otherUser.name || 'User'}</h2>
-									<p className="text-sm text-gray-500 dark:text-gray-400">Online</p>
+									<h2 className="font-semibold text-lg text-gray-900 dark:text-white">{otherUser.name || 'User'}</h2>
+									<p className="text-sm text-gray-600 dark:text-gray-400">Online</p>
 								</div>
 							</>
 						)}
@@ -145,7 +145,7 @@ const ChatPage = () => {
 				</div>
 
 				{/* Messages */}
-				<div className="flex-1 overflow-y-auto p-4 space-y-4">
+				<div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white dark:bg-gray-800">
 					{currentConversation.length === 0 ? (
 						<div className="flex flex-col items-center justify-center h-full text-center">
 							<p className="text-gray-500 dark:text-gray-400">
@@ -188,14 +188,14 @@ const ChatPage = () => {
 				</div>
 
 				{/* Message Input */}
-				<form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+				<form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900">
 					<div className="flex items-center gap-2">
 						<input
 							type="text"
 							value={newMessage}
 							onChange={(e) => setNewMessage(e.target.value)}
 							placeholder="Type a message..."
-							className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+							className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
 						/>
 						<button
 							type="submit"
@@ -207,6 +207,7 @@ const ChatPage = () => {
 					</div>
 				</form>
 			</motion.div>
+		</div>
 		</div>
 	);
 };

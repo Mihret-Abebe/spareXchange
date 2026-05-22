@@ -16,6 +16,7 @@ import {
   Shield,
   ShieldCheck
 } from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
 import { useAdminStore } from "../store/adminStore";
 import { useAuthStore } from "../store/authStore";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -23,6 +24,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 
 const UserManagement = () => {
+  const { darkMode } = useTheme();
   const navigate = useNavigate();
   const { user: currentUser } = useAuthStore();
   const { 
@@ -425,14 +427,14 @@ const UserManagement = () => {
 
   if (isLoading && users.length === 0) {
     return (
-      <div className='min-h-screen bg-background flex items-center justify-center'>
+      <div className={`min-h-screen ${darkMode ? 'bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white' : 'bg-white text-gray-900'} flex items-center justify-center`}>
         <LoadingSpinner />
       </div>
     );
   }
 
   return (
-    <div className='min-h-screen bg-gradient-to-b from-gray-900 via-green-900 to-emerald-900 text-white py-8'>
+    <div className={`min-h-screen ${darkMode ? 'bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white' : 'bg-white text-gray-900'} py-8`}>
       <div className='container mx-auto px-4 max-w-7xl'>
         {/* Header */}
         <motion.div
@@ -454,7 +456,7 @@ const UserManagement = () => {
             className={`px-6 py-3 rounded-lg font-semibold transition ${
               activeTab === "all"
                 ? "bg-green-600 text-white"
-                : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-700"
             }`}
           >
             All Users ({users.length})
@@ -464,7 +466,7 @@ const UserManagement = () => {
             className={`px-6 py-3 rounded-lg font-semibold transition flex items-center gap-2 ${
               activeTab === "pending"
                 ? "bg-yellow-600 text-white"
-                : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-700"
             }`}
           >
             <AlertTriangle size={18} />
@@ -476,7 +478,7 @@ const UserManagement = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className='mb-6 bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl border border-gray-700 p-6'
+          className='mb-6 bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6'
         >
           <form onSubmit={handleSearch} className='flex flex-col md:flex-row gap-4'>
             <div className='flex-1 relative'>
@@ -486,13 +488,13 @@ const UserManagement = () => {
                 placeholder='Search by name or email...'
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className='w-full pl-10 pr-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:border-green-500'
+                className='w-full pl-10 pr-4 py-3 text-background bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:border-green-500'
               />
             </div>
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className='px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:border-green-500'
+              className='px-4 py-3 bg-gray-900 text-background border border-gray-700 rounded-lg focus:outline-none focus:border-green-500'
             >
               <option value='all'>All Types</option>
               <option value='individual'>Individual</option>
@@ -504,7 +506,7 @@ const UserManagement = () => {
             </select>
             <button
               type='submit'
-              className='px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-semibold transition flex items-center gap-2'
+              className='px-6 py-3 bg-background dark:bg-green-600 hover:bg-green-700 rounded-lg font-semibold transition flex items-center gap-2'
             >
               <Filter size={18} />
               Apply Filters
@@ -516,7 +518,7 @@ const UserManagement = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl border border-gray-700 overflow-hidden'
+          className='bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden'
         >
           <div className='overflow-x-auto'>
             <table className='w-full' style={{ tableLayout: 'fixed' }}>
@@ -701,7 +703,7 @@ const UserManagement = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className='bg-gray-800 rounded-xl border border-gray-700 max-w-2xl w-full max-h-[90vh] overflow-y-auto'
+              className='bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 max-w-2xl w-full max-h-[90vh] overflow-y-auto'
             >
               <div className='p-6'>
                 <h2 className='text-2xl font-bold mb-4 flex items-center gap-2'>
@@ -740,7 +742,7 @@ const UserManagement = () => {
                           const isCloudinary = doc.includes('res.cloudinary.com');
                           
                           return (
-                            <div key={index} className='bg-gray-800 rounded-lg overflow-hidden'>
+                            <div key={index} className='bg-primary dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700'>
                               {/* Document Preview */}
                               <div className='p-3 border-b border-gray-700'>
                                 <div className='flex items-center justify-between mb-2'>
@@ -809,7 +811,7 @@ const UserManagement = () => {
                       value={verificationNote}
                       onChange={(e) => setVerificationNote(e.target.value)}
                       placeholder='Add a note about this verification decision...'
-                      className='w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-green-500 resize-none'
+                      className='w-full p-3 bg-gray-200 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-green-500 resize-none text-gray-900 dark:text-white'
                       rows='3'
                     />
                   </div>
@@ -861,7 +863,7 @@ const UserManagement = () => {
                 </h3>
                 <button
                   onClick={() => setPreviewDoc(null)}
-                  className='p-2 hover:bg-gray-800 rounded-lg transition'
+                  className='p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg transition'
                 >
                   <XCircle size={24} className='text-gray-400 hover:text-white' />
                 </button>
@@ -972,7 +974,7 @@ const UserManagement = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className='bg-gray-800 rounded-xl border border-red-700 max-w-md w-full'
+              className='bg-primary dark:bg-gray-800 rounded-xl border border-red-300 dark:border-red-700 max-w-md w-full'
             >
               <div className='p-6'>
                 <div className='flex items-center gap-3 mb-4'>
@@ -1057,7 +1059,7 @@ const UserManagement = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className='bg-gray-800 rounded-xl border border-purple-700 max-w-md w-full'
+              className='bg-primary dark:bg-gray-800 rounded-xl border border-purple-300 dark:border-purple-700 max-w-md w-full'
             >
               <div className='p-6'>
                 <div className='flex items-center gap-3 mb-4'>
@@ -1142,7 +1144,7 @@ const UserManagement = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className='bg-gray-800 rounded-xl border border-orange-700 max-w-md w-full'
+              className='bg-primary dark:bg-gray-800 rounded-xl border border-orange-300 dark:border-orange-700 max-w-md w-full'
             >
               <div className='p-6'>
                 <div className='flex items-center gap-3 mb-4'>

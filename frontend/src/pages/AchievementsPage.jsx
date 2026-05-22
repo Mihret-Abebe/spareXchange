@@ -87,7 +87,7 @@ const AchievementsPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white">
+    <div className="min-h-screen bg-white dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-gray-900 dark:text-white">
       <div className="container mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -102,7 +102,7 @@ const AchievementsPage = () => {
                   <Trophy className="text-yellow-400" size={40} />
                   Achievements & Badges
                 </h1>
-                <p className="text-gray-300">Track your progress and unlock new achievements</p>
+                <p className="text-gray-600 dark:text-gray-300">Track your progress and unlock new achievements</p>
               </div>
               <button
                 onClick={handleCheckAchievements}
@@ -117,33 +117,33 @@ const AchievementsPage = () => {
             {/* Stats Summary */}
             {userAchievements?.stats && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <div className="bg-primary dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-gray-400">Unlocked</span>
+                    <span className="text-gray-600 dark:text-gray-400">Unlocked</span>
                     <CheckCircle className="text-green-400" size={24} />
                   </div>
-                  <div className="text-3xl font-bold text-green-400">
+                  <div className="text-3xl font-bold text-background dark:text-green-400">
                     {userAchievements.stats.totalUnlocked}
                   </div>
                 </div>
-                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <div className="bg-primary dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-gray-400">Locked</span>
-                    <Lock className="text-gray-400" size={24} />
+                    <span className="text-gray-600 dark:text-gray-400">Locked</span>
+                    <Lock className="text-gray-500 dark:text-gray-400" size={24} />
                   </div>
-                  <div className="text-3xl font-bold text-gray-400">
+                  <div className="text-3xl font-bold text-gray-700 dark:text-gray-400">
                     {userAchievements.stats.totalLocked}
                   </div>
                 </div>
-                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <div className="bg-primary dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-gray-400">Completion</span>
+                    <span className="text-gray-600 dark:text-gray-400">Completion</span>
                     <TrendingUp className="text-blue-400" size={24} />
                   </div>
-                  <div className="text-3xl font-bold text-blue-400">
+                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
                     {userAchievements.stats.completionPercentage}%
                   </div>
-                  <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mt-2">
                     <div
                       className="bg-gradient-to-r from-green-500 to-emerald-600 h-2 rounded-full transition-all duration-500"
                       style={{ width: `${userAchievements.stats.completionPercentage}%` }}
@@ -155,13 +155,13 @@ const AchievementsPage = () => {
           </div>
 
           {/* Tabs */}
-          <div className="flex flex-wrap gap-2 mb-6 border-b border-gray-700">
+          <div className="flex flex-wrap gap-2 mb-6 border-b border-gray-300 dark:border-gray-700">
             <button
               onClick={() => setActiveTab("my-achievements")}
               className={`px-6 py-3 rounded-t-lg transition duration-300 ${
                 activeTab === "my-achievements"
-                  ? "bg-gray-800 text-green-400 border-b-2 border-green-400"
-                  : "text-gray-400 hover:text-white hover:bg-gray-800"
+                  ? "bg-gray-100 dark:bg-gray-800 text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
               }`}
             >
               My Achievements
@@ -170,8 +170,8 @@ const AchievementsPage = () => {
               onClick={() => setActiveTab("leaderboard")}
               className={`px-6 py-3 rounded-t-lg transition duration-300 ${
                 activeTab === "leaderboard"
-                  ? "bg-gray-800 text-green-400 border-b-2 border-green-400"
-                  : "text-gray-400 hover:text-white hover:bg-gray-800"
+                  ? "bg-gray-100 dark:bg-gray-800 text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
               }`}
             >
               Leaderboard
@@ -190,7 +190,7 @@ const AchievementsPage = () => {
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg transition duration-300 ${
                       selectedCategory === cat.id
                         ? "bg-green-600 text-white"
-                        : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                        : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700"
                     }`}
                   >
                     {cat.icon}
@@ -206,10 +206,10 @@ const AchievementsPage = () => {
                   Unlocked Achievements
                 </h2>
                 {userAchievements?.unlocked && filteredAchievements(userAchievements.unlocked).length === 0 ? (
-                  <div className="bg-gray-800 rounded-xl p-12 text-center">
-                    <Award size={48} className="mx-auto text-gray-500 mb-4" />
+                  <div className="bg-primary dark:bg-gray-800 rounded-xl p-12 text-center border border-gray-200 dark:border-gray-700">
+                    <Award size={48} className="mx-auto text-gray-400 dark:text-gray-500 mb-4" />
                     <h3 className="text-xl font-bold mb-2">No unlocked achievements yet</h3>
-                    <p className="text-gray-400">
+                    <p className="text-gray-600 dark:text-gray-400">
                       Start engaging with the community to unlock your first achievements!
                     </p>
                   </div>
@@ -221,15 +221,15 @@ const AchievementsPage = () => {
                           key={achievement.id}
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          className="bg-gray-800 rounded-xl p-6 border-2 border-green-600 hover:border-green-400 transition duration-300"
+                          className="bg-primary dark:bg-gray-800 rounded-xl p-6 border-2 border-green-600 dark:border-green-600 hover:border-green-400 transition duration-300"
                         >
                           <div className="flex items-start gap-4">
                             <div className={`p-3 rounded-lg bg-gradient-to-r ${getCategoryColor(achievement.category)}`}>
                               <span className="text-3xl">{achievement.icon}</span>
                             </div>
                             <div className="flex-1">
-                              <h3 className="font-bold text-lg mb-1">{achievement.name}</h3>
-                              <p className="text-sm text-gray-400 mb-2">{achievement.description}</p>
+                              <h3 className="font-bold text-lg mb-1 text-gray-900 dark:text-white">{achievement.name}</h3>
+                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{achievement.description}</p>
                               <div className="flex items-center gap-2">
                                 <span className={`px-2 py-1 bg-gradient-to-r ${getCategoryColor(achievement.category)} rounded-full text-xs font-bold`}>
                                   {achievement.category ? achievement.category.replace("_", " ") : "General"}
@@ -255,10 +255,10 @@ const AchievementsPage = () => {
                   Locked Achievements
                 </h2>
                 {userAchievements?.locked && filteredAchievements(userAchievements.locked).length === 0 ? (
-                  <div className="bg-gray-800 rounded-xl p-12 text-center">
-                    <Crown size={48} className="mx-auto text-gray-500 mb-4" />
+                  <div className="bg-primary dark:bg-gray-800 rounded-xl p-12 text-center border border-gray-200 dark:border-gray-700">
+                    <Crown size={48} className="mx-auto text-gray-400 dark:text-gray-500 mb-4" />
                     <h3 className="text-xl font-bold mb-2">All achievements unlocked!</h3>
-                    <p className="text-gray-400">Congratulations! You're a true champion!</p>
+                    <p className="text-gray-600 dark:text-gray-400">Congratulations! You're a true champion!</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -268,21 +268,21 @@ const AchievementsPage = () => {
                           key={achievement.id}
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          className="bg-gray-800 rounded-xl p-6 border border-gray-700 opacity-75 hover:opacity-100 transition duration-300"
+                          className="bg-primary dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 opacity-75 hover:opacity-100 transition duration-300"
                         >
                           <div className="flex items-start gap-4">
-                            <div className="p-3 rounded-lg bg-gray-700">
+                            <div className="p-3 rounded-lg bg-gray-200 dark:bg-gray-700">
                               <span className="text-3xl grayscale">{achievement.icon}</span>
                             </div>
                             <div className="flex-1">
-                              <h3 className="font-bold text-lg mb-1">{achievement.name}</h3>
-                              <p className="text-sm text-gray-400 mb-3">{achievement.description}</p>
+                              <h3 className="font-bold text-lg mb-1 text-gray-900 dark:text-white">{achievement.name}</h3>
+                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{achievement.description}</p>
                               <div className="space-y-2">
                                 <div className="flex justify-between text-xs">
-                                  <span className="text-gray-400">Progress</span>
-                                  <span className="text-gray-300">{achievement.progress || 0}%</span>
+                                  <span className="text-gray-600 dark:text-gray-400">Progress</span>
+                                  <span className="text-gray-700 dark:text-gray-300">{achievement.progress || 0}%</span>
                                 </div>
-                                <div className="w-full bg-gray-700 rounded-full h-2">
+                                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                                   <div
                                     className={`bg-gradient-to-r ${getCategoryColor(achievement.category)} h-2 rounded-full transition-all duration-500`}
                                     style={{ width: `${achievement.progress || 0}%` }}
@@ -303,7 +303,7 @@ const AchievementsPage = () => {
           {/* Leaderboard Tab */}
           {activeTab === "leaderboard" && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+              <div className="bg-primary dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
                 <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                   <Crown className="text-yellow-400" />
                   Achievement Leaderboard
@@ -311,9 +311,9 @@ const AchievementsPage = () => {
                 
                 {achievementLeaderboard.length === 0 ? (
                   <div className="text-center py-12">
-                    <Users size={48} className="mx-auto text-gray-500 mb-4" />
-                    <h3 className="text-xl font-bold mb-2">No leaderboard data yet</h3>
-                    <p className="text-gray-400">Be the first to climb the leaderboard!</p>
+                    <Users size={48} className="mx-auto text-gray-400 dark:text-gray-500 mb-4" />
+                    <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">No leaderboard data yet</h3>
+                    <p className="text-gray-600 dark:text-gray-400">Be the first to climb the leaderboard!</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -323,8 +323,8 @@ const AchievementsPage = () => {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className={`bg-gray-700 rounded-lg p-4 flex items-center gap-4 ${
-                          index < 3 ? "border-2 border-yellow-600" : ""
+                        className={`bg-gray-100 dark:bg-gray-700 rounded-lg p-4 flex items-center gap-4 ${
+                          index < 3 ? "border-2 border-yellow-600" : "border border-gray-200 dark:border-gray-600"
                         }`}
                       >
                         <div className={`text-3xl font-bold w-12 text-center ${
@@ -337,8 +337,8 @@ const AchievementsPage = () => {
                         </div>
                         
                         <div className="flex-1">
-                          <h3 className="font-bold text-lg">{user.name}</h3>
-                          <div className="flex items-center gap-4 text-sm text-gray-400">
+                          <h3 className="font-bold text-lg text-gray-900 dark:text-white">{user.name}</h3>
+                          <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
                             <span>{user.achievementsCount} achievements</span>
                             <span>•</span>
                             <span>{user.ecoPoints} eco points</span>

@@ -135,7 +135,8 @@ const NotificationHistoryPage = () => {
 	}
 
 	return (
-		<div className="max-w-6xl mx-auto px-4 py-8">
+		<div className="min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 py-8 px-4">
+		<div className="max-w-6xl mx-auto">
 			<motion.div
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
@@ -152,7 +153,7 @@ const NotificationHistoryPage = () => {
 								<ArrowLeft className="w-6 h-6" />
 							</button>
 							<div>
-								<h1 className="text-3xl font-bold">Notification History</h1>
+								<h1 className="text-3xl font-bold text-gray-900 dark:text-white">Notification History</h1>
 								<p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
 									{historyPagination.total} total notifications
 								</p>
@@ -161,7 +162,7 @@ const NotificationHistoryPage = () => {
 						
 						<button
 							onClick={() => setShowFilters(!showFilters)}
-							className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+							className="flex items-center gap-2 px-4 py-2 bg-primary dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors ml-2"
 						>
 							<Filter className="w-4 h-4" />
 							<span>Filters</span>
@@ -174,12 +175,12 @@ const NotificationHistoryPage = () => {
 							initial={{ opacity: 0, height: 0 }}
 							animate={{ opacity: 1, height: "auto" }}
 							exit={{ opacity: 0, height: 0 }}
-							className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6"
+							className="bg-primary dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6"
 						>
 							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
 								{/* Type Filter */}
 								<div>
-									<label className="block text-sm font-medium mb-2">Type</label>
+									<label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Type</label>
 									<select
 										value={filters.type}
 										onChange={(e) => handleFilterChange("type", e.target.value)}
@@ -195,7 +196,7 @@ const NotificationHistoryPage = () => {
 
 								{/* Read Status Filter */}
 								<div>
-									<label className="block text-sm font-medium mb-2">Status</label>
+									<label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Status</label>
 									<select
 										value={filters.isRead}
 										onChange={(e) => handleFilterChange("isRead", e.target.value)}
@@ -209,7 +210,7 @@ const NotificationHistoryPage = () => {
 
 								{/* Start Date */}
 								<div>
-									<label className="block text-sm font-medium mb-2">Start Date</label>
+									<label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Start Date</label>
 									<input
 										type="date"
 										value={filters.startDate}
@@ -220,7 +221,7 @@ const NotificationHistoryPage = () => {
 
 								{/* End Date */}
 								<div>
-									<label className="block text-sm font-medium mb-2">End Date</label>
+									<label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">End Date</label>
 									<input
 										type="date"
 										value={filters.endDate}
@@ -249,7 +250,7 @@ const NotificationHistoryPage = () => {
 				</div>
 
 				{/* Notifications List */}
-				<div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden mb-6">
+				<div className="bg-primary dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden mb-6">
 					{history.length === 0 ? (
 						<div className="flex flex-col items-center justify-center py-16 px-4">
 							<Clock className="w-16 h-16 text-gray-400 mb-4" />
@@ -328,7 +329,7 @@ const NotificationHistoryPage = () => {
 
 				{/* Pagination */}
 				{historyPagination.totalPages > 1 && (
-					<div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg shadow-lg px-6 py-4">
+					<div className="flex items-center justify-between bg-primary dark:bg-gray-800 rounded-lg shadow-lg px-6 py-4">
 						<p className="text-sm text-gray-600 dark:text-gray-400">
 							Page {historyPagination.page} of {historyPagination.totalPages}
 						</p>
@@ -355,6 +356,7 @@ const NotificationHistoryPage = () => {
 					</div>
 				)}
 			</motion.div>
+		</div>
 		</div>
 	);
 };

@@ -155,7 +155,7 @@ const AnalyticsDashboard = () => {
   const exchangeStatusData = prepareStatusData(exchangePerformance?.statusDistribution);
 
   return (
-    <div className='min-h-screen bg-gradient-to-b from-gray-900 via-green-900 to-emerald-900 text-white py-8'>
+    <div className='min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-green-900 to-emerald-900 text-gray-900 dark:text-white py-8'>
       <div className='container mx-auto px-4 max-w-7xl'>
         {/* Header */}
         <motion.div
@@ -163,21 +163,21 @@ const AnalyticsDashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           className='mb-8'
         >
-          <h1 className='text-4xl font-bold mb-2 bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text flex items-center'>
-            <BarChart3 size={40} className='mr-3' />
+          <h1 className='text-4xl font-bold mb-2 flex items-center'>
+            <BarChart3 size={40} className='mr-3 text-green-600 dark:text-green-400' />
             Analytics Dashboard
           </h1>
-          <p className='text-gray-400'>Comprehensive platform insights and performance metrics</p>
+          <p className='text-gray-600 dark:text-gray-400'>Comprehensive platform insights and performance metrics</p>
         </motion.div>
 
         {/* Trend Controls */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className='mb-6 p-4 bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl border border-gray-700'
+          className='mb-6 p-4 bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700'
         >
           <div className='flex items-center gap-4 flex-wrap'>
-            <Calendar size={20} className='text-green-400' />
+            <Calendar size={20} className='text-green-600 dark:text-green-400' />
             <span className='font-bold'>Trend Period:</span>
             <div className='flex gap-2'>
               {[
@@ -193,8 +193,8 @@ const AnalyticsDashboard = () => {
                   }}
                   className={`px-4 py-2 rounded-lg transition ${
                     trendPeriod === option.period
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      ? 'bg-green-400 text-white'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                   }`}
                 >
                   {option.label}
@@ -208,10 +208,10 @@ const AnalyticsDashboard = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className='mb-8 p-6 bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl border border-gray-700'
+          className='mb-8 p-6 bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700'
         >
           <h2 className='text-2xl font-bold mb-4 flex items-center'>
-            <TrendingUp size={24} className='mr-2 text-green-400' />
+            <TrendingUp size={24} className='mr-2 text-green-600 dark:text-green-400' />
             Platform Trends
           </h2>
           <ResponsiveContainer width="100%" height={400}>
@@ -237,10 +237,10 @@ const AnalyticsDashboard = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className='p-6 bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl border border-gray-700'
+            className='p-6 bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700'
           >
             <h3 className='text-xl font-bold mb-4 flex items-center'>
-              <Package size={24} className='mr-2 text-blue-400' />
+              <Package size={24} className='mr-2 text-blue-600 dark:text-blue-400' />
               Top Categories
             </h3>
             <ResponsiveContainer width="100%" height={300}>
@@ -262,10 +262,10 @@ const AnalyticsDashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className='p-6 bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl border border-gray-700'
+            className='p-6 bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700'
           >
             <h3 className='text-xl font-bold mb-4 flex items-center'>
-              <Star size={24} className='mr-2 text-yellow-400' />
+              <Star size={24} className='mr-2 text-yellow-600 dark:text-yellow-400' />
               Rating Distribution
             </h3>
             <ResponsiveContainer width="100%" height={300}>
@@ -297,10 +297,10 @@ const AnalyticsDashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className='p-6 bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl border border-gray-700'
+            className='p-6 bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700'
           >
             <h3 className='text-xl font-bold mb-4 flex items-center'>
-              <RefreshCw size={24} className='mr-2 text-purple-400' />
+              <RefreshCw size={24} className='mr-2 text-purple-600 dark:text-purple-400' />
               Exchange Status Distribution
             </h3>
             <ResponsiveContainer width="100%" height={300}>
@@ -332,7 +332,7 @@ const AnalyticsDashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className='p-6 bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl border border-gray-700'
+            className='p-6 bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700'
           >
             <h3 className='text-xl font-bold mb-4'>Key Performance Metrics</h3>
             <div className='space-y-4'>
@@ -386,27 +386,27 @@ const AnalyticsDashboard = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className='p-6 bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl border border-gray-700'
+            className='p-6 bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700'
           >
             <h3 className='text-xl font-bold mb-4 flex items-center'>
-              <Leaf size={24} className='mr-2 text-green-400' />
+              <Leaf size={24} className='mr-2 text-green-600 dark:text-green-400' />
               Sustainability Impact
             </h3>
             <div className='space-y-3'>
-              <div className='flex justify-between items-center p-3 bg-gray-900/50 rounded'>
-                <span className='text-gray-400'>Total Recycling Submissions</span>
+              <div className='flex justify-between items-center p-3 bg-gray-100 dark:bg-gray-900/50 rounded'>
+                <span className='text-gray-600 dark:text-gray-400'>Total Recycling Submissions</span>
                 <span className='font-bold'>{sustainabilityMetrics?.recyclingStats?.totalSubmissions || 0}</span>
               </div>
-              <div className='flex justify-between items-center p-3 bg-gray-900/50 rounded'>
-                <span className='text-gray-400'>Approved Submissions</span>
+              <div className='flex justify-between items-center p-3 bg-gray-100 dark:bg-gray-900/50 rounded'>
+                <span className='text-gray-600 dark:text-gray-400'>Approved Submissions</span>
                 <span className='font-bold text-green-400'>{sustainabilityMetrics?.recyclingStats?.approvedSubmissions || 0}</span>
               </div>
-              <div className='flex justify-between items-center p-3 bg-gray-900/50 rounded'>
-                <span className='text-gray-400'>Total Eco-Points Awarded</span>
+              <div className='flex justify-between items-center p-3 bg-gray-100 dark:bg-gray-900/50 rounded'>
+                <span className='text-gray-600 dark:text-gray-400'>Total Eco-Points Awarded</span>
                 <span className='font-bold text-emerald-400'>{sustainabilityMetrics?.ecoPoints?.totalEcoPoints || 0}</span>
               </div>
-              <div className='flex justify-between items-center p-3 bg-gray-900/50 rounded'>
-                <span className='text-gray-400'>Total Weight Recycled (kg)</span>
+              <div className='flex justify-between items-center p-3 bg-gray-100 dark:bg-gray-900/50 rounded'>
+                <span className='text-gray-600 dark:text-gray-400'>Total Weight Recycled (kg)</span>
                 <span className='font-bold text-blue-400'>{sustainabilityMetrics?.recyclingStats?.totalWeightRecycled || 0}</span>
               </div>
             </div>
@@ -417,25 +417,25 @@ const AnalyticsDashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className='p-6 bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl border border-gray-700'
+            className='p-6 bg-primary dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700'
           >
             <h3 className='text-xl font-bold mb-4 flex items-center'>
-              <Search size={24} className='mr-2 text-cyan-400' />
+              <Search size={24} className='mr-2 text-cyan-600 dark:text-cyan-400' />
               Search Insights
             </h3>
             <div className='space-y-3 mb-4'>
-              <div className='flex justify-between items-center p-3 bg-gray-900/50 rounded'>
-                <span className='text-gray-400'>Total Searches</span>
+              <div className='flex justify-between items-center p-3 bg-gray-100 dark:bg-gray-900/50 rounded'>
+                <span className='text-gray-600 dark:text-gray-400'>Total Searches</span>
                 <span className='font-bold'>{searchAnalytics?.totalSearches || 0}</span>
               </div>
-              <div className='flex justify-between items-center p-3 bg-gray-900/50 rounded'>
-                <span className='text-gray-400'>Avg Results per Search</span>
+              <div className='flex justify-between items-center p-3 bg-gray-100 dark:bg-gray-900/50 rounded'>
+                <span className='text-gray-600 dark:text-gray-400'>Avg Results per Search</span>
                 <span className='font-bold text-cyan-400'>{searchAnalytics?.avgResultsPerSearch?.toFixed(1) || 0}</span>
               </div>
             </div>
             {searchAnalytics?.unmetDemand?.length > 0 && (
               <div>
-                <h4 className='font-bold mb-2 text-orange-400'>Top Unmet Demands</h4>
+                <h4 className='font-bold mb-2 text-orange-600 dark:text-orange-400'>Top Unmet Demands</h4>
                 <div className='space-y-2'>
                   {searchAnalytics.unmetDemand.slice(0, 5).map((item, index) => (
                     <div key={index} className='flex justify-between items-center p-2 bg-orange-900/20 rounded'>

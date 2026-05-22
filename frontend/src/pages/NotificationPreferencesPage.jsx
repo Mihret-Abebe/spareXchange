@@ -117,7 +117,8 @@ const NotificationPreferencesPage = () => {
 	}
 
 	return (
-		<div className="max-w-4xl mx-auto px-4 py-8">
+		<div className="min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 py-8 px-4">
+		<div className="max-w-4xl mx-auto">
 			<motion.div
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
@@ -133,7 +134,7 @@ const NotificationPreferencesPage = () => {
 							<ArrowLeft className="w-6 h-6" />
 						</button>
 						<div>
-							<h1 className="text-3xl font-bold">Notification Preferences</h1>
+							<h1 className="text-3xl font-bold text-gray-900 dark:text-white">Notification Preferences</h1>
 							<p className="text-gray-600 dark:text-gray-400 mt-1">
 								Customize how and when you receive notifications
 							</p>
@@ -149,27 +150,27 @@ const NotificationPreferencesPage = () => {
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ delay: groupIndex * 0.1 }}
-							className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
+							className="bg-primary dark:bg-gray-800 rounded-lg shadow-lg p-6"
 						>
 							<div className="flex items-center gap-3 mb-4">
 								<div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600 dark:text-green-400">
 									{group.icon}
 								</div>
-								<h2 className="text-xl font-semibold">{group.title}</h2>
+								<h2 className="text-xl font-semibold text-gray-900 dark:text-white">{group.title}</h2>
 							</div>
 
 							<div className="space-y-4">
 								{group.items.map((item) => (
 									<div
 										key={item.key}
-										className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+										className="flex items-center justify-between p-4 bg-primary/50 dark:bg-gray-700/50 rounded-lg hover:bg-primary/70 dark:hover:bg-gray-700 transition-colors"
 									>
 										<div className="flex items-center gap-3 flex-1">
 											<div className="text-gray-600 dark:text-gray-400">
 												{item.icon}
 											</div>
 											<div>
-												<h3 className="font-medium">{item.label}</h3>
+												<h3 className="font-medium text-gray-900 dark:text-white">{item.label}</h3>
 												<p className="text-sm text-gray-500 dark:text-gray-400">
 													{item.description}
 												</p>
@@ -217,6 +218,7 @@ const NotificationPreferencesPage = () => {
 					</button>
 				</div>
 			</motion.div>
+		</div>
 		</div>
 	);
 };

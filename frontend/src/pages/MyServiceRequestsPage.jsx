@@ -17,10 +17,10 @@ const STATUS_COLORS = {
 };
 
 const PRIORITY_COLORS = {
-	low: "text-green-400",
-	medium: "text-yellow-400",
-	high: "text-orange-400",
-	urgent: "text-red-400"
+	low: "text-green-600 dark:text-green-400",
+	medium: "text-yellow-600 dark:text-yellow-400",
+	high: "text-orange-600 dark:text-orange-400",
+	urgent: "text-red-600 dark:text-red-400"
 };
 
 const MyServiceRequestsPage = () => {
@@ -63,17 +63,17 @@ const MyServiceRequestsPage = () => {
 			initial={{ opacity: 0 }}
 			animate={{ opacity: 1 }}
 			transition={{ duration: 0.5 }}
-			className='min-h-screen bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 py-8 px-4'
+			className='min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 text-gray-900 dark:text-white py-8 px-4'
 		>
 			<div className='max-w-6xl mx-auto'>
 				{/* Header */}
 				<div className='flex items-center justify-between mb-8'>
 					<div>
-						<h1 className='text-4xl font-bold text-white mb-2 flex items-center gap-3'>
-							<Wrench className='text-cyan-400' size={40} />
+						<h1 className='text-4xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-3'>
+							<Wrench className='text-cyan-600 dark:text-cyan-400' size={40} />
 							My Service Requests
 						</h1>
-						<p className='text-gray-300'>Manage and track all your service requests</p>
+						<p className='text-gray-600 dark:text-gray-400'>Manage and track all your service requests</p>
 					</div>
 					<Link
 						to='/technician-requests/create'
@@ -88,17 +88,17 @@ const MyServiceRequestsPage = () => {
 				{isLoading ? (
 					<div className='text-center py-16'>
 						<div className='animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-cyan-500 mx-auto'></div>
-						<p className='text-gray-400 mt-4'>Loading your requests...</p>
+						<p className='text-gray-600 dark:text-gray-400 mt-4'>Loading your requests...</p>
 					</div>
 				) : myRequests.length === 0 ? (
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
-						className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl p-12 border border-gray-700 text-center'
+						className='bg-primary dark:bg-gray-800 rounded-xl p-12 border border-gray-200 dark:border-gray-700 text-center'
 					>
-						<Wrench size={64} className='mx-auto text-gray-600 mb-4' />
-						<h3 className='text-2xl font-bold text-white mb-2'>No Service Requests Yet</h3>
-						<p className='text-gray-400 mb-6'>Create your first service request and get quotes from verified technicians</p>
+						<Wrench size={64} className='mx-auto text-gray-400 dark:text-gray-600 mb-4' />
+						<h3 className='text-2xl font-bold text-gray-900 dark:text-white mb-2'>No Service Requests Yet</h3>
+						<p className='text-gray-600 dark:text-gray-400 mb-6'>Create your first service request and get quotes from verified technicians</p>
 						<Link
 							to='/technician-requests/create'
 							className='inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-blue-700 transition duration-200'
@@ -115,18 +115,18 @@ const MyServiceRequestsPage = () => {
 								initial={{ opacity: 0, y: 20 }}
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ delay: index * 0.05 }}
-								className='bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl p-6 border border-gray-700 hover:border-cyan-600 transition duration-200'
+								className='bg-primary dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 hover:border-cyan-600 transition duration-200'
 							>
 								<div className='flex items-start justify-between mb-4'>
 									<div className='flex-1'>
 										<div className='flex items-center gap-3 mb-2'>
-											<h3 className='text-xl font-bold text-white capitalize'>{request.serviceType}</h3>
+											<h3 className='text-xl font-bold text-gray-900 dark:text-white capitalize'>{request.serviceType}</h3>
 											<span className={`px-3 py-1 ${STATUS_COLORS[request.status]} text-white text-xs rounded-full capitalize`}>
 												{request.status}
 											</span>
 										</div>
-										<p className='text-gray-300 mb-3 line-clamp-2'>{request.description}</p>
-										<div className='flex items-center gap-4 text-sm text-gray-400'>
+										<span className='text-gray-600 dark:text-gray-400 mb-3 line-clamp-2'>{request.description}</span>
+										<div className='flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400'>
 											<span className='flex items-center gap-1'>
 												<MapPin size={14} />
 												{request.location}
@@ -140,13 +140,13 @@ const MyServiceRequestsPage = () => {
 												{request.priority} priority
 											</span>
 											{request.quotes && request.quotes.length > 0 && (
-												<span className='text-blue-400 font-semibold'>
+												<span className='text-blue-600 dark:text-blue-400 font-semibold'>
 													{request.quotes.length} quote{request.quotes.length > 1 ? 's' : ''}
 												</span>
 											)}
 										</div>
 										{request.budgetMin && request.budgetMax && (
-											<p className='text-green-400 text-sm mt-2 flex items-center gap-1'>
+											<p className='text-green-600 dark:text-green-400 text-sm mt-2 flex items-center gap-1'>
 												<DollarSign size={14} />
 												Budget: ${request.budgetMin} - ${request.budgetMax}
 											</p>
@@ -181,16 +181,16 @@ const MyServiceRequestsPage = () => {
 						<motion.div
 							initial={{ opacity: 0, scale: 0.9 }}
 							animate={{ opacity: 1, scale: 1 }}
-							className='bg-gray-800 rounded-xl p-6 max-w-md w-full border border-gray-700'
+							className='bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full border border-gray-200 dark:border-gray-700'
 						>
-							<h3 className='text-2xl font-bold text-white mb-2'>Cancel Request?</h3>
-							<p className='text-gray-300 mb-6'>
+							<h3 className='text-2xl font-bold text-gray-900 dark:text-white mb-2'>Cancel Request?</h3>
+							<p className='text-gray-600 dark:text-gray-400 mb-6'>
 								Are you sure you want to cancel this service request? This action cannot be undone.
 							</p>
 							<div className='flex gap-3'>
 								<button
 									onClick={() => setCancelModal(null)}
-									className='flex-1 py-3 px-4 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg transition duration-200'
+									className='flex-1 py-3 px-4 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold rounded-lg transition duration-200'
 								>
 									No, Keep It
 								</button>

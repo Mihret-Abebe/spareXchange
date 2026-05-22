@@ -38,7 +38,8 @@ const NotificationStatsPage = () => {
 	}
 
 	return (
-		<div className="max-w-6xl mx-auto px-4 py-8">
+		<div className="min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 py-8 px-4">
+		<div className="max-w-6xl mx-auto">
 			<motion.div
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
@@ -54,7 +55,7 @@ const NotificationStatsPage = () => {
 							<ArrowLeft className="w-6 h-6" />
 						</button>
 						<div>
-							<h1 className="text-3xl font-bold">Notification Statistics</h1>
+							<h1 className="text-3xl font-bold text-gray-900 dark:text-white">Notification Statistics</h1>
 							<p className="text-gray-600 dark:text-gray-400 mt-1">
 								System-wide notification analytics
 							</p>
@@ -208,6 +209,7 @@ const NotificationStatsPage = () => {
 					</>
 				)}
 			</motion.div>
+		</div>
 		</div>
 	);
 };

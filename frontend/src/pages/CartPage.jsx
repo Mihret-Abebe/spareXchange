@@ -37,7 +37,7 @@ const CartPage = () => {
 
 	if (cartItems.length === 0) {
 		return (
-			<div className="min-h-screen bg-background text-foreground dark:text-white dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900">
+			<div className="min-h-screen bg-white dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900">
 				<div className="container mx-auto px-4 py-16">
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
@@ -45,8 +45,8 @@ const CartPage = () => {
 						className="text-center"
 					>
 						<ShoppingCart size={80} className="mx-auto mb-6 text-gray-400" />
-						<h1 className="text-3xl font-bold mb-4">Your Cart is Empty</h1>
-						<p className="text-gray-400 mb-8">
+						<h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">Your Cart is Empty</h1>
+						<p className="text-gray-600 dark:text-gray-400 mb-8">
 							Looks like you haven't added any items to your cart yet.
 						</p>
 						<Link
@@ -65,13 +65,13 @@ const CartPage = () => {
 	const total = getCartTotal();
 
 	return (
-		<div className="min-h-screen bg-background text-foreground dark:text-white dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900">
+		<div className="min-h-screen bg-white dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900">
 			<div className="container mx-auto px-4 py-8">
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 				>
-					<h1 className="text-3xl font-bold mb-8 flex items-center">
+					<h1 className="text-3xl font-bold mb-8 flex items-center text-gray-900 dark:text-white">
 						<ShoppingCart className="mr-3" size={32} />
 						Shopping Cart ({cartItems.length} items)
 					</h1>
@@ -83,7 +83,7 @@ const CartPage = () => {
 								<motion.div
 									key={item.listingId}
 									layout
-									className="bg-gray-800 rounded-xl p-4 border border-gray-700"
+									className="bg-gray-100 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700"
 								>
 									<div className="flex gap-4">
 										<img
@@ -98,19 +98,19 @@ const CartPage = () => {
 										<div className="flex-1">
 											<div className="flex justify-between items-start">
 												<div>
-													<h3 className="text-lg font-bold mb-1">{item.title}</h3>
-													<p className="text-sm text-gray-400 mb-2">
+													<h3 className="text-lg font-bold mb-1 text-gray-900 dark:text-white">{item.title}</h3>
+													<p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
 														Seller: {item.seller?.name || "Unknown"}
 													</p>
 													{item.ecoPoints && (
-														<span className="text-xs bg-green-900 bg-opacity-30 text-green-400 px-2 py-1 rounded-full">
+														<span className="text-xs bg-green-100 dark:bg-green-900 dark:bg-opacity-30 text-green-700 dark:text-green-400 px-2 py-1 rounded-full">
 															+{item.ecoPoints} Eco Points
 														</span>
 													)}
 												</div>
 												<button
 													onClick={() => removeFromCart(item.listingId)}
-													className="text-red-400 hover:text-red-300 transition p-2"
+													className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition p-2"
 													title="Remove from cart"
 												>
 													<Trash2 size={20} />
@@ -118,27 +118,27 @@ const CartPage = () => {
 											</div>
 											
 											<div className="flex justify-between items-center mt-4">
-												<div className="flex items-center border border-gray-700 rounded-lg">
+												<div className="flex items-center border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
 													<button
 														onClick={() => updateQuantity(item.listingId, item.quantity - 1)}
-														className="px-3 py-1 text-gray-300 hover:bg-gray-700 transition"
+														className="px-3 py-1 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
 														disabled={item.quantity <= 1}
 													>
 														<Minus size={16} />
 													</button>
-													<span className="px-4 py-1 font-bold">{item.quantity}</span>
+													<span className="px-4 py-1 font-bold text-gray-900 dark:text-white">{item.quantity}</span>
 													<button
 														onClick={() => updateQuantity(item.listingId, item.quantity + 1)}
-														className="px-3 py-1 text-gray-300 hover:bg-gray-700 transition"
+														className="px-3 py-1 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
 													>
 														<Plus size={16} />
 													</button>
 												</div>
 												<div className="text-right">
-													<p className="text-2xl font-bold text-green-400">
+													<p className="text-2xl font-bold text-green-600 dark:text-green-400">
 														${(item.price * item.quantity).toFixed(2)}
 													</p>
-													<p className="text-sm text-gray-400">
+													<p className="text-sm text-gray-600 dark:text-gray-400">
 														${item.price} each
 													</p>
 												</div>
@@ -155,7 +155,7 @@ const CartPage = () => {
 										toast.success("Cart cleared");
 									}
 								}}
-								className="text-red-400 hover:text-red-300 transition text-sm"
+								className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition text-sm"
 							>
 								Clear Cart
 							</button>
@@ -166,22 +166,22 @@ const CartPage = () => {
 							<motion.div
 								initial={{ opacity: 0, x: 20 }}
 								animate={{ opacity: 1, x: 0 }}
-								className="bg-gray-800 rounded-xl p-6 border border-gray-700 sticky top-24"
+								className="bg-primary dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 sticky top-24"
 							>
-								<h2 className="text-xl font-bold mb-4">Order Summary</h2>
-								
+								<h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Order Summary</h2>
+														
 								<div className="space-y-3 mb-6">
-									<div className="flex justify-between text-gray-400">
+									<div className="flex justify-between text-gray-600 dark:text-gray-400">
 										<span>Subtotal</span>
-										<span>${total.toFixed(2)}</span>
+										<span className="text-gray-900 dark:text-white">${total.toFixed(2)}</span>
 									</div>
-									<div className="flex justify-between text-gray-400">
+									<div className="flex justify-between text-gray-600 dark:text-gray-400">
 										<span>Shipping</span>
-										<span className="text-green-400">Free</span>
+										<span className="text-green-600 dark:text-green-400">Free</span>
 									</div>
-									<div className="border-t border-gray-700 pt-3 flex justify-between font-bold text-lg">
-										<span>Total</span>
-										<span className="text-green-400">${total.toFixed(2)}</span>
+									<div className="border-t border-gray-200 dark:border-gray-700 pt-3 flex justify-between font-bold text-lg">
+										<span className="text-gray-900 dark:text-white">Total</span>
+										<span className="text-green-600 dark:text-green-400">${total.toFixed(2)}</span>
 									</div>
 								</div>
 
@@ -195,7 +195,7 @@ const CartPage = () => {
 
 								<Link
 									to="/marketplace"
-									className="block text-center mt-4 text-green-400 hover:text-green-300 transition text-sm"
+									className="block text-center mt-4 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 transition text-sm"
 								>
 									Continue Shopping
 								</Link>

@@ -60,7 +60,8 @@ const MessagesPage = () => {
 	}
 
 	return (
-		<div className="max-w-4xl mx-auto px-4 py-8">
+		<div className="min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 py-8 px-4">
+		<div className="max-w-4xl mx-auto">
 			<motion.div
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
@@ -75,24 +76,24 @@ const MessagesPage = () => {
 						>
 							<ArrowLeft className="w-6 h-6" />
 						</button>
-						<h1 className="text-3xl font-bold">Messages</h1>
+						<h1 className="text-3xl font-bold text-gray-900 dark:text-white">Messages</h1>
 					</div>
 
 					{/* Search Bar */}
 					<div className="relative">
-						<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+						<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 w-5 h-5" />
 						<input
 							type="text"
 							placeholder="Search conversations..."
 							value={searchTerm}
 							onChange={(e) => setSearchTerm(e.target.value)}
-							className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+							className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
 						/>
 					</div>
 				</div>
 
 				{/* Conversations List */}
-				<div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+				<div className="bg-primary dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
 					{filteredConversations.length === 0 ? (
 						<div className="flex flex-col items-center justify-center py-16 px-4">
 							<MessageCircle className="w-16 h-16 text-gray-400 mb-4" />
@@ -106,19 +107,19 @@ const MessagesPage = () => {
 							</p>
 						</div>
 					) : (
-						<div className="divide-y divide-gray-200 dark:divide-gray-700">
+						<div className="divide-y divide-gray-200 dark:divide-gray-700 ">
 							{filteredConversations.map((conv, index) => (
 								<motion.div
 									key={conv.user._id}
 									initial={{ opacity: 0, x: -20 }}
 									animate={{ opacity: 1, x: 0 }}
 									transition={{ delay: index * 0.05 }}
-									className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+									className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors "
 									onClick={() => handleConversationClick(conv.user._id)}
 								>
-									<div className="flex items-center gap-4">
+									<div className="flex items-center gap-4  ">
 										{/* Avatar */}
-										<div className="flex-shrink-0">
+										<div className="flex-shrink-0 ">
 											{conv.user.profilePicture ? (
 												<img
 													src={conv.user.profilePicture}
@@ -166,6 +167,7 @@ const MessagesPage = () => {
 					)}
 				</div>
 			</motion.div>
+		</div>
 		</div>
 	);
 };

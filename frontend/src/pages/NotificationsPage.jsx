@@ -122,7 +122,8 @@ const NotificationsPage = () => {
 	}
 
 	return (
-		<div className="max-w-4xl mx-auto px-4 py-8">
+		<div className="min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 py-8 px-4">
+		<div className="max-w-4xl mx-auto">
 			<motion.div
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
@@ -139,7 +140,7 @@ const NotificationsPage = () => {
 								<ArrowLeft className="w-6 h-6" />
 							</button>
 							<div>
-								<h1 className="text-3xl font-bold">Notifications</h1>
+								<h1 className="text-3xl font-bold text-gray-900 dark:text-white">Notifications</h1>
 								{unreadCount > 0 && (
 									<p className="text-sm text-green-600 dark:text-green-400">
 										{unreadCount} unread notification{unreadCount !== 1 ? "s" : ""}
@@ -177,7 +178,7 @@ const NotificationsPage = () => {
 				</div>
 
 				{/* Notifications List */}
-				<div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden mb-6">
+				<div className="bg-primary dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden mb-6">
 					{filteredNotifications.length === 0 ? (
 						<div className="flex flex-col items-center justify-center py-16 px-4">
 							<Bell className="w-16 h-16 text-gray-400 mb-4" />
@@ -270,33 +271,33 @@ const NotificationsPage = () => {
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
 					<button
 						onClick={() => navigate('/notifications/preferences')}
-						className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+						className="flex items-center gap-3 p-4 bg-primary dark:bg-gray-800 rounded-lg shadow-lg hover:bg-primary/90 dark:hover:bg-gray-700 transition-colors"
 					>
 						<Settings className="w-6 h-6 text-blue-500" />
 						<div className="text-left">
-							<p className="font-semibold">Notification Settings</p>
+							<p className="font-semibold text-gray-900 dark:text-white">Notification Settings</p>
 							<p className="text-xs text-gray-600 dark:text-gray-400">Manage preferences</p>
 						</div>
 					</button>
 					
 					<button
 						onClick={() => navigate('/notifications/history')}
-						className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+						className="flex items-center gap-3 p-4 bg-primary dark:bg-gray-800 rounded-lg shadow-lg hover:bg-primary/90 dark:hover:bg-gray-700 transition-colors"
 					>
 						<History className="w-6 h-6 text-purple-500" />
 						<div className="text-left">
-							<p className="font-semibold">View History</p>
+							<p className="font-semibold text-gray-900 dark:text-white">View History</p>
 							<p className="text-xs text-gray-600 dark:text-gray-400">Browse all notifications</p>
 						</div>
 					</button>
 					
 					<button
 						onClick={() => navigate('/notifications/webhooks')}
-						className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+						className="flex items-center gap-3 p-4 bg-primary dark:bg-gray-800 rounded-lg shadow-lg hover:bg-primary/90 dark:hover:bg-gray-700 transition-colors"
 					>
 						<Bell className="w-6 h-6 text-orange-500" />
 						<div className="text-left">
-							<p className="font-semibold">Webhooks</p>
+							<p className="font-semibold text-gray-900 dark:text-white">Webhooks</p>
 							<p className="text-xs text-gray-600 dark:text-gray-400">Manage integrations</p>
 						</div>
 					</button>
@@ -307,6 +308,7 @@ const NotificationsPage = () => {
 					<PushNotificationSettings />
 				</div>
 			</motion.div>
+		</div>
 		</div>
 	);
 };

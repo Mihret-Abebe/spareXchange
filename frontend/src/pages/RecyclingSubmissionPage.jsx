@@ -146,37 +146,37 @@ const RecyclingSubmissionPage = () => {
 
   if (submissionSuccess && submissionData) {
     return (
-      <div className="min-h-screen bg-background py-8 px-4">
+      <div className="min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-green-900 to-emerald-900 py-8 px-4">
         <div className="max-w-2xl mx-auto">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-gray-900 bg-opacity-80 backdrop-blur-xl rounded-3xl border border-gray-800 p-8 shadow-2xl"
+            className="bg-primary dark:bg-gray-800 backdrop-blur-xl rounded-3xl border border-gray-200 dark:border-gray-700 p-8 shadow-2xl"
           >
             <div className="text-center mb-6">
               <CheckCircle className="size-16 text-green-500 mx-auto mb-4" />
-              <h2 className="text-3xl font-bold text-white mb-2">Submission Created!</h2>
-              <p className="text-gray-400">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Submission Created!</h2>
+              <p className="text-gray-600 dark:text-gray-400">
                 Your recycling submission has been created successfully.
               </p>
             </div>
 
-            <div className="bg-gray-800 bg-opacity-50 rounded-xl p-6 mb-6">
+            <div className="bg-gray-100 dark:bg-gray-700 rounded-xl p-6 mb-6">
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <p className="text-gray-400 text-sm">Verification Token</p>
-                  <p className="text-2xl font-mono font-bold text-green-400">
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">Verification Token</p>
+                  <p className="text-2xl font-mono font-bold text-green-600 dark:text-green-400">
                     {submissionData.submission.verificationToken}
                   </p>
                 </div>
                 <div>
-                  <p className="text-gray-400 text-sm">Eco Points</p>
-                  <p className="text-2xl font-bold text-emerald-400">
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">Eco Points</p>
+                  <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                     +{submissionData.submission.ecoPointsEarned} pts
                   </p>
                 </div>
               </div>
-              <p className="text-gray-400 text-sm">
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
                 Share this token with the recycler to verify your submission and earn points.
               </p>
             </div>
@@ -209,7 +209,7 @@ const RecyclingSubmissionPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4">
+    <div className="min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-green-900 to-emerald-900 py-8 px-4">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <motion.div
@@ -218,12 +218,12 @@ const RecyclingSubmissionPage = () => {
           className="text-center mb-8"
         >
           <div className="inline-flex items-center justify-center p-3 bg-green-500 bg-opacity-10 rounded-2xl mb-4">
-            <Recycle className="size-10 text-green-500" />
+            <Recycle className="size-10 text-green-600 dark:text-green-400" />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-400 to-emerald-600 text-transparent bg-clip-text mb-2">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
             Submit for Recycling
           </h1>
-          <p className="text-gray-400 max-w-md mx-auto">
+          <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
             Earn eco-points by recycling your old parts and electronics responsibly.
           </p>
         </motion.div>
@@ -246,19 +246,19 @@ const RecyclingSubmissionPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-gray-900 bg-opacity-80 backdrop-blur-xl rounded-3xl border border-gray-800 p-8 shadow-2xl"
+          className="bg-primary dark:bg-gray-800 backdrop-blur-xl rounded-3xl border border-gray-200 dark:border-gray-700 p-8 shadow-2xl"
         >
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Item Type */}
             <div>
-              <label className="block text-sm font-semibold text-gray-300 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 Item Type <span className="text-red-500">*</span>
               </label>
               <select
                 name="itemType"
                 value={formData.itemType}
                 onChange={handleChange}
-                className="w-full px-4 py-3 bg-gray-800 bg-opacity-50 border border-gray-700 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-white transition-all"
+                className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-gray-900 dark:text-white transition-all"
                 required
               >
                 <option value="">Select item type</option>
@@ -272,8 +272,8 @@ const RecyclingSubmissionPage = () => {
 
             {/* Item Description */}
             <div>
-              <label className="block text-sm font-semibold text-gray-300 mb-2">
-                <FileText className="inline size-4 mr-1" />
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                <FileText className="inline size-4 mr-1 text-green-600 dark:text-green-400" />
                 Description <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -281,7 +281,7 @@ const RecyclingSubmissionPage = () => {
                 value={formData.itemDescription}
                 onChange={handleChange}
                 placeholder="Describe the item you're recycling..."
-                className="w-full px-4 py-3 bg-gray-800 bg-opacity-50 border border-gray-700 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-white transition-all resize-none"
+                className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-gray-900 dark:text-white transition-all resize-none"
                 rows="3"
                 required
               />
@@ -289,7 +289,7 @@ const RecyclingSubmissionPage = () => {
 
             {/* Weight/Value Toggle */}
             <div>
-              <label className="block text-sm font-semibold text-gray-300 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 Quantity Estimation
               </label>
               <div className="flex gap-2 mb-3">
@@ -299,7 +299,7 @@ const RecyclingSubmissionPage = () => {
                   className={`flex-1 py-2 px-4 rounded-lg font-semibold transition ${
                     useWeight 
                       ? "bg-green-500 text-white" 
-                      : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                      : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
                   }`}
                 >
                   <Weight className="inline size-4 mr-1" />
@@ -311,7 +311,7 @@ const RecyclingSubmissionPage = () => {
                   className={`flex-1 py-2 px-4 rounded-lg font-semibold transition ${
                     !useWeight 
                       ? "bg-green-500 text-white" 
-                      : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                      : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
                   }`}
                 >
                   <DollarSign className="inline size-4 mr-1" />
@@ -326,7 +326,7 @@ const RecyclingSubmissionPage = () => {
                   value={formData.estimatedWeight}
                   onChange={handleChange}
                   placeholder="Estimated weight in kg"
-                  className="w-full px-4 py-3 bg-gray-800 bg-opacity-50 border border-gray-700 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-white transition-all"
+                  className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-gray-900 dark:text-white transition-all"
                   min="0"
                   step="0.1"
                 />
@@ -337,7 +337,7 @@ const RecyclingSubmissionPage = () => {
                   value={formData.estimatedValue}
                   onChange={handleChange}
                   placeholder="Estimated value in dollars"
-                  className="w-full px-4 py-3 bg-gray-800 bg-opacity-50 border border-gray-700 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-white transition-all"
+                  className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-gray-900 dark:text-white transition-all"
                   min="0"
                   step="0.01"
                 />
@@ -346,8 +346,8 @@ const RecyclingSubmissionPage = () => {
 
             {/* Location */}
             <div>
-              <label className="block text-sm font-semibold text-gray-300 mb-2">
-                <MapPin className="inline size-4 mr-1" />
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                <MapPin className="inline size-4 mr-1 text-green-600 dark:text-green-400" />
                 Location <span className="text-red-500">*</span>
               </label>
               <input
@@ -356,14 +356,14 @@ const RecyclingSubmissionPage = () => {
                 value={formData.location}
                 onChange={handleChange}
                 placeholder="e.g., Eastside Recycling Center"
-                className="w-full px-4 py-3 bg-gray-800 bg-opacity-50 border border-gray-700 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-white transition-all"
+                className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-gray-900 dark:text-white transition-all"
                 required
               />
             </div>
 
             {/* Notes */}
             <div>
-              <label className="block text-sm font-semibold text-gray-300 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 Additional Notes
               </label>
               <textarea
@@ -371,7 +371,7 @@ const RecyclingSubmissionPage = () => {
                 value={formData.notes}
                 onChange={handleChange}
                 placeholder="Any additional information..."
-                className="w-full px-4 py-3 bg-gray-800 bg-opacity-50 border border-gray-700 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-white transition-all resize-none"
+                className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-500/20 text-gray-900 dark:text-white transition-all resize-none"
                 rows="2"
               />
             </div>
