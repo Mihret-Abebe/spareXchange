@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCommunityStore } from "../store/communityStore";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const ActivityFeedPage = () => {
   const navigate = useNavigate();
@@ -175,10 +176,7 @@ const ActivityFeedPage = () => {
 
               {/* Activity List */}
               {loadingActivities ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400 mx-auto"></div>
-                  <p className="mt-4 text-gray-600 dark:text-gray-400">Loading activities...</p>
-                </div>
+                <LoadingSpinner size="md" fullScreen={false} text="Loading activities..." />
               ) : activities.length === 0 ? (
                 <div className="bg-primary dark:bg-gray-800 rounded-xl p-12 text-center border border-gray-200 dark:border-gray-700">
                   <Calendar size={48} className="mx-auto text-gray-400 dark:text-gray-500 mb-4" />

@@ -426,11 +426,7 @@ const UserManagement = () => {
   });
 
   if (isLoading && users.length === 0) {
-    return (
-      <div className={`min-h-screen ${darkMode ? 'bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white' : 'bg-white text-gray-900'} flex items-center justify-center`}>
-        <LoadingSpinner />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (

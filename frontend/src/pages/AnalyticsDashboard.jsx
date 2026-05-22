@@ -89,11 +89,7 @@ const AnalyticsDashboard = () => {
   };
 
   if (isLoading && !comprehensiveStats) {
-    return (
-      <div className='min-h-screen bg-background flex items-center justify-center'>
-        <LoadingSpinner />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   // Prepare trend data

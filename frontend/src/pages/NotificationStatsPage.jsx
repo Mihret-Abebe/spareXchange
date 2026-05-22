@@ -30,11 +30,7 @@ const NotificationStatsPage = () => {
 	};
 
 	if (loading && !notificationStats) {
-		return (
-			<div className="flex justify-center items-center min-h-screen">
-				<LoadingSpinner />
-			</div>
-		);
+		return <LoadingSpinner />;
 	}
 
 	return (

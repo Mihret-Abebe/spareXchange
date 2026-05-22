@@ -127,11 +127,7 @@ const NotificationHistoryPage = () => {
 	];
 
 	if (loading && history.length === 0) {
-		return (
-			<div className="flex justify-center items-center min-h-screen">
-				<LoadingSpinner />
-			</div>
-		);
+		return <LoadingSpinner />;
 	}
 
 	return (

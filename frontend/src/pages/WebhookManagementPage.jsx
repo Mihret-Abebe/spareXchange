@@ -183,11 +183,7 @@ const WebhookManagementPage = () => {
 	};
 
 	if (loading && webhooks.length === 0) {
-		return (
-			<div className="flex justify-center items-center min-h-screen">
-				<LoadingSpinner />
-			</div>
-		);
+		return <LoadingSpinner />;
 	}
 
 	return (

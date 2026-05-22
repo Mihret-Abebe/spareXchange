@@ -137,7 +137,7 @@ const ListingDetailPage = () => {
 		setShowExchangeModal(true);
 	};
 
-	if (isLoading) return <div className='min-h-screen bg-background flex items-center justify-center'><LoadingSpinner /></div>;
+	if (isLoading) return <LoadingSpinner />;
 	if (!listing) return <div className='min-h-screen bg-background flex items-center justify-center text-white'>Listing not found</div>;
 
 	return (

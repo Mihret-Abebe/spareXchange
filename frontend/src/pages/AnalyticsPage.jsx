@@ -24,11 +24,7 @@ const AnalyticsPage = () => {
 	};
 
 	if (isLoading && analytics.length === 0) {
-		return (
-			<div className='min-h-screen bg-background flex items-center justify-center'>
-				<LoadingSpinner />
-			</div>
-		);
+		return <LoadingSpinner />;
 	}
 
 	const maxSearchCount = Math.max(...analytics.map(a => a.searchCount), 1);
@@ -44,7 +40,7 @@ const AnalyticsPage = () => {
 				>
 					<h1 className='text-4xl font-bold mb-2 bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text flex items-center'>
 						<BarChart3 size={40} className='mr-3 text-primary' />
-						Market Insights
+						Market Insights	
 					</h1>
 					<p className='dark:text-gray-400 text-gray-600'>Discover high-demand items with low supply - opportunities for sellers!</p>
 				</motion.div>

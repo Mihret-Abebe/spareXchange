@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useTechnicianRequestStore } from "../store/technicianRequestStore";
 import { toast } from "react-hot-toast";
 import { Wrench, MapPin, Clock, DollarSign, ArrowRight, Search, Filter } from "lucide-react";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const SERVICE_TYPES = [
 	"repair",
@@ -194,10 +195,7 @@ const TechnicianRequestsPage = () => {
 
 				{/* Requests List */}
 				{isLoading ? (
-					<div className='text-center py-16'>
-						<div className='animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-cyan-500 mx-auto'></div>
-						<p className='text-gray-600 dark:text-gray-400 mt-4'>Loading service requests...</p>
-					</div>
+					<LoadingSpinner size="md" fullScreen={false} text="Loading service requests..." />
 				) : technicianRequests.length === 0 ? (
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}

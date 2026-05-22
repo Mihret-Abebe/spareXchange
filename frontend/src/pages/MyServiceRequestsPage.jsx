@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useTechnicianRequestStore } from "../store/technicianRequestStore";
 import { toast } from "react-hot-toast";
 import { Wrench, Clock, MapPin, DollarSign, ArrowRight, AlertCircle, PlusCircle } from "lucide-react";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const STATUS_COLORS = {
 	pending: "bg-yellow-600",
@@ -86,10 +87,7 @@ const MyServiceRequestsPage = () => {
 
 				{/* Requests List */}
 				{isLoading ? (
-					<div className='text-center py-16'>
-						<div className='animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-cyan-500 mx-auto'></div>
-						<p className='text-gray-600 dark:text-gray-400 mt-4'>Loading your requests...</p>
-					</div>
+					<LoadingSpinner size="md" fullScreen={false} text="Loading your requests..." />
 				) : myRequests.length === 0 ? (
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}

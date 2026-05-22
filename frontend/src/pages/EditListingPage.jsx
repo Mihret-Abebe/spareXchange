@@ -169,11 +169,7 @@ const EditListingPage = () => {
 	};
 
 	if (!currentListing && isLoading) {
-		return (
-			<div className='min-h-screen bg-background flex items-center justify-center'>
-				<LoadingSpinner />
-			</div>
-		);
+		return <LoadingSpinner />;
 	}
 
 	return (

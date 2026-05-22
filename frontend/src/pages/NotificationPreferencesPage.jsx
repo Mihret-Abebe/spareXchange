@@ -109,11 +109,7 @@ const NotificationPreferencesPage = () => {
 	];
 
 	if (loading && !preferences) {
-		return (
-			<div className="flex justify-center items-center min-h-screen">
-				<LoadingSpinner />
-			</div>
-		);
+		return <LoadingSpinner />;
 	}
 
 	return (

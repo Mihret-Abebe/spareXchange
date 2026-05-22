@@ -128,11 +128,7 @@ const MyExchangesPage = () => {
   };
 
   if (isLoading && exchanges.length === 0) {
-    return (
-      <div className="min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (
