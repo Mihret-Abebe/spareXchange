@@ -68,7 +68,7 @@ const GarageDashboard = () => {
   ];
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className='min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-indigo-900 to-purple-900 text-gray-900 dark:text-white py-8 px-4'>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className='min-h-screen bg-white dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-gray-900 dark:text-white py-8 px-4'>
       <div className='max-w-7xl mx-auto'>
         {/* Welcome Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className='mb-8'>

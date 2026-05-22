@@ -34,7 +34,7 @@ const NotificationStatsPage = () => {
 	}
 
 	return (
-		<div className="min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 py-8 px-4">
+		<div className="min-h-screen bg-white dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 py-8 px-4">
 		<div className="max-w-6xl mx-auto">
 			<motion.div
 				initial={{ opacity: 0, y: 20 }}

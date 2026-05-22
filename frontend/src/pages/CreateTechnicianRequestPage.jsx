@@ -123,7 +123,7 @@ const CreateTechnicianRequestPage = () => {
 			initial={{ opacity: 0, y: 20 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.5 }}
-			className='min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 text-gray-900 dark:text-white py-8 px-4'
+			className='min-h-screen bg-white dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-gray-900 dark:text-white py-8 px-4'
 		>
 			<div className='max-w-3xl mx-auto'>
 				{/* Header */}

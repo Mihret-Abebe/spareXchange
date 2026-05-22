@@ -103,7 +103,7 @@ const AdminTechnicianRequestDetailPage = () => {
 
   if (isLoading) {
     return (
-      <div className='min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 flex items-center justify-center'>
+      <div className='min-h-screen bg-white dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 flex items-center justify-center'>
         <div className='text-center'>
           <div className='animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-cyan-500 mx-auto'></div>
           <p className='text-gray-600 dark:text-gray-400 mt-4'>Loading request details...</p>
@@ -114,7 +114,7 @@ const AdminTechnicianRequestDetailPage = () => {
 
   if (!request) {
     return (
-      <div className='min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 flex items-center justify-center'>
+      <div className='min-h-screen bg-white dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 flex items-center justify-center'>
         <div className='text-center'>
           <Wrench size={64} className='mx-auto text-gray-400 mb-4' />
           <h2 className='text-2xl font-bold text-gray-900 dark:text-white mb-2'>Request Not Found</h2>
@@ -134,7 +134,7 @@ const AdminTechnicianRequestDetailPage = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className='min-h-screen bg-white dark:bg-gradient-to-b from-gray-900 via-blue-900 to-cyan-900 text-gray-900 dark:text-white py-8 px-4'
+      className='min-h-screen bg-white dark:bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-gray-900 dark:text-white py-8 px-4'
     >
       <div className='max-w-6xl mx-auto'>
         {/* Back Button */}
