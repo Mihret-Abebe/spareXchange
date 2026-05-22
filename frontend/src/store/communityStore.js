@@ -41,9 +41,12 @@ export const useCommunityStore = create((set, get) => ({
     set({ loadingActivities: true, activityError: null });
     try {
       const { page = 1, limit = 20, type } = filters;
+      console.log('Fetching activity feed from API with params:', { page, limit, type });
       const response = await axios.get(`${API_URL}/feed`, {
         params: { page, limit, type }
       });
+      
+      console.log('Activity feed API response:', response.data);
       
       set({
         activities: response.data.activities,
@@ -57,6 +60,8 @@ export const useCommunityStore = create((set, get) => ({
       
       return response.data;
     } catch (error) {
+      console.error('Error fetching activity feed:', error);
+      console.error('Error response:', error.response?.data);
       set({ 
         activityError: error.response?.data?.message || "Failed to fetch activity feed",
         loadingActivities: false 

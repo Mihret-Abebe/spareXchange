@@ -209,7 +209,7 @@ const SignUpPage = () => {
 							<Input
 								id="fullName"
 								type="text"
-								placeholder="John Doe"
+								placeholder="Abebe Kebede"
 								value={formData.fullName}
 								onChange={(e) =>
 									updateFormData("fullName", e.target.value)
@@ -224,7 +224,7 @@ const SignUpPage = () => {
 							<Input
 								id="email"
 								type="email"
-								placeholder="you@example.com"
+								placeholder="abebekebede@example.com"
 								value={formData.email}
 								onChange={(e) =>
 									updateFormData("email", e.target.value)

@@ -13,7 +13,8 @@ const ActivityFeedPage = () => {
     activities, 
     activityFeedMeta, 
     communityHighlights,
-    loadingActivities, 
+    loadingActivities,
+    activityError,
     getActivityFeed, 
     getCommunityHighlights 
   } = useCommunityStore();
@@ -23,18 +24,23 @@ const ActivityFeedPage = () => {
 
   useEffect(() => {
     loadData();
-  }, [activeTab, activityFeedMeta.page]);
+  }, [activeTab, activityFeedMeta.page, showHighlights]);
 
   const loadData = async () => {
-    if (showHighlights) {
-      await getCommunityHighlights();
-    } else {
-      const filters = {
-        page: activityFeedMeta.page,
-        limit: 20,
-        type: activeTab === "all" ? undefined : activeTab
-      };
-      await getActivityFeed(filters);
+    try {
+      if (showHighlights) {
+        await getCommunityHighlights();
+      } else {
+        const filters = {
+          page: activityFeedMeta.page,
+          limit: 20,
+          type: activeTab === "all" ? undefined : activeTab
+        };
+        console.log('Loading activity feed with filters:', filters);
+        await getActivityFeed(filters);
+      }
+    } catch (error) {
+      console.error('Error loading activity feed:', error);
     }
   };
 
@@ -154,6 +160,19 @@ const ActivityFeedPage = () => {
                 ))}
               </div>
 
+              {/* Error Message */}
+              {activityError && (
+                <div className="bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-xl p-6 mb-6 text-center">
+                  <p className="text-red-700 dark:text-red-400 font-semibold">{activityError}</p>
+                  <button
+                    onClick={loadData}
+                    className="mt-3 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
+
               {/* Activity List */}
               {loadingActivities ? (
                 <div className="text-center py-12">
@@ -163,7 +182,7 @@ const ActivityFeedPage = () => {
               ) : activities.length === 0 ? (
                 <div className="bg-primary dark:bg-gray-800 rounded-xl p-12 text-center border border-gray-200 dark:border-gray-700">
                   <Calendar size={48} className="mx-auto text-gray-400 dark:text-gray-500 mb-4" />
-                  <h3 className="text-xl font-bold mb-2">No activities yet</h3>
+                  <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">No activities yet</h3>
                   <p className="text-gray-600 dark:text-gray-400 mb-4">
                     Start engaging with the community to see your activities here
                   </p>
@@ -176,6 +195,7 @@ const ActivityFeedPage = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
+                  {console.log('Rendering activities:', activities.length, 'items')}
                   {activities.map((activity, index) => (
                     <motion.div
                       key={index}
