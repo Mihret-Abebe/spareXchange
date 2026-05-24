@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
 const ResetPasswordPage = () => {
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-	const [isSuccess, setIsSuccess] = useState(true);
+	const [isSuccess, setIsSuccess] = useState(false);
 	const [formData, setFormData] = useState({
 		password: '',
 		confirmPassword: '',
@@ -44,15 +44,27 @@ const ResetPasswordPage = () => {
 			toast.error("Passwords do not match");
 			return;
 		}
+
+		if (formData.password.length < 8) {
+			toast.error("Password must be at least 8 characters long");
+			return;
+		}
+
 		try {
-			await resetPassword(token, formData.password);
+			console.log("Submitting password reset...");
+			console.log("Token:", token);
+			console.log("Password length:", formData.password.length);
+			
+			const result = await resetPassword(token, formData.password);
+			
+			console.log("Password reset successful:", result);
 			toast.success("Password reset successfully! Redirecting to login...");
 			setIsSuccess(true);
 			setTimeout(() => {
 				navigate("/login");
 			}, 2000);
 		} catch (error) {
-			console.error(error);
+			console.error("Password reset failed:", error);
 			toast.error(error.response?.data?.message || "Error resetting password");
 		}
 	};

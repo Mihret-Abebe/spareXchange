@@ -213,12 +213,20 @@ export const useAuthStore = create((set) => ({
 	resetPassword: async (token, password) => {
 		set({ isLoading: true, error: null });
 		try {
+			console.log("Resetting password with token:", token);
+			console.log("New password length:", password?.length);
+			
 			const response = await axios.post(`${API_URL}/reset-password/${token}`, { password });
+			
+			console.log("Password reset response:", response.data);
 			set({ message: response.data.message, isLoading: false });
+			return response.data;
 		} catch (error) {
+			console.error("Password reset error:", error);
+			console.error("Error response:", error.response?.data);
 			set({
 				isLoading: false,
-				error: error.response.data.message || "Error resetting password",
+				error: error.response?.data?.message || "Error resetting password",
 			});
 			throw error;
 		}
