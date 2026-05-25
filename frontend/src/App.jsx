@@ -16,6 +16,8 @@ import AboutPage from "./pages/AboutPage";
 import FaqPage from "./pages/FaqPage";
 import ContactPage from "./pages/ContactPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import TermsPage from "./pages/TermsPage";
 
 import LoadingSpinner from "./components/LoadingSpinner";
 
@@ -156,6 +158,8 @@ function App() {
 				<Route path='/about' element={<><AboutPage /></>} />
 				<Route path='/faq' element={<><FaqPage /></>} />
 				<Route path='/contact' element={<><ContactPage /></>} />
+				<Route path='/privacy' element={<><PrivacyPage /></>} />
+				<Route path='/terms' element={<><TermsPage /></>} />
 				<Route
 					path='/admin/disputes'
 					element={
