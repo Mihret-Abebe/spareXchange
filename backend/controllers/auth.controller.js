@@ -76,7 +76,7 @@ export const signup = async (req, res) => {
 		await user.save();
 
 		// jwt
-		const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user._id);
+		const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user._id, true);
 		user.refreshToken = refreshToken;
 		await user.save();
 
@@ -155,7 +155,7 @@ export const verifyEmail = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-	const { email, password } = req.body;
+	const { email, password, rememberMe } = req.body;
 	try {
 		const user = await User.findOne({ email });
 		if (!user || user.isActive === false) {
@@ -170,6 +170,7 @@ export const login = async (req, res) => {
 			return res.status(403).json({ success: false, message: "Your account has been suspended. Please contact support." });
 		}
 
+		user.rememberMe = rememberMe !== undefined ? !!rememberMe : true;
 		user.lastLogin = new Date();
 		await user.save();
 
@@ -182,7 +183,7 @@ export const login = async (req, res) => {
 			});
 		}
 
-		const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user._id);
+		const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user._id, user.rememberMe);
 		user.refreshToken = refreshToken;
 		await user.save();
 
@@ -383,8 +384,8 @@ export const refreshToken = async (req, res) => {
 			return res.status(401).json({ success: false, message: "Session expired - please login again" });
 		}
 
-		// Generate new tokens
-		const { accessToken, refreshToken: newRefreshToken } = generateTokenAndSetCookie(res, user._id);
+		// Generate new pair
+		const { accessToken, refreshToken: newRefreshToken } = generateTokenAndSetCookie(res, user._id, user.rememberMe);
 
 		user.refreshToken = newRefreshToken;
 		await user.save();
@@ -480,7 +481,7 @@ export const validateMFALogin = async (req, res) => {
 		}
 
 		// Success -> issue tokens
-		const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user._id);
+		const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user._id, user.rememberMe);
 		user.refreshToken = refreshToken;
 		await user.save();
 
@@ -500,7 +501,7 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const googleLogin = async (req, res) => {
 	try {
-		const { credential } = req.body;
+		const { credential, rememberMe } = req.body;
 		if (!credential) return res.status(400).json({ success: false, message: "Google ID Token (credential) is required" });
 
 		// Verify the ID Token from Google
@@ -525,7 +526,7 @@ export const googleLogin = async (req, res) => {
 				name,
 				profilePicture: picture,
 				isVerified: true, // Social accounts are pre-verified
-				password: await bcryptjs.hash(randomPassword, 10),
+				password: await bcryptjs.hash(randomPassword, 10), 
 				permissions: ["create_listings", "propose_exchanges"],
 				authProvider: "google",
 				googleId: googleId
@@ -542,7 +543,8 @@ export const googleLogin = async (req, res) => {
 
 		if (user.isBanned) return res.status(403).json({ success: false, message: "Account suspended" });
 
-		const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user._id);
+		user.rememberMe = rememberMe !== undefined ? !!rememberMe : true;
+		const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user._id, user.rememberMe);
 		user.refreshToken = refreshToken;
 		user.lastLogin = new Date();
 		await user.save();

@@ -72,6 +72,7 @@ import PrivacyPage from "./pages/PrivacyPage";
 import TermsPage from "./pages/TermsPage";
 
 import LoadingSpinner from "./components/LoadingSpinner";
+import InactivityHandler from "./components/InactivityHandler";
 
 import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authStore";
@@ -137,6 +138,7 @@ function App() {
 
 	return (
 		<div className='min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300 dark:bg-gradient-to-r from-gray-900 via-green-900 to-emerald-900'>
+			<InactivityHandler />
 			<Navbar />
 			<Toaster />
 			<Routes>

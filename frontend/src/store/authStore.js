@@ -104,6 +104,7 @@ export const useAuthStore = create((set) => ({
 	mfaRequired: false,
 	mfaEmail: null,
 	isVerified: false,
+	rememberMe: localStorage.getItem("rememberMe") === "true",
 
 	signup: async (email, password, name, accountType = "user") => {
 		set({ isLoading: true, error: null });
@@ -115,20 +116,24 @@ export const useAuthStore = create((set) => ({
 			throw error;
 		}
 	},
-	login: async (email, password) => {
+	login: async (email, password, rememberMe = false) => {
 		set({ isLoading: true, error: null });
 		try {
-			const response = await axios.post(`${API_URL}/login`, { email, password });
+			const response = await axios.post(`${API_URL}/login`, { email, password, rememberMe });
 			if (response.data.mfaRequired) {
+				localStorage.setItem("rememberMe", rememberMe ? "true" : "false");
 				set({
 					mfaRequired: true,
 					mfaEmail: response.data.email,
+					rememberMe: !!rememberMe,
 					isLoading: false,
 				});
 			} else {
+				localStorage.setItem("rememberMe", rememberMe ? "true" : "false");
 				set({
 					isAuthenticated: true,
 					user: response.data.user,
+					rememberMe: !!rememberMe,
 					error: null,
 					isLoading: false,
 				});
@@ -156,11 +161,13 @@ export const useAuthStore = create((set) => ({
 
 			// Call logout endpoint
 			await axios.post(`${API_URL}/logout`);
+			localStorage.removeItem("rememberMe");
 
 			// Clear all auth state
 			set({
 				user: null,
 				isAuthenticated: false,
+				rememberMe: false,
 				error: null,
 				message: null,
 				isLoading: false,
@@ -294,12 +301,14 @@ export const useAuthStore = create((set) => ({
 	validateMFALogin: async (email, code) => {
 		set({ isLoading: true, error: null });
 		try {
-			const response = await axios.post(`${API_URL}/mfa/validate`, { email, code });
+			const rememberMe = localStorage.getItem("rememberMe") === "true";
+			const response = await axios.post(`${API_URL}/mfa/validate`, { email, code, rememberMe });
 			set({
 				isAuthenticated: true,
 				user: response.data.user,
 				mfaRequired: false,
 				mfaEmail: null,
+				rememberMe,
 				isLoading: false,
 			});
 		} catch (error) {
@@ -319,13 +328,15 @@ export const useAuthStore = create((set) => ({
 		}
 	},
 
-	googleLogin: async (credential) => {
+	googleLogin: async (credential, rememberMe = true) => {
 		set({ isLoading: true, error: null });
 		try {
-			const response = await axios.post(`${API_URL}/oauth/google`, { credential });
+			const response = await axios.post(`${API_URL}/oauth/google`, { credential, rememberMe });
+			localStorage.setItem("rememberMe", rememberMe ? "true" : "false");
 			set({
 				isAuthenticated: true,
 				user: response.data.user,
+				rememberMe: !!rememberMe,
 				isLoading: false,
 			});
 		} catch (error) {

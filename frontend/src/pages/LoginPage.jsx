@@ -36,7 +36,7 @@ const LoginPage = () => {
 	const handleLogin = async (e) => {
 		e.preventDefault();
 		try {
-			await login(email, password);
+			await login(email, password, rememberMe);
 			if (!mfaRequired) {
 				toast.success("Logged in successfully!");
 			}
@@ -135,14 +135,12 @@ const LoginPage = () => {
 							<div className="flex items-center space-x-2">
 								<Checkbox
 									id="remember"
-									value={rememberMe}
-									// checked={rememberMe}
-									onCheckedChange={() => setRememberMe(!rememberMe)}
-								// onCheckedChange={(checked) => { setRememberMe(!checked) }}
+									checked={rememberMe}
+									onCheckedChange={(checked) => setRememberMe(!!checked)}
 								/>
 								<label
 									htmlFor="remember"
-									className="text-sm text-muted-foreground cursor-pointer"
+									className="text-sm text-muted-foreground cursor-pointer select-none"
 								>
 									Remember me
 								</label>
