@@ -71,7 +71,7 @@ const AnimatedFooter = () => {
     <footer className="bg-gray-900 border-t border-gray-800 pt-12 pb-8">
       <div className="container mx-auto px-4 sm:px-6">
         {/* Single Row Layout */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
           {/* Brand and Newsletter - Full width on mobile, half on tablet, quarter on desktop */}
           <div className="sm:col-span-2 lg:col-span-1">
             <motion.div
@@ -244,6 +244,39 @@ const AnimatedFooter = () => {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.3, delay: 0.3 + index * 0.1 }}
+                >
+                  <Link
+                    to={item.href}
+                    className="text-gray-400 hover:text-green-400 transition-colors duration-300 text-sm flex items-center group"
+                  >
+                    <span className="transform group-hover:translate-x-1 transition-transform duration-300">
+                      {item.name}
+                    </span>
+                  </Link>
+                </motion.li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Legal Links */}
+          <div>
+            <motion.h3
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.35 }}
+              className="text-white font-semibold mb-4"
+            >
+              Legal
+            </motion.h3>
+            <ul className="space-y-2">
+              {navigation.legal.slice(0, 2).map((item, index) => (
+                <motion.li
+                  key={item.name}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: 0.35 + index * 0.1 }}
                 >
                   <Link
                     to={item.href}

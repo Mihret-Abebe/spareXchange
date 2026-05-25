@@ -68,6 +68,8 @@ import AdminTechnicianRequestDetailPage from "./pages/AdminTechnicianRequestDeta
 import ActivityFeedPage from "./pages/ActivityFeedPage";
 import UserProfilePage from "./pages/UserProfilePage";
 import AchievementsPage from "./pages/AchievementsPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import TermsPage from "./pages/TermsPage";
 
 import LoadingSpinner from "./components/LoadingSpinner";
 
@@ -457,6 +459,8 @@ function App() {
 				<Route path='/about' element={<><AboutPage /></>} />
 				<Route path='/faq' element={<><FaqPage /></>} />
 				<Route path='/contact' element={<><ContactPage /></>} />
+				<Route path='/privacy' element={<PrivacyPage />} />
+				<Route path='/terms' element={<TermsPage />} />
 				<Route
 					path='/admin'
 					element={
