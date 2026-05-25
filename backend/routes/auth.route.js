@@ -8,11 +8,13 @@ import {
 	resetPassword,
 	checkAuth,
 	requestRoleVerification,
+	resendVerificationEmail,
 	refreshToken,
 	setupMFA,
 	verifyMFA,
 	validateMFALogin,
-	googleLogin
+	googleLogin,
+	verifyPassword
 } from "../controllers/auth.controller.js";
 
 const syncPermissions = (user) => {
@@ -34,6 +36,7 @@ router.post("/logout", logout);
 
 router.post("/verify-email", verifyEmail);
 router.post("/forgot-password", forgotPassword);
+router.post("/resend-verification", verifyToken, resendVerificationEmail);
 
 router.post("/reset-password/:token", resetPassword);
 router.get("/refresh-token", refreshToken);
@@ -46,5 +49,8 @@ router.post("/mfa/validate", validateMFALogin);
 
 // OAuth2 Routes
 router.post("/oauth/google", googleLogin);
+
+// Password verification for sensitive operations
+router.post("/verify-password", verifyToken, verifyPassword);
 
 export default router;

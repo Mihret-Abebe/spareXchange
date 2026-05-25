@@ -16,7 +16,7 @@ import {
 import { User } from "../models/user.model.js";
 
 export const signup = async (req, res) => {
-	const { email, password, name } = req.body;
+	const { email, password, name, userType } = req.body;
 
 	try {
 		if (!email || !password || !name) {
@@ -26,9 +26,9 @@ export const signup = async (req, res) => {
 		// Strong Password Validation
 		const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 		if (!passwordRegex.test(password)) {
-			return res.status(400).json({ 
-				success: false, 
-				message: "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character." 
+			return res.status(400).json({
+				success: false,
+				message: "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character."
 			});
 		}
 
@@ -43,32 +43,58 @@ export const signup = async (req, res) => {
 		// Secure Random Verification Token (6 digits)
 		const verificationToken = crypto.randomInt(100000, 999999).toString();
 
+		const userTypeMapping = {
+			user: "individual",
+			business: "repair-shop",
+			recycler: "recycler",
+		};
+		const normalizedUserType = userTypeMapping[userType] || userType || "individual";
+
+		// Assign default permissions based on user type
+		const basePermissions = ["create_listings", "propose_exchanges"];
+		if (normalizedUserType === "garage" || normalizedUserType === "recycler" || normalizedUserType === "repair-shop") {
+			basePermissions.push("create_bulk_listings");
+		}
+
+		// Admin users are auto-verified and get full admin permissions
+		const isAdminUser = normalizedUserType === "admin";
+		const finalPermissions = isAdminUser
+			? ["admin", "view_stats", "view_reports", "moderate_content", "run_jobs"]
+			: basePermissions;
+
 		const user = new User({
 			email,
 			password: hashedPassword,
 			name,
-			verificationToken,
-			verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
-			permissions: ["create_listings", "propose_exchanges"] // Default base permissions
+			userType: normalizedUserType,
+			isVerified: isAdminUser, // Auto-verify admin users
+			verificationToken: isAdminUser ? undefined : verificationToken,
+			verificationTokenExpiresAt: isAdminUser ? undefined : Date.now() + 24 * 60 * 60 * 1000, // 24 hours
+			permissions: finalPermissions
 		});
 
 		await user.save();
 
 		// jwt
-		const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user._id);
+		const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user._id, true);
 		user.refreshToken = refreshToken;
 		await user.save();
 
+		// Send verification email only for non-admin users
 		let emailSent = false;
-		try {
-			emailSent = await sendVerificationEmail(user.email, verificationToken);
-		} catch (err) {
-			console.error("Verification email failed", err);
+		if (!isAdminUser) {
+			try {
+				emailSent = await sendVerificationEmail(user.email, verificationToken);
+			} catch (err) {
+				console.error("Verification email failed", err);
+			}
 		}
 
-		const responseMessage = emailSent
-			? "User created successfully"
-			: "User created successfully (verification email failed; please re-send verification email from your profile)";
+		const responseMessage = isAdminUser
+			? "Admin account created successfully"
+			: emailSent
+				? "User created successfully"
+				: "User created successfully (verification email failed; please re-send verification email from your profile)";
 
 		res.status(201).json({
 			success: true,
@@ -100,6 +126,12 @@ export const verifyEmail = async (req, res) => {
 		user.isVerified = true;
 		user.verificationToken = undefined;
 		user.verificationTokenExpiresAt = undefined;
+
+		// Grant send_notifications permission to verified users
+		if (!user.permissions.includes("send_notifications")) {
+			user.permissions.push("send_notifications");
+		}
+
 		await user.save();
 
 		try {
@@ -123,7 +155,7 @@ export const verifyEmail = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-	const { email, password } = req.body;
+	const { email, password, rememberMe } = req.body;
 	try {
 		const user = await User.findOne({ email });
 		if (!user || user.isActive === false) {
@@ -138,6 +170,7 @@ export const login = async (req, res) => {
 			return res.status(403).json({ success: false, message: "Your account has been suspended. Please contact support." });
 		}
 
+		user.rememberMe = rememberMe !== undefined ? !!rememberMe : true;
 		user.lastLogin = new Date();
 		await user.save();
 
@@ -150,7 +183,7 @@ export const login = async (req, res) => {
 			});
 		}
 
-		const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user._id);
+		const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user._id, user.rememberMe);
 		user.refreshToken = refreshToken;
 		await user.save();
 
@@ -217,14 +250,22 @@ export const resetPassword = async (req, res) => {
 		const { token } = req.params;
 		const { password } = req.body;
 
+		console.log("Reset Password Request:");
+		console.log("Token:", token);
+		console.log("Password received:", password ? "Yes" : "No");
+
 		const user = await User.findOne({
 			resetPasswordToken: token,
 			resetPasswordExpiresAt: { $gt: Date.now() },
 		});
 
 		if (!user) {
+			console.log("Invalid or expired token - User not found or token expired");
 			return res.status(400).json({ success: false, message: "Invalid or expired reset token" });
 		}
+
+		console.log("User found:", user.email);
+		console.log("Updating password for user:", user._id);
 
 		// update password
 		const hashedPassword = await bcryptjs.hash(password, 10);
@@ -234,8 +275,11 @@ export const resetPassword = async (req, res) => {
 		user.resetPasswordExpiresAt = undefined;
 		await user.save();
 
+		console.log("Password updated successfully for user:", user.email);
+
 		try {
 			await sendResetSuccessEmail(user.email);
+			console.log("Success email sent");
 		} catch (err) {
 			console.error("Reset success email failed: ", err);
 		}
@@ -293,31 +337,65 @@ export const requestRoleVerification = async (req, res) => {
 	}
 };
 
+export const resendVerificationEmail = async (req, res) => {
+	try {
+		const user = await User.findById(req.userId);
+		if (!user) return res.status(404).json({ success: false, message: "User not found" });
+		if (user.isVerified) {
+			return res.status(400).json({ success: false, message: "Email already verified" });
+		}
+
+		const verificationToken = crypto.randomInt(100000, 999999).toString();
+		user.verificationToken = verificationToken;
+		user.verificationTokenExpiresAt = Date.now() + 24 * 60 * 60 * 1000;
+		await user.save();
+
+		await sendVerificationEmail(user.email, verificationToken);
+
+		res.status(200).json({ success: true, message: "Verification email resent successfully" });
+	} catch (error) {
+		console.error("Error resending verification email:", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
 export const refreshToken = async (req, res) => {
 	const cookieRefreshToken = req.cookies.refreshToken;
 
 	if (!cookieRefreshToken) {
-		return res.status(401).json({ success: false, message: "Refresh token not found" });
+		return res.status(401).json({ success: false, message: "Refresh token not found - please login again" });
 	}
 
 	try {
 		const decoded = jwt.verify(cookieRefreshToken, process.env.JWT_REFRESH_SECRET || "refresh_secret_123");
 		const user = await User.findById(decoded.userId);
 
-		if (!user || user.refreshToken !== cookieRefreshToken) {
-			return res.status(403).json({ success: false, message: "Invalid refresh token" });
+		// If user doesn't exist or refresh token doesn't match (already logged out), reject
+		if (!user) {
+			res.clearCookie("token");
+			res.clearCookie("refreshToken");
+			return res.status(401).json({ success: false, message: "User not found - please login again" });
+		}
+
+		if (user.refreshToken !== cookieRefreshToken) {
+			// Refresh token was invalidated (e.g., user logged out)
+			res.clearCookie("token");
+			res.clearCookie("refreshToken");
+			return res.status(401).json({ success: false, message: "Session expired - please login again" });
 		}
 
 		// Generate new pair
-		const { accessToken, refreshToken: newRefreshToken } = generateTokenAndSetCookie(res, user._id);
-		
+		const { accessToken, refreshToken: newRefreshToken } = generateTokenAndSetCookie(res, user._id, user.rememberMe);
+
 		user.refreshToken = newRefreshToken;
 		await user.save();
 
-		res.status(200).json({ success: true, accessToken });
+		res.status(200).json({ success: true, accessToken, user: { ...user._doc, password: undefined, refreshToken: undefined } });
 	} catch (error) {
 		console.log("Error in refreshToken ", error);
-		res.status(403).json({ success: false, message: "Invalid or expired refresh token" });
+		res.clearCookie("token");
+		res.clearCookie("refreshToken");
+		res.status(401).json({ success: false, message: "Invalid or expired refresh token - please login again" });
 	}
 };
 
@@ -403,7 +481,7 @@ export const validateMFALogin = async (req, res) => {
 		}
 
 		// Success -> issue tokens
-		const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user._id);
+		const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user._id, user.rememberMe);
 		user.refreshToken = refreshToken;
 		await user.save();
 
@@ -423,7 +501,7 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const googleLogin = async (req, res) => {
 	try {
-		const { credential } = req.body;
+		const { credential, rememberMe } = req.body;
 		if (!credential) return res.status(400).json({ success: false, message: "Google ID Token (credential) is required" });
 
 		// Verify the ID Token from Google
@@ -465,7 +543,8 @@ export const googleLogin = async (req, res) => {
 
 		if (user.isBanned) return res.status(403).json({ success: false, message: "Account suspended" });
 
-		const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user._id);
+		user.rememberMe = rememberMe !== undefined ? !!rememberMe : true;
+		const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user._id, user.rememberMe);
 		user.refreshToken = refreshToken;
 		user.lastLogin = new Date();
 		await user.save();
@@ -474,14 +553,40 @@ export const googleLogin = async (req, res) => {
 			success: true,
 			message: isNewUser ? "Signed up successfully via Google" : "Logged in successfully via Google",
 			accessToken,
-			user: { 
-				...user._doc, 
-				password: undefined, 
-				refreshToken: undefined 
+			user: {
+				...user._doc,
+				password: undefined,
+				refreshToken: undefined
 			}
 		});
 	} catch (error) {
 		console.error("Error in googleLogin:", error);
 		res.status(401).json({ success: false, message: "Invalid Google token or verification failed" });
+	}
+};
+
+// Verify admin password (for sensitive operations)
+export const verifyPassword = async (req, res) => {
+	try {
+		const { password } = req.body;
+		
+		if (!password) {
+			return res.status(400).json({ success: false, message: "Password is required" });
+		}
+
+		const user = await User.findById(req.userId);
+		if (!user) {
+			return res.status(404).json({ success: false, message: "User not found" });
+		}
+
+		const isPasswordValid = await bcryptjs.compare(password, user.password);
+		if (!isPasswordValid) {
+			return res.status(401).json({ success: false, message: "Incorrect password" });
+		}
+
+		res.status(200).json({ success: true, message: "Password verified" });
+	} catch (error) {
+		console.error("Error in verifyPassword:", error);
+		res.status(500).json({ success: false, message: "Server error" });
 	}
 };

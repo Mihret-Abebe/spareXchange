@@ -9,7 +9,7 @@ const notificationSchema = new mongoose.Schema(
 		},
 		title: {
 			type: String,
-			required: true,
+			default: "Notification", // Make optional with default value
 		},
 		message: {
 			type: String,
@@ -25,7 +25,14 @@ const notificationSchema = new mongoose.Schema(
 				"message",
 				"eco-points",
 				"verification",
-				"match"
+				"match",
+				"exchange_proposed",
+				"exchange_status_updated",
+				"exchange_counter_offered",
+				"exchange_completed",
+				"exchange_expired",
+				"exchange_disputed",
+				"exchange_dispute_resolved"
 			],
 			default: "system",
 		},
@@ -45,6 +52,9 @@ const notificationSchema = new mongoose.Schema(
 		},
 		data: {
 			type: Object, // Additional data related to the notification
+		},
+		metadata: {
+			type: Object, // Alternative field for additional metadata (used by exchange controller)
 		},
 	},
 	{ timestamps: true }

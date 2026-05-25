@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { logger } from "../utils/logger.js";
+import { AuthenticationError, NotFoundError } from "../utils/errors.js";
 
 /**
  * Centralized Error Handling Middleware
@@ -87,7 +88,7 @@ const logError = (err, req) => {
 				statusCode: err.statusCode,
 			},
 		});
-	} 
+	}
 	// Programming errors or system failures
 	else {
 		logger.error("System Error", {
@@ -140,14 +141,13 @@ export const handleJWTError = () => {
 };
 
 export const handleJWTExpiredError = () => {
-	return new (require("../utils/errors.js").AuthenticationError)("Your session has expired. Please log in again.");
+	return new AuthenticationError("Your session has expired. Please log in again.");
 };
 
 /**
  * 404 Not Found Handler - Catches undefined routes
  */
 export const notFoundHandler = (req, res, next) => {
-	const { NotFoundError } = require("../utils/errors.js");
 	next(new NotFoundError(`Route ${req.originalUrl}`));
 };
 

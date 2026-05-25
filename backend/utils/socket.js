@@ -36,7 +36,11 @@ export const getIO = () => {
 };
 
 export const emitToUser = (userId, event, data) => {
-	if (io) {
-		io.to(userId).emit(event, data);
+	try {
+		if (io) {
+			io.to(userId).emit(event, data);
+		}
+	} catch (error) {
+		console.error('Socket emit error:', error.message);
 	}
 };

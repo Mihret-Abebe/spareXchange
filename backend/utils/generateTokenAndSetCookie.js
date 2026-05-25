@@ -1,29 +1,39 @@
 import jwt from "jsonwebtoken";
 
-export const generateTokenAndSetCookie = (res, userId) => {
+export const generateTokenAndSetCookie = (res, userId, rememberMe = true) => {
 	const accessToken = jwt.sign({ userId }, process.env.JWT_SECRET, {
 		expiresIn: "15m",
 	});
 
 	const refreshToken = jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET || "refresh_secret_123", {
-		expiresIn: "7d",
+		expiresIn: rememberMe ? "7d" : "15m",
 	});
 
 	// Set Access Token Cookie
-	res.cookie("token", accessToken, {
+	const tokenOptions = {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === "production",
 		sameSite: "strict",
-		maxAge: 15 * 60 * 1000, // 15 minutes
-	});
+	};
+
+	if (rememberMe) {
+		tokenOptions.maxAge = 15 * 60 * 1000; // 15 minutes
+	}
+
+	res.cookie("token", accessToken, tokenOptions);
 
 	// Set Refresh Token Cookie
-	res.cookie("refreshToken", refreshToken, {
+	const refreshTokenOptions = {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === "production",
 		sameSite: "strict",
-		maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-	});
+	};
+
+	if (rememberMe) {
+		refreshTokenOptions.maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days
+	}
+
+	res.cookie("refreshToken", refreshToken, refreshTokenOptions);
 
 	return { accessToken, refreshToken };
 };

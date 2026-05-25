@@ -15,7 +15,7 @@ const reviewSchema = new mongoose.Schema(
 		exchangeId: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "Exchange",
-			required: true,
+			required: false, // Optional for admin reviews
 		},
 		rating: {
 			type: Number,
@@ -31,7 +31,7 @@ const reviewSchema = new mongoose.Schema(
 	{ timestamps: true }
 );
 
-// Ensure a user can only review a specific exchange once
-reviewSchema.index({ reviewerId: 1, exchangeId: 1 }, { unique: true });
+// Ensure a user can only review a specific exchange once (if exchangeId is provided)
+reviewSchema.index({ reviewerId: 1, exchangeId: 1 }, { unique: true, sparse: true });
 
 export const Review = mongoose.model("Review", reviewSchema);

@@ -6,8 +6,8 @@ export const createNotification = async (req, res) => {
 		const { userId, title, message, type, data } = req.body;
 
 		// Validate required fields
-		if (!userId || !title || !message) {
-			return res.status(400).json({ success: false, message: "User ID, title, and message are required" });
+		if (!userId || !message) {
+			return res.status(400).json({ success: false, message: "User ID and message are required" });
 		}
 
 		const newNotification = new Notification({

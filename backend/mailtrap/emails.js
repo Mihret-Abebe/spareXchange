@@ -9,11 +9,12 @@ export const sendVerificationEmail = async (email, verificationToken) => {
 	try {
 		const subject = "Verify your email";
 		const html = VERIFICATION_EMAIL_TEMPLATE.replace("{verificationCode}", verificationToken);
-		
+
 		const result = await sendEmail(email, subject, html);
-		
+
 		if (result) {
 			console.log("Verification email sent successfully");
+			return result;
 		} else {
 			throw new Error("Failed to send verification email");
 		}
@@ -27,11 +28,12 @@ export const sendWelcomeEmail = async (email, name) => {
 	try {
 		const subject = "Welcome to our app!";
 		const html = `<p>Hi ${name},</p><p>Welcome to our app! We're excited to have you on board.</p>`;
-		
+
 		const result = await sendEmail(email, subject, html);
-		
+
 		if (result) {
 			console.log("Welcome email sent successfully");
+			return result;
 		} else {
 			throw new Error("Failed to send welcome email");
 		}
@@ -45,11 +47,12 @@ export const sendPasswordResetEmail = async (email, resetURL) => {
 	try {
 		const subject = "Reset your password";
 		const html = PASSWORD_RESET_REQUEST_TEMPLATE.replace("{resetURL}", resetURL);
-		
+
 		const result = await sendEmail(email, subject, html);
-		
+
 		if (result) {
 			console.log("Password reset email sent successfully");
+			return result;
 		} else {
 			throw new Error("Failed to send password reset email");
 		}
@@ -63,11 +66,12 @@ export const sendResetSuccessEmail = async (email) => {
 	try {
 		const subject = "Password Reset Successful";
 		const html = PASSWORD_RESET_SUCCESS_TEMPLATE;
-		
+
 		const result = await sendEmail(email, subject, html);
-		
+
 		if (result) {
 			console.log("Password reset success email sent successfully");
+			return result;
 		} else {
 			throw new Error("Failed to send password reset success email");
 		}

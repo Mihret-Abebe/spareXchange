@@ -15,7 +15,7 @@ export const getActivityFeed = async (req, res) => {
 
 		// Fetch recent listings by user
 		if (!type || type === 'listing') {
-			const listings = await Listing.find({ owner: userId })
+			const listings = await Listing.find({ seller: userId })
 				.sort({ createdAt: -1 })
 				.limit(parseInt(limit))
 				.select('title category condition status createdAt images');
@@ -157,7 +157,7 @@ export const getUserPublicActivity = async (req, res) => {
 
 		// Fetch public listings
 		const listings = await Listing.find({ 
-			owner: targetUserId,
+			seller: targetUserId,
 			status: { $in: ['active', 'exchanged'] }
 		})
 		.sort({ createdAt: -1 })
@@ -228,7 +228,7 @@ export const getCommunityHighlights = async (req, res) => {
 
 		const topContributors = await Listing.aggregate([
 			{ $match: { createdAt: { $gte: sevenDaysAgo } } },
-			{ $group: { _id: "$owner", count: { $sum: 1 } } },
+			{ $group: { _id: "$seller", count: { $sum: 1 } } },
 			{ $sort: { count: -1 } },
 			{ $limit: 5 },
 			{

@@ -25,6 +25,7 @@ import reviewRoutes from "./routes/review.route.js";
 import adminRoutes from "./routes/admin.route.js";
 import userRoutes from "./routes/user.route.js";
 import disputeRoutes from "./routes/dispute.route.js";
+import cartRoutes from "./routes/cart.route.js";
 
 dotenv.config();
 
@@ -34,19 +35,24 @@ const __dirname = path.resolve();
 
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
-app.use(express.json()); // allows us to parse incoming requests:req.body
+app.use(express.json({ limit: '50mb' })); // allows us to parse incoming requests:req.body (increased for image uploads)
+app.use(express.urlencoded({ limit: '50mb', extended: true })); // for parsing URL-encoded data
 app.use(cookieParser()); // allows us to parse incoming cookies
 
 // Security Middleware
 app.use(helmet());
 
 // Rate Limiting
+// Disable rate limiting in test environment for faster test execution
+const isTestEnv = process.env.NODE_ENV === "test";
+
 const authLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, // Limit each IP to 100 requests per windowMs
+	max: isTestEnv ? 10000 : 100, // Much higher limit for tests
 	message: "Too many requests from this IP, please try again after 15 minutes",
 	standardHeaders: true,
 	legacyHeaders: false,
+	skip: (req, res) => isTestEnv, // Skip rate limiting entirely in test environment
 });
 
 app.use("/api/auth", authLimiter);
@@ -62,7 +68,10 @@ const recyclingLimiter = rateLimit({
 });
 app.use("/api/recycling-submissions", recyclingLimiter);
 
-app.use("/uploads", express.static(path.join(path.resolve(), "uploads")));
+// Serve uploaded files statically - MUST be before routes
+const uploadsPath = path.join(__dirname, "backend", "uploads");
+app.use("/uploads", express.static(uploadsPath));
+console.log("✓ Uploads directory served at:", uploadsPath);
 
 // HTTP Request Logging (after routes, before error handler)
 app.use(httpLogger);
@@ -79,6 +88,7 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/disputes", disputeRoutes);
+app.use("/api/cart", cartRoutes);
 
 // 404 Handler - Must be after all routes
 app.use(notFoundHandler);

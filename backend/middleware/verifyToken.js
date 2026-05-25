@@ -18,3 +18,22 @@ export const verifyToken = (req, res, next) => {
 		return res.status(401).json({ success: false, message: "Unauthorized - invalid token" });
 	}
 };
+
+// Optional token verification - doesn't fail if no token
+export const verifyTokenOptional = (req, res, next) => {
+	const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+	if (!token) {
+		// No token, continue without setting userId
+		return next();
+	}
+	try {
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		if (decoded) {
+			req.userId = decoded.userId;
+		}
+	} catch (error) {
+		// Invalid token, continue without setting userId
+		console.log("Optional token verification failed:", error.message);
+	}
+	next();
+};

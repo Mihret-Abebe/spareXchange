@@ -88,6 +88,7 @@ export const getConversationsList = async (req, res) => {
 					lastMessageAt: msg.createdAt,
 					isRead: msg.isRead,
 					sentByMe: isSender,
+					hasResponse: !isSender && !msg.isRead, // Flag indicating the other user has responded and it's unread
 				});
 			}
 		});
@@ -113,6 +114,22 @@ export const markAsRead = async (req, res) => {
 		res.status(200).json({ success: true, message: "Messages marked as read" });
 	} catch (error) {
 		console.error("Error in markAsRead: ", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+export const getUnreadMessagesCount = async (req, res) => {
+	try {
+		const userId = req.userId;
+
+		const count = await Message.countDocuments({
+			receiverId: userId,
+			isRead: false
+		});
+
+		res.status(200).json({ success: true, count });
+	} catch (error) {
+		console.error("Error in getUnreadMessagesCount: ", error);
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };
